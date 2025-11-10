@@ -1,0 +1,111 @@
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate, Link } from "react-router";
+import { loginSchema, type LoginFormData } from "../../utils/validations";
+import { useAuth } from "../../context/AuthContext";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert } from "@/components/ui/alert";
+import { FormField } from "@/shared/components/molecules/FormField";
+import { LoadingButton } from "@/shared/components/atoms/LoadingButton";
+import { EnvelopeClosedIcon, LockClosedIcon, ExclamationTriangleIcon } from "@radix-ui/react-icons";
+
+export function LoginForm() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = async (data: LoginFormData) => {
+    setError(null);
+    setIsSubmitting(true);
+
+    try {
+      await login(data);
+      navigate("/dashboard");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al iniciar sesión");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <Card className="w-full max-w-md">
+      <CardHeader className="space-y-1">
+        <CardTitle className="text-2xl font-bold text-center">Iniciar Sesión</CardTitle>
+        <CardDescription className="text-center">
+          Ingresa tu email y contraseña para acceder
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <ExclamationTriangleIcon className="h-4 w-4" />
+              <div className="ml-2">{error}</div>
+            </Alert>
+          )}
+
+          <FormField
+            id="email"
+            label="Email"
+            type="email"
+            placeholder="tu@email.com"
+            icon={<EnvelopeClosedIcon className="h-4 w-4" />}
+            error={errors.email?.message}
+            disabled={isSubmitting}
+            {...register("email")}
+          />
+
+          <FormField
+            id="password"
+            label="Contraseña"
+            type="password"
+            placeholder="••••••••"
+            icon={<LockClosedIcon className="h-4 w-4" />}
+            error={errors.password?.message}
+            disabled={isSubmitting}
+            {...register("password")}
+          />
+
+          <LoadingButton
+            type="submit"
+            className="w-full"
+            isLoading={isSubmitting}
+            loadingText="Iniciando sesión..."
+          >
+            Iniciar Sesión
+          </LoadingButton>
+        </form>
+      </CardContent>
+      <CardFooter className="flex flex-col space-y-4">
+        <div className="text-sm text-muted-foreground text-center">
+          ¿No tienes una cuenta?{" "}
+          <Link to="/register" className="text-primary hover:underline font-medium">
+            Regístrate aquí
+          </Link>
+        </div>
+      </CardFooter>
+    </Card>
+  );
+}

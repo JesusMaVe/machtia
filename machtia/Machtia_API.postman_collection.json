@@ -1,0 +1,569 @@
+{
+	"info": {
+		"_postman_id": "machtia-nahuatl-api",
+		"name": "Machtia - API Náhuatl",
+		"description": "Colección de endpoints para la API de aprendizaje de Náhuatl",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Autenticación",
+			"item": [
+				{
+					"name": "Registrar Usuario",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201 || pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('token', jsonData.token.access_token);",
+									"    console.log('Token guardado:', jsonData.token.access_token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@nahuatl.com\",\n    \"nombre\": \"Usuario Test\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "register", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('token', jsonData.token.access_token);",
+									"    console.log('Token guardado:', jsonData.token.access_token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@nahuatl.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "login", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Perfil",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/me/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "me", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar Perfil",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Nuevo Nombre\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/me/update/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "me", "update", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/logout/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "logout", ""]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Lecciones - Públicas",
+			"item": [
+				{
+					"name": "Listar Todas las Lecciones",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/lecciones/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "lecciones", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listar con Palabras",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/lecciones/?incluir_palabras=true",
+							"host": ["{{base_url}}"],
+							"path": ["api", "lecciones", ""],
+							"query": [
+								{
+									"key": "incluir_palabras",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Filtrar por Dificultad",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/lecciones/?dificultad=principiante",
+							"host": ["{{base_url}}"],
+							"path": ["api", "lecciones", ""],
+							"query": [
+								{
+									"key": "dificultad",
+									"value": "principiante"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Filtrar por Tema",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/lecciones/?tema=saludos",
+							"host": ["{{base_url}}"],
+							"path": ["api", "lecciones", ""],
+							"query": [
+								{
+									"key": "tema",
+									"value": "saludos"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Lección por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/lecciones/1/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "lecciones", "1", ""]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Lecciones - Usuario (Requiere Auth)",
+			"item": [
+				{
+					"name": "Obtener Siguiente Lección",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/lecciones/siguiente/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "lecciones", "siguiente", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Completar Lección",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/lecciones/1/completar/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "lecciones", "1", "completar", ""]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Lecciones - Admin (Requiere Auth)",
+			"item": [
+				{
+					"name": "Crear Lección",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Lección de Prueba\",\n    \"tema\": \"prueba\",\n    \"dificultad\": \"principiante\",\n    \"contenido\": \"Esta es una lección de prueba\",\n    \"tominsAlCompletar\": 10,\n    \"palabras\": [\n        {\n            \"palabra_nahuatl\": \"Niltze\",\n            \"español\": \"Hola\",\n            \"audio\": null\n        },\n        {\n            \"palabra_nahuatl\": \"Panoltih\",\n            \"español\": \"Adiós\",\n            \"audio\": null\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/lecciones/crear/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "lecciones", "crear", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar Lección",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Lección Actualizada\",\n    \"tominsAlCompletar\": 15\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/lecciones/1/actualizar/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "lecciones", "1", "actualizar", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar Lección",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/lecciones/99/eliminar/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "lecciones", "99", "eliminar", ""]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Progreso (Requiere Auth)",
+			"item": [
+				{
+					"name": "Obtener Estadísticas",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/progreso/estadisticas/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "progreso", "estadisticas", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Racha",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/progreso/racha/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "progreso", "racha", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Logros",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/progreso/logros/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "progreso", "logros", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Logros (Ordenado por Nombre)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/progreso/logros/?ordenar=nombre",
+							"host": ["{{base_url}}"],
+							"path": ["api", "progreso", "logros", ""],
+							"query": [
+								{
+									"key": "ordenar",
+									"value": "nombre"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Actividad (30 días)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/progreso/actividad/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "progreso", "actividad", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Actividad (7 días)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/progreso/actividad/?dias=7",
+							"host": ["{{base_url}}"],
+							"path": ["api", "progreso", "actividad", ""],
+							"query": [
+								{
+									"key": "dias",
+									"value": "7"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Vidas (Requiere Auth)",
+			"item": [
+				{
+					"name": "Obtener Vidas",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/vidas/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "vidas", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Comprar Vida (10 tomins)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/vidas/comprar/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "vidas", "comprar", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Restaurar Vidas (50 tomins)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/vidas/restaurar/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "vidas", "restaurar", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fallar Lección (Perder Vida)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/lecciones/1/fallar/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "lecciones", "1", "fallar", ""]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
