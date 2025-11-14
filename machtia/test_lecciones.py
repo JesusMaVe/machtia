@@ -46,7 +46,11 @@ def test_1_registrar_usuario():
 
         if response.status_code in [200, 201]:
             result = response.json()
-            token = result.get('token', {}).get('access_token')
+            # El token puede venir en diferentes formatos
+            if isinstance(result.get('token'), dict):
+                token = result.get('token', {}).get('access_token')
+            else:
+                token = result.get('token')
             print_test('Registro/Login de usuario', True, f'Token obtenido')
             return True
         else:
@@ -70,6 +74,7 @@ def test_2_crear_leccion():
         'dificultad': 'principiante',
         'contenido': 'Aprende los saludos básicos en náhuatl',
         'tominsAlCompletar': 10,
+        'nivel_id': 1,  # Agregado campo nivel_id
         'palabras': [
             {
                 'palabra_nahuatl': 'Niltze',
@@ -116,7 +121,11 @@ def test_3_listar_lecciones():
 
         if response.status_code == 200:
             result = response.json()
-            count = result.get('count', 0)
+            # El endpoint ahora retorna una lista directa
+            if isinstance(result, list):
+                count = len(result)
+            else:
+                count = result.get('count', 0)
             print_test('Listar lecciones', True, f'{count} lecciones encontradas')
             return True
         else:
@@ -137,7 +146,11 @@ def test_4_filtrar_por_dificultad():
 
         if response.status_code == 200:
             result = response.json()
-            count = result.get('count', 0)
+            # El endpoint ahora retorna una lista directa
+            if isinstance(result, list):
+                count = len(result)
+            else:
+                count = result.get('count', 0)
             print_test('Filtrar por dificultad', True, f'{count} lecciones principiantes')
             return True
         else:

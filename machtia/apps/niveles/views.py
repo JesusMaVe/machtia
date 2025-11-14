@@ -327,3 +327,70 @@ def eliminar_nivel(request, nivel_id):
             'status': 'error',
             'message': f'Error al eliminar nivel: {str(e)}'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+def obtener_lecciones_de_nivel(request, nivel_id):
+    """
+    GET /api/niveles/:id/lecciones/
+
+    Retorna todas las lecciones asociadas a un nivel específico.
+
+    Returns:
+        Leccion[]: Lista de lecciones del nivel con estado si hay usuario autenticado
+    """
+    try:
+        db = get_db()
+
+        # Convertir nivel_id a int
+        try:
+            nivel_id = int(nivel_id)
+        except ValueError:
+            return Response({
+                'error': 'ID de nivel inválido'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Verificar que el nivel existe
+        nivel_data = db.niveles.find_one({'_id': nivel_id})
+        if not nivel_data:
+            return Response({
+                'error': 'Nivel no encontrado'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        # Buscar lecciones de este nivel
+        lecciones_cursor = db.lecciones.find({'nivel_id': nivel_id}).sort('_id', 1)
+
+        # Obtener usuario si está autenticado
+        usuario = None
+        auth_header = request.headers.get('Authorization')
+        if auth_header and auth_header.startswith('Bearer '):
+            token = auth_header.split(' ')[1]
+            try:
+                from apps.autenticacion.utils import decodificar_token
+                payload = decodificar_token(token)
+                if payload:
+                    from apps.autenticacion.models import Usuario
+                    usuario_data = db.usuarios.find_one({'_id': ObjectId(payload['user_id'])})
+                    if usuario_data:
+                        usuario_dict = {k: v for k, v in usuario_data.items() if k != '_id'}
+                        usuario = Usuario(**usuario_dict)
+                        usuario.id = usuario_data['_id']
+            except:
+                pass
+
+        # Serializar lecciones
+        from apps.lecciones.serializers import serializar_leccion_frontend
+        lecciones = []
+        for leccion_data in lecciones_cursor:
+            lecciones.append(serializar_leccion_frontend(leccion_data, usuario))
+
+        return Response({
+            'nivel': serializar_nivel_frontend(nivel_data, usuario),
+            'lecciones': lecciones,
+            'total_lecciones': len(lecciones)
+        })
+
+    except Exception as e:
+        return Response({
+            'error': f'Error al obtener lecciones del nivel: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

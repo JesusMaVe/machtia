@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
-import { ProtectedRoute } from "@/features/auth";
 import {
   progresoApi,
-  RachaWidget,
   LogrosGrid,
-  EstadisticasCard,
   type Racha,
   type Estadisticas,
   type Logro,
@@ -13,6 +10,7 @@ import {
 import { ActividadHeatmap } from "@/features/progreso/components/organisms/ActividadHeatmap";
 import { PageHeader } from "@/shared/components/molecules";
 import { LoadingButton } from "@/shared/components/atoms";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function ProgresoPage() {
   const [racha, setRacha] = useState<Racha | null>(null);
@@ -61,68 +59,96 @@ export default function ProgresoPage() {
 
   if (isLoading) {
     return (
-      <ProtectedRoute>
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <LoadingButton isLoading={true} disabled>
-            Cargando progreso...
-          </LoadingButton>
-        </div>
-      </ProtectedRoute>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <LoadingButton isLoading={true} disabled>
+          Cargando progreso...
+        </LoadingButton>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <ProtectedRoute>
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <div className="max-w-md mx-auto p-6 bg-card rounded-lg shadow-md">
-            <h2 className="text-xl font-bold text-red-600 mb-4">Error</h2>
-            <p className="text-muted-foreground mb-4">{error}</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="w-full bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90"
-            >
-              Reintentar
-            </button>
-          </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="max-w-md mx-auto p-6 bg-card rounded-lg shadow-md">
+          <h2 className="text-xl font-bold text-red-600 mb-4">Error</h2>
+          <p className="text-muted-foreground mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="w-full bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90"
+          >
+            Reintentar
+          </button>
         </div>
-      </ProtectedRoute>
+      </div>
     );
   }
 
   return (
-    <ProtectedRoute>
-      <div className="min-h-screen bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <PageHeader
+            title="Mi Progreso"
+            description="Revisa tus logros, estadísticas y racha de estudio"
+          />
+        </div>
+
+        {actividad && (
           <div className="mb-8">
-            <PageHeader
-              title="Mi Progreso"
-              description="Revisa tus logros, estadísticas y racha de estudio"
+            <ActividadHeatmap
+              diasActividad={actividad.actividad.historial}
+              periodo={actividad.periodo}
+              onPeriodoChange={handlePeriodoChange}
             />
           </div>
+        )}
 
-          {actividad && (
-            <div className="mb-8">
-              <ActividadHeatmap
-                diasActividad={actividad.actividad.historial}
-                periodo={actividad.periodo}
-                onPeriodoChange={handlePeriodoChange}
-              />
-            </div>
-          )}
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            <div className="lg:col-span-1 space-y-6">
-              {racha && <RachaWidget racha={racha} />}
-              {estadisticas && <EstadisticasCard estadisticas={estadisticas} />}
-            </div>
-
-            <div className="lg:col-span-2">
-              <LogrosGrid logros={logros} />
-            </div>
+        {/* Sección de estadísticas rápidas - Premium gradient cards */}
+        {estadisticas && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <Card className="card-jade overflow-hidden">
+              <CardContent className="pt-6 text-center">
+                <div className="text-3xl font-bold text-gradient-jade">
+                  {estadisticas.leccionesCompletadas}
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">Lecciones</p>
+              </CardContent>
+            </Card>
+            <Card className="card-sun overflow-hidden">
+              <CardContent className="pt-6 text-center">
+                <div className="text-3xl font-bold text-gradient-sun">
+                  {estadisticas.tominsAcumulados}
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">Tomins</p>
+              </CardContent>
+            </Card>
+            <Card className="card-jade overflow-hidden">
+              <CardContent className="pt-6 text-center">
+                <div className="text-3xl font-bold text-gradient-jade">
+                  {estadisticas.palabrasAprendidas}
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">Palabras</p>
+              </CardContent>
+            </Card>
+            <Card className="card-sun overflow-hidden">
+              <CardContent className="pt-6 text-center">
+                <div className="text-3xl font-bold text-gradient-sun">
+                  {racha?.diasActuales || 0}
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {racha && racha.diasActuales === 1 ? "Día" : "Días"} de racha
+                </p>
+              </CardContent>
+            </Card>
           </div>
+        )}
+
+        {/* Logros */}
+        <div>
+          <LogrosGrid logros={logros} />
         </div>
       </div>
-    </ProtectedRoute>
+    </div>
   );
 }

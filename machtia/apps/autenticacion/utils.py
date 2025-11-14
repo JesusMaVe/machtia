@@ -66,6 +66,10 @@ def verificar_token(token: str) -> dict:
         raise jwt.InvalidTokenError('Token inválido')
 
 
+# Alias para compatibilidad con código que usa decodificar_token
+decodificar_token = verificar_token
+
+
 def obtener_usuario_desde_token(token: str):
     """
     Obtiene el usuario desde el token JWT.

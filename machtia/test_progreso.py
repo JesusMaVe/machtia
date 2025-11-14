@@ -44,7 +44,7 @@ class TestProgreso:
         data = {
             'email': f'progreso_test_{timestamp}@nahuatl.com',
             'nombre': 'Test Progreso',
-            'password': 'password123'
+            'password': 'Passw1#2asd"1'
         }
 
         response = requests.post(f'{BASE_URL}/api/auth/register/', json=data)

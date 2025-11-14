@@ -15,12 +15,12 @@ export function LeccionCard({ leccion }: LeccionCardProps) {
     leccion;
 
   return (
-    <Link to={bloqueada ? "#" : `/lecciones/${id}`} className="block">
+    <Link to={bloqueada ? "#" : `/leccion/${id}`} className="block">
       <Card
         className={`
-          h-full transition-all hover:shadow-md
-          ${completada ? "border-green-500 dark:border-green-400 bg-green-50 dark:bg-green-950/20" : ""}
-          ${bloqueada ? "opacity-60 cursor-not-allowed" : "cursor-pointer hover:border-primary"}
+          h-full transition-smooth
+          ${completada ? "border-[#76b57b]/30 bg-gradient-verde-soft hover:shadow-verde" : ""}
+          ${bloqueada ? "opacity-60 cursor-not-allowed border-gray-200" : completada ? "cursor-pointer card-verde" : "cursor-pointer card-brown"}
         `}
       >
         <CardHeader className="pb-3">
@@ -28,9 +28,7 @@ export function LeccionCard({ leccion }: LeccionCardProps) {
             <div className="flex-1 min-w-0">
               <CardTitle className="text-base flex items-center gap-2">
                 <span>Lección {numero}</span>
-                {completada && (
-                  <CheckCircledIcon className="h-4 w-4 text-green-600 dark:text-green-400 shrink-0" />
-                )}
+                {completada && <CheckCircledIcon className="h-4 w-4 text-[#76b57b] shrink-0" />}
                 {bloqueada && <LockClosedIcon className="h-4 w-4 text-muted-foreground shrink-0" />}
               </CardTitle>
               <CardDescription className="mt-1 line-clamp-1">{titulo}</CardDescription>
@@ -47,7 +45,7 @@ export function LeccionCard({ leccion }: LeccionCardProps) {
               <span>{palabras.length} palabras</span>
               <Badge
                 variant="outline"
-                className="bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800"
+                className="bg-gradient-sun-soft text-[#f3b62a] border-[#f3b62a]/30"
               >
                 <Coins className="h-3 w-3 mr-1" />+{tomins}
               </Badge>

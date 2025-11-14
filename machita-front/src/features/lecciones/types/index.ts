@@ -50,5 +50,6 @@ export interface EstadoPractica {
 export interface FiltrosLecciones {
   dificultad?: Dificultad;
   tema?: Tema;
+  nivel_id?: number;
   incluir_palabras?: boolean;
 }

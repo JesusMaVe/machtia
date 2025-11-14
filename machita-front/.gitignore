@@ -5,3 +5,6 @@
 # React Router
 /.react-router/
 /build/
+
+DESIGN_SYSTEM_COLORS.md
+GRADIENT_DESIGN_SYSTEM.md

@@ -22,6 +22,7 @@ def listar_lecciones(request):
     Query params:
         - dificultad: filtrar por dificultad (principiante, intermedio, avanzado)
         - tema: filtrar por tema
+        - nivel_id: filtrar por nivel
 
     Returns:
         Leccion[]: Lista de lecciones con estado de completada/bloqueada si hay usuario autenticado
@@ -39,6 +40,15 @@ def listar_lecciones(request):
         tema = request.GET.get('tema')
         if tema:
             filtro['tema'] = tema
+
+        nivel_id = request.GET.get('nivel_id')
+        if nivel_id:
+            try:
+                filtro['nivel_id'] = int(nivel_id)
+            except ValueError:
+                return Response({
+                    'error': 'nivel_id debe ser un número entero'
+                }, status=status.HTTP_400_BAD_REQUEST)
 
         # Buscar lecciones
         lecciones_cursor = db.lecciones.find(filtro).sort('_id', 1)
@@ -325,7 +335,8 @@ def crear_leccion(request):
             tema=data['tema'],
             dificultad=data['dificultad'],
             contenido=data['contenido'],
-            tominsAlCompletar=data.get('tominsAlCompletar', 5)
+            tominsAlCompletar=data.get('tominsAlCompletar', 5),
+            nivel_id=data.get('nivel_id', 1)  # Default nivel 1
         )
 
         # Agregar palabras si las hay
@@ -420,6 +431,9 @@ def actualizar_leccion(request, leccion_id):
 
         if 'tominsAlCompletar' in data:
             actualizacion['tominsAlCompletar'] = int(data['tominsAlCompletar'])
+
+        if 'nivel_id' in data:
+            actualizacion['nivel_id'] = int(data['nivel_id'])
 
         # Actualizar palabras si se proporcionan
         if 'palabras' in data:

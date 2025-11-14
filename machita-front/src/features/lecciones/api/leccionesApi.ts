@@ -26,12 +26,14 @@ async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise
   if (!response.ok) {
     if (response.status === 401) {
       sessionStorage.removeItem("token");
-      window.location.href = "/login";
+      window.location.href = "/";
       throw new Error("Sesión expirada");
     }
 
     const error = await response.json().catch(() => ({ message: "Error desconocido" }));
-    throw new Error(error.message || `Error ${response.status}`);
+    // Backend puede enviar errores en formato: { status: "error", message: "..." } o { error: "..." }
+    const errorMessage = error.message || error.error || `Error ${response.status}`;
+    throw new Error(errorMessage);
   }
 
   return response.json();
@@ -50,6 +52,10 @@ export const leccionesApi = {
 
       if (filtros.tema) {
         params.append("tema", filtros.tema);
+      }
+
+      if (filtros.nivel_id !== undefined) {
+        params.append("nivel_id", String(filtros.nivel_id));
       }
 
       if (filtros.incluir_palabras !== undefined) {

@@ -60,7 +60,9 @@ async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise
     const data = await response.json();
 
     if (!response.ok) {
-      throw new APIError(response.status, data.message || "Error en la petición", data);
+      // Backend puede enviar errores en formato: { status: "error", message: "..." } o { error: "..." }
+      const errorMessage = data.message || data.error || `Error ${response.status}`;
+      throw new APIError(response.status, errorMessage, data);
     }
 
     return data;

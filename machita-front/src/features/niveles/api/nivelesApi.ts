@@ -26,26 +26,37 @@ async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise
   if (!response.ok) {
     if (response.status === 401) {
       sessionStorage.removeItem("token");
-      window.location.href = "/login";
+      window.location.href = "/";
       throw new Error("Sesión expirada");
     }
 
     const error = await response.json().catch(() => ({ message: "Error desconocido" }));
-    throw new Error(error.message || `Error ${response.status}`);
+    // Backend puede enviar errores en formato: { status: "error", message: "..." } o { error: "..." }
+    const errorMessage = error.message || error.error || `Error ${response.status}`;
+    throw new Error(errorMessage);
   }
 
   return response.json();
 }
 
+interface NivelWithLecciones {
+  nivel: Nivel;
+  lecciones: any[]; // Usar tipo Leccion cuando esté disponible
+  total_lecciones: number;
+}
+
 export const nivelesApi = {
   list: async (): Promise<Nivel[]> => {
     let url = "/niveles/";
-
     return fetchAPI<Nivel[]>(url);
   },
 
   get: async (id: string): Promise<Nivel> => {
     return fetchAPI<Nivel>(`/niveles/${id}/`);
+  },
+
+  getLecciones: async (id: string): Promise<NivelWithLecciones> => {
+    return fetchAPI<NivelWithLecciones>(`/niveles/${id}/lecciones/`);
   },
 
   getNext: async (): Promise<Nivel> => {

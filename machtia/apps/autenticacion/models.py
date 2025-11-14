@@ -33,6 +33,10 @@ class Usuario(Document):
     leccionesCompletadas = ListField(IntField(), default=list)
     leccionActual = IntField(default=1)
 
+    # Progreso de niveles
+    nivelesCompletados = ListField(IntField(), default=list)
+    nivelActual = IntField(default=1)
+
     # Campos de tiempo
     ultimaRegeneracionVida = DateTimeField(default=datetime.utcnow)
     createdAt = DateTimeField(default=datetime.utcnow)
@@ -42,7 +46,8 @@ class Usuario(Document):
         'collection': 'usuarios',
         'indexes': [
             'email',
-            'leccionActual'
+            'leccionActual',
+            'nivelActual'
         ]
     }
 
@@ -118,6 +123,39 @@ class Usuario(Document):
                 self.leccionActual = leccion_id + 1
 
             self.save()
+
+    def completar_nivel(self, nivel_id: int) -> None:
+        """
+        Marca un nivel como completado y avanza al siguiente.
+
+        Args:
+            nivel_id (int): ID del nivel completado
+        """
+        if nivel_id not in self.nivelesCompletados:
+            self.nivelesCompletados.append(nivel_id)
+
+            # Avanzar al siguiente nivel si corresponde
+            if nivel_id == self.nivelActual:
+                self.nivelActual = nivel_id + 1
+
+            self.save()
+
+    def puede_acceder_nivel(self, nivel_id: int) -> bool:
+        """
+        Verifica si el usuario puede acceder a un nivel específico.
+
+        Un usuario puede acceder a un nivel si:
+        - Es el nivel actual
+        - Ya lo completó antes
+        - Es un nivel anterior al actual
+
+        Args:
+            nivel_id (int): ID del nivel a verificar
+
+        Returns:
+            bool: True si puede acceder, False si está bloqueado
+        """
+        return nivel_id <= self.nivelActual
 
     def calcular_vidas_regeneradas(self) -> int:
         """

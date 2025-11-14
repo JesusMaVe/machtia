@@ -60,21 +60,21 @@ export function LeccionesGrid({ lecciones }: LeccionesGridProps) {
     <div className="space-y-8">
       {renderNivel(
         "Principiante",
-        <Circle className="h-6 w-6 text-green-600 dark:text-green-400" fill="currentColor" />,
+        <Circle className="h-6 w-6 text-verde-suave" fill="currentColor" />,
         leccionesPorNivel.principiante,
-        "text-green-600 dark:text-green-400"
+        "text-verde-suave"
       )}
       {renderNivel(
         "Intermedio",
-        <Circle className="h-6 w-6 text-amber-500 dark:text-amber-400" fill="currentColor" />,
+        <Circle className="h-6 w-6 text-tierra" fill="currentColor" />,
         leccionesPorNivel.intermedio,
-        "text-amber-600 dark:text-amber-400"
+        "text-tierra-dark"
       )}
       {renderNivel(
         "Avanzado",
-        <Circle className="h-6 w-6 text-red-600 dark:text-red-400" fill="currentColor" />,
+        <Circle className="h-6 w-6 text-verde-amarillo" fill="currentColor" />,
         leccionesPorNivel.avanzado,
-        "text-red-600 dark:text-red-400"
+        "text-verde-amarillo"
       )}
 
       {(!Array.isArray(lecciones) || lecciones.length === 0) && (

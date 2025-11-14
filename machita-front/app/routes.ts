@@ -1,11 +1,13 @@
-import { type RouteConfig, index, route } from "@react-router/dev/routes";
+import { type RouteConfig, index, route, layout } from "@react-router/dev/routes";
 
 export default [
+  // Rutas públicas
   index("routes/home.tsx"),
-  route("login", "routes/login.tsx"),
-  route("register", "routes/register.tsx"),
-  route("dashboard", "routes/dashboard.tsx"),
-  route("lecciones/:nivelId", "routes/lecciones.$nivelId.tsx"),
-  route("lecciones/:nivelId/:leccionId", "routes/lecciones.$nivelId.$leccionId.tsx"),
-  route("progreso", "routes/progreso.tsx"),
+
+  // Layout para usuarios autenticados (con navegación persistente)
+  layout("routes/app-layout.tsx", [
+    route("aprende", "routes/aprende.tsx"),
+    route("leccion/:leccionId", "routes/leccion.$leccionId.tsx"),
+    route("progreso", "routes/progreso.tsx"),
+  ]),
 ] satisfies RouteConfig;

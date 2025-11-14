@@ -12,13 +12,13 @@ export function NivelDificultadBadge({ dificultad, size = "md" }: NivelDificulta
   const getColorClass = (nivel: Dificultad): string => {
     switch (nivel) {
       case DIFICULTADES.PRINCIPIANTE:
-        return "bg-green-600 dark:bg-green-500 text-white hover:bg-green-700 dark:hover:bg-green-600";
+        return "bg-verde-suave/30 text-verde-suave border-verde-suave/40 hover:bg-verde-suave/40";
       case DIFICULTADES.INTERMEDIO:
-        return "bg-amber-500 dark:bg-amber-600 text-white hover:bg-amber-600 dark:hover:bg-amber-700";
+        return "bg-tierra/30 text-tierra-dark border-tierra/40 hover:bg-tierra/40";
       case DIFICULTADES.AVANZADO:
-        return "bg-red-600 dark:bg-red-500 text-white hover:bg-red-700 dark:hover:bg-red-600";
+        return "bg-verde-amarillo/30 text-verde-amarillo border-verde-amarillo/40 hover:bg-verde-amarillo/40";
       default:
-        return "bg-gray-500 text-white";
+        return "bg-gray-200 text-gray-600 border-gray-300";
     }
   };
 

@@ -35,6 +35,7 @@ class Leccion(Document):
         contenido (str): Descripción del contenido de la lección
         palabras (list): Array de objetos Palabra embebidos
         tominsAlCompletar (int): Cantidad de tomins que se otorgan al completar (fijo: 5)
+        nivel_id (int): ID del nivel al que pertenece esta lección
     """
 
     # ID secuencial personalizado
@@ -50,6 +51,9 @@ class Leccion(Document):
     )
     contenido = StringField(required=True)
 
+    # Relación con nivel
+    nivel_id = IntField(required=True, default=1)
+
     # Palabras de la lección (array de objetos embebidos)
     palabras = ListField(EmbeddedDocumentField(Palabra), default=list)
 
@@ -61,7 +65,8 @@ class Leccion(Document):
         'collection': 'lecciones',
         'indexes': [
             'tema',
-            'dificultad'
+            'dificultad',
+            'nivel_id'
         ],
         'ordering': ['_id']  # Ordenar por ID ascendente por defecto
     }

@@ -17,136 +17,141 @@ from apps.lecciones.models import Leccion, Palabra
 def crear_lecciones():
     """Crea lecciones de ejemplo"""
 
+    # Nivel 1: Animales (principiante)
+    # Nivel 2: Comida (intermedio)
+    # Nivel 3: Cosas (avanzado)
+
     lecciones_data = [
+        # Lecciones del Nivel 1 - Animales (principiante)
         {
             '_id': 1,
-            'nombre': 'Saludos Básicos',
-            'tema': 'saludos',
+            'nombre': 'Animales Domésticos',
+            'tema': 'animales',
             'dificultad': 'principiante',
-            'contenido': 'Aprende los saludos más comunes en náhuatl',
-            'tominsAlCompletar': 5,
+            'contenido': 'Nombres de animales domésticos en náhuatl',
+            'tominsAlCompletar': 10,
+            'nivel_id': 1,
             'palabras': [
-                {'palabra_nahuatl': 'Niltze', 'español': 'Hola'},
-                {'palabra_nahuatl': 'Panoltih', 'español': 'Adiós'},
-                {'palabra_nahuatl': 'Tlazohcamati', 'español': 'Gracias'},
-                {'palabra_nahuatl': 'Cualli tonalli', 'español': 'Buenos días'},
-                {'palabra_nahuatl': 'Cualli yohualli', 'español': 'Buenas noches'},
+                {'palabra_nahuatl': 'Itzcuintli', 'español': 'Perro'},
+                {'palabra_nahuatl': 'Miztli', 'español': 'Gato'},
+                {'palabra_nahuatl': 'Totolin', 'español': 'Gallina'},
+                {'palabra_nahuatl': 'Cuanaca', 'español': 'Gallo'},
+                {'palabra_nahuatl': 'Pitzotl', 'español': 'Cerdo'},
             ]
         },
         {
             '_id': 2,
-            'nombre': 'Números del 1 al 10',
-            'tema': 'numeros',
+            'nombre': 'Animales Salvajes',
+            'tema': 'animales',
             'dificultad': 'principiante',
-            'contenido': 'Aprende a contar del 1 al 10 en náhuatl',
+            'contenido': 'Nombres de animales salvajes en náhuatl',
             'tominsAlCompletar': 10,
+            'nivel_id': 1,
             'palabras': [
-                {'palabra_nahuatl': 'Ce', 'español': 'Uno'},
-                {'palabra_nahuatl': 'Ome', 'español': 'Dos'},
-                {'palabra_nahuatl': 'Yei', 'español': 'Tres'},
-                {'palabra_nahuatl': 'Nahui', 'español': 'Cuatro'},
-                {'palabra_nahuatl': 'Macuilli', 'español': 'Cinco'},
-                {'palabra_nahuatl': 'Chicuace', 'español': 'Seis'},
-                {'palabra_nahuatl': 'Chicome', 'español': 'Siete'},
-                {'palabra_nahuatl': 'Chicuei', 'español': 'Ocho'},
-                {'palabra_nahuatl': 'Chicnahui', 'español': 'Nueve'},
-                {'palabra_nahuatl': 'Mahtlactli', 'español': 'Diez'},
+                {'palabra_nahuatl': 'Cuauhtli', 'español': 'Águila'},
+                {'palabra_nahuatl': 'Ocelotl', 'español': 'Jaguar'},
+                {'palabra_nahuatl': 'Coātl', 'español': 'Serpiente'},
+                {'palabra_nahuatl': 'Mazatl', 'español': 'Venado'},
+                {'palabra_nahuatl': 'Coyotl', 'español': 'Coyote'},
             ]
         },
         {
             '_id': 3,
-            'nombre': 'Familia',
-            'tema': 'familia',
-            'dificultad': 'principiante',
-            'contenido': 'Vocabulario relacionado con la familia',
-            'tominsAlCompletar': 8,
-            'palabras': [
-                {'palabra_nahuatl': 'Nantli', 'español': 'Madre'},
-                {'palabra_nahuatl': 'Tahtli', 'español': 'Padre'},
-                {'palabra_nahuatl': 'Ichpōchtli', 'español': 'Hija'},
-                {'palabra_nahuatl': 'Telpōchtli', 'español': 'Hijo'},
-                {'palabra_nahuatl': 'Ixhuiuh', 'español': 'Nieto/Nieta'},
-                {'palabra_nahuatl': 'Colli', 'español': 'Abuelo/Abuela'},
-            ]
-        },
-        {
-            '_id': 4,
-            'nombre': 'Colores',
-            'tema': 'colores',
-            'dificultad': 'principiante',
-            'contenido': 'Los colores básicos en náhuatl',
-            'tominsAlCompletar': 7,
-            'palabras': [
-                {'palabra_nahuatl': 'Iztāc', 'español': 'Blanco'},
-                {'palabra_nahuatl': 'Tlīltic', 'español': 'Negro'},
-                {'palabra_nahuatl': 'Chīchīltic', 'español': 'Rojo'},
-                {'palabra_nahuatl': 'Coztic', 'español': 'Amarillo'},
-                {'palabra_nahuatl': 'Xoxouhqui', 'español': 'Verde/Azul'},
-            ]
-        },
-        {
-            '_id': 5,
-            'nombre': 'Animales Comunes',
+            'nombre': 'Aves y Peces',
             'tema': 'animales',
             'dificultad': 'principiante',
-            'contenido': 'Nombres de animales en náhuatl',
+            'contenido': 'Nombres de aves y peces en náhuatl',
             'tominsAlCompletar': 10,
+            'nivel_id': 1,
             'palabras': [
-                {'palabra_nahuatl': 'Itzcuintli', 'español': 'Perro'},
-                {'palabra_nahuatl': 'Miztli', 'español': 'Gato'},
                 {'palabra_nahuatl': 'Tototl', 'español': 'Pájaro'},
-                {'palabra_nahuatl': 'Cuauhtli', 'español': 'Águila'},
-                {'palabra_nahuatl': 'Ocelotl', 'español': 'Jaguar'},
                 {'palabra_nahuatl': 'Michin', 'español': 'Pez'},
-                {'palabra_nahuatl': 'Coātl', 'español': 'Serpiente'},
+                {'palabra_nahuatl': 'Huilotl', 'español': 'Paloma'},
+                {'palabra_nahuatl': 'Tzinitzcan', 'español': 'Murciélago'},
+                {'palabra_nahuatl': 'Quetzalli', 'español': 'Pluma preciosa'},
             ]
         },
+
+        # Lecciones del Nivel 2 - Comida (intermedio)
         {
-            '_id': 6,
-            'nombre': 'Frases de Cortesía',
-            'tema': 'frases',
-            'dificultad': 'intermedio',
-            'contenido': 'Expresiones de cortesía y buenos modales',
-            'tominsAlCompletar': 12,
-            'palabras': [
-                {'palabra_nahuatl': 'Xicmocaquilti', 'español': 'Por favor'},
-                {'palabra_nahuatl': 'Ximopanolti', 'español': 'Pasa / Adelante'},
-                {'palabra_nahuatl': 'Nimitzpalehuia', 'español': 'Te ayudo'},
-                {'palabra_nahuatl': 'Cuix tinechpalehuiz', 'español': '¿Me ayudas?'},
-                {'palabra_nahuatl': 'Amo, tlazohcamati', 'español': 'No, gracias'},
-            ]
-        },
-        {
-            '_id': 7,
-            'nombre': 'Comida y Bebida',
+            '_id': 4,
+            'nombre': 'Alimentos Básicos',
             'tema': 'comida',
             'dificultad': 'intermedio',
-            'contenido': 'Vocabulario relacionado con alimentos',
+            'contenido': 'Vocabulario relacionado con alimentos básicos',
             'tominsAlCompletar': 15,
+            'nivel_id': 2,
             'palabras': [
                 {'palabra_nahuatl': 'Tlaxcalli', 'español': 'Tortilla'},
                 {'palabra_nahuatl': 'Etl', 'español': 'Frijol'},
                 {'palabra_nahuatl': 'Chīlli', 'español': 'Chile'},
                 {'palabra_nahuatl': 'Xitomatl', 'español': 'Tomate'},
+                {'palabra_nahuatl': 'Elotl', 'español': 'Elote/Maíz'},
+            ]
+        },
+        {
+            '_id': 5,
+            'nombre': 'Bebidas Tradicionales',
+            'tema': 'comida',
+            'dificultad': 'intermedio',
+            'contenido': 'Nombres de bebidas tradicionales',
+            'tominsAlCompletar': 12,
+            'nivel_id': 2,
+            'palabras': [
                 {'palabra_nahuatl': 'Atl', 'español': 'Agua'},
                 {'palabra_nahuatl': 'Xocolatl', 'español': 'Chocolate'},
+                {'palabra_nahuatl': 'Atolli', 'español': 'Atole'},
+                {'palabra_nahuatl': 'Octli', 'español': 'Pulque'},
+            ]
+        },
+        {
+            '_id': 6,
+            'nombre': 'Frutas y Vegetales',
+            'tema': 'comida',
+            'dificultad': 'intermedio',
+            'contenido': 'Frutas y vegetales en náhuatl',
+            'tominsAlCompletar': 15,
+            'nivel_id': 2,
+            'palabras': [
                 {'palabra_nahuatl': 'Ahuacatl', 'español': 'Aguacate'},
+                {'palabra_nahuatl': 'Xicama', 'español': 'Jícama'},
+                {'palabra_nahuatl': 'Tomatl', 'español': 'Tomate verde'},
+                {'palabra_nahuatl': 'Chilli', 'español': 'Chile'},
+                {'palabra_nahuatl': 'Nochtli', 'español': 'Tuna'},
+            ]
+        },
+
+        # Lecciones del Nivel 3 - Cosas (avanzado)
+        {
+            '_id': 7,
+            'nombre': 'Objetos del Hogar',
+            'tema': 'cosas',
+            'dificultad': 'avanzado',
+            'contenido': 'Vocabulario de objetos cotidianos del hogar',
+            'tominsAlCompletar': 20,
+            'nivel_id': 3,
+            'palabras': [
+                {'palabra_nahuatl': 'Calli', 'español': 'Casa'},
+                {'palabra_nahuatl': 'Comitl', 'español': 'Olla'},
+                {'palabra_nahuatl': 'Metlatl', 'español': 'Metate'},
+                {'palabra_nahuatl': 'Teponaztli', 'español': 'Tambor'},
+                {'palabra_nahuatl': 'Petlatl', 'español': 'Petate/Estera'},
             ]
         },
         {
             '_id': 8,
-            'nombre': 'Partes del Cuerpo',
-            'tema': 'cuerpo',
-            'dificultad': 'intermedio',
-            'contenido': 'Nombres de las partes del cuerpo',
-            'tominsAlCompletar': 12,
+            'nombre': 'Herramientas y Utensilios',
+            'tema': 'cosas',
+            'dificultad': 'avanzado',
+            'contenido': 'Herramientas y utensilios tradicionales',
+            'tominsAlCompletar': 20,
+            'nivel_id': 3,
             'palabras': [
-                {'palabra_nahuatl': 'Cuaitl', 'español': 'Cabeza'},
-                {'palabra_nahuatl': 'Ixtli', 'español': 'Cara/Rostro'},
-                {'palabra_nahuatl': 'Maitl', 'español': 'Mano'},
-                {'palabra_nahuatl': 'Xocpalli', 'español': 'Pie'},
-                {'palabra_nahuatl': 'Yollotl', 'español': 'Corazón'},
-                {'palabra_nahuatl': 'Nacatl', 'español': 'Cuerpo'},
+                {'palabra_nahuatl': 'Tepoztli', 'español': 'Hacha'},
+                {'palabra_nahuatl': 'Huictli', 'español': 'Cuchara'},
+                {'palabra_nahuatl': 'Itztetl', 'español': 'Obsidiana/Navaja'},
+                {'palabra_nahuatl': 'Quauitl', 'español': 'Palo/Madera'},
+                {'palabra_nahuatl': 'Xicalli', 'español': 'Jícara/Vasija'},
             ]
         }
     ]
@@ -174,7 +179,8 @@ def crear_lecciones():
             tema=leccion_data['tema'],
             dificultad=leccion_data['dificultad'],
             contenido=leccion_data['contenido'],
-            tominsAlCompletar=leccion_data['tominsAlCompletar']
+            tominsAlCompletar=leccion_data['tominsAlCompletar'],
+            nivel_id=leccion_data.get('nivel_id', 1)  # Por defecto nivel 1
         )
 
         # Agregar palabras

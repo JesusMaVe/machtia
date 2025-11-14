@@ -7,6 +7,141 @@
   --font-sans:
     "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
     "Segoe UI Symbol", "Noto Color Emoji";
+
+  /* Nahuatl Cultural Color System - Sacred Colors of Mesoamerica */
+  /* LEARNING STATE COLORS - CONSISTENT VISUAL SYSTEM */
+
+  /* PRIMARY BRAND - TURQUOISE/JADE (Accent, Current State) */
+  --color-jade: #2db3b6; /* Sacred jade - primary accent, current level indicator */
+  --color-jade-light: #8ff1fb; /* Light jade/turquoise */
+  --color-jade-lighter: #e0f9fb; /* Very light jade tint */
+
+  /* PYRAMID/INCOMPLETE - BROWN/TERRACOTTA (Adobe Stone) */
+  --color-brown: #d4a574; /* Main pyramid brown - adobe/stone */
+  --color-brown-dark: #c49563; /* Darker brown for depth */
+  --color-terracota: #e8a686; /* Terracotta variation */
+
+  /* COMPLETED - GREEN (Success, Achievement) */
+  --color-verde: #76b57b; /* Forest green - completed state */
+  --color-verde-dark: #5fa064; /* Darker green for depth */
+
+  /* LOCKED/DISABLED - GRAY */
+  --color-gray-lock: #9ca3af; /* Locked state */
+  --color-gray-light: #e5e7eb; /* Light gray for backgrounds */
+
+  /* OBSIDIAN/NIGHT - Text and UI elements */
+  --color-obsidiana: #161f16; /* Dark earth, text color */
+  --color-obsidiana-blue: #012d6f; /* Night sky, deep obsidian */
+
+  /* SUN/GOLD - Points and rewards only */
+  --color-oro: #f3b62a; /* Sun, maize gold - for tomins/points */
+
+  /* SACRED RED - Errors and warnings only */
+  --color-rojo: #d50f02; /* Sacred red - use sparingly */
+
+  /* SKY/WATER */
+  --color-celeste: #3ba6e2; /* Sky, water */
+
+  /* BACKGROUNDS - Light mode */
+  --color-cream: #fafaf9; /* Pure cream white */
+  --color-cream-jade: #f0fffe; /* Cream with jade tint */
+
+  /* GRADIENTS - Learning State System */
+
+  /* Background Gradients - Light mode */
+  --gradient-background: linear-gradient(135deg, #fafaf9 0%, #f0fffe 100%);
+  --gradient-background-vertical: linear-gradient(180deg, #fafaf9 0%, #f0fffe 100%);
+
+  /* BROWN/PYRAMID - Incomplete State (Like Real Adobe Pyramid) */
+  --gradient-brown: linear-gradient(135deg, #d4a574 0%, #e8a686 100%);
+  --gradient-brown-soft: linear-gradient(
+    135deg,
+    rgba(212, 165, 116, 0.15) 0%,
+    rgba(232, 166, 134, 0.15) 100%
+  );
+
+  /* GREEN - Completed State (Success) */
+  --gradient-verde: linear-gradient(135deg, #76b57b 0%, #5fa064 100%);
+  --gradient-verde-soft: linear-gradient(
+    135deg,
+    rgba(118, 181, 123, 0.15) 0%,
+    rgba(95, 160, 100, 0.15) 100%
+  );
+
+  /* TURQUOISE/JADE - Current/Active Accent (Sacred Glow) */
+  --gradient-jade: linear-gradient(135deg, #2db3b6 0%, #8ff1fb 100%);
+  --gradient-jade-reverse: linear-gradient(135deg, #8ff1fb 0%, #2db3b6 100%);
+  --gradient-jade-soft: linear-gradient(
+    135deg,
+    rgba(45, 179, 182, 0.1) 0%,
+    rgba(143, 241, 251, 0.1) 100%
+  );
+  --gradient-jade-glow: radial-gradient(
+    circle at 50% 0%,
+    rgba(45, 179, 182, 0.15) 0%,
+    transparent 70%
+  );
+
+  /* GRAY - Locked State */
+  --gradient-gray-lock: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+
+  /* GOLD - Points/Rewards Only */
+  --gradient-sun: linear-gradient(135deg, #f3b62a 0%, #fbbf24 100%);
+  --gradient-sun-soft: linear-gradient(
+    135deg,
+    rgba(243, 182, 42, 0.15) 0%,
+    rgba(251, 191, 36, 0.15) 100%
+  );
+
+  /* Border Gradients */
+  --gradient-border-jade: linear-gradient(45deg, #2db3b6, #8ff1fb);
+  --gradient-border-brown: linear-gradient(45deg, #d4a574, #e8a686);
+  --gradient-border-verde: linear-gradient(45deg, #76b57b, #5fa064);
+
+  /* Overlay Gradients - For depth and layers */
+  --gradient-overlay-top: linear-gradient(180deg, rgba(250, 250, 249, 0.9) 0%, transparent 100%);
+  --gradient-overlay-bottom: linear-gradient(0deg, rgba(250, 250, 249, 0.9) 0%, transparent 100%);
+
+  /* Animation & Transition Easings - Organic motion */
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --ease-accelerate: cubic-bezier(0.4, 0, 1, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* Shadows - Learning State System */
+  /* Jade/Turquoise - Current/Active accent */
+  --shadow-jade-sm: 0 1px 2px 0 rgba(45, 179, 182, 0.05);
+  --shadow-jade-md: 0 4px 6px -1px rgba(45, 179, 182, 0.1), 0 2px 4px -1px rgba(45, 179, 182, 0.06);
+  --shadow-jade-lg:
+    0 10px 15px -3px rgba(45, 179, 182, 0.15), 0 4px 6px -2px rgba(45, 179, 182, 0.05);
+  --shadow-jade-xl:
+    0 20px 25px -5px rgba(45, 179, 182, 0.2), 0 10px 10px -5px rgba(45, 179, 182, 0.04);
+  --shadow-jade-glow: 0 0 20px rgba(45, 179, 182, 0.3);
+
+  /* Brown - Incomplete state */
+  --shadow-brown-md:
+    0 4px 6px -1px rgba(212, 165, 116, 0.1), 0 2px 4px -1px rgba(212, 165, 116, 0.06);
+  --shadow-brown-lg:
+    0 10px 15px -3px rgba(212, 165, 116, 0.15), 0 4px 6px -2px rgba(212, 165, 116, 0.05);
+
+  /* Green - Completed state */
+  --shadow-verde-md:
+    0 4px 6px -1px rgba(118, 181, 123, 0.1), 0 2px 4px -1px rgba(118, 181, 123, 0.06);
+  --shadow-verde-lg:
+    0 10px 15px -3px rgba(118, 181, 123, 0.15), 0 4px 6px -2px rgba(118, 181, 123, 0.05);
+  --shadow-verde-glow: 0 0 20px rgba(118, 181, 123, 0.3);
+
+  /* Gold - Points/rewards only */
+  --shadow-sun-md: 0 4px 6px -1px rgba(243, 182, 42, 0.1), 0 2px 4px -1px rgba(243, 182, 42, 0.06);
+  --shadow-sun-lg:
+    0 10px 15px -3px rgba(243, 182, 42, 0.15), 0 4px 6px -2px rgba(243, 182, 42, 0.05);
+  --shadow-sun-glow: 0 0 20px rgba(243, 182, 42, 0.4);
+
+  /* Legacy colors for compatibility */
+  --color-tierra: #e8a686;
+  --color-tierra-dark: hsl(18 42% 62%);
+  --color-verde-suave: #76b57b;
+  --color-verde-amarillo: #6c783d;
 }
 
 html,
@@ -134,5 +269,250 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Learning State Color System - Utility Classes */
+@layer utilities {
+  /* Background Gradients - Learning States */
+  .bg-gradient-nahuatl {
+    background: var(--gradient-background);
+  }
+
+  /* INCOMPLETE STATE - Brown (Pyramid Adobe) */
+  .bg-gradient-brown {
+    background: var(--gradient-brown);
+  }
+
+  .bg-gradient-brown-soft {
+    background: var(--gradient-brown-soft);
+  }
+
+  /* COMPLETED STATE - Green (Success) */
+  .bg-gradient-verde {
+    background: var(--gradient-verde);
+  }
+
+  .bg-gradient-verde-soft {
+    background: var(--gradient-verde-soft);
+  }
+
+  /* CURRENT/ACTIVE ACCENT - Jade/Turquoise */
+  .bg-gradient-jade {
+    background: var(--gradient-jade);
+  }
+
+  .bg-gradient-jade-soft {
+    background: var(--gradient-jade-soft);
+  }
+
+  /* LOCKED STATE - Gray */
+  .bg-gradient-gray-lock {
+    background: var(--gradient-gray-lock);
+  }
+
+  /* GOLD - Points/Rewards Only */
+  .bg-gradient-sun {
+    background: var(--gradient-sun);
+  }
+
+  .bg-gradient-sun-soft {
+    background: var(--gradient-sun-soft);
+  }
+
+  /* Border Gradients */
+  .border-gradient-jade {
+    border: 2px solid transparent;
+    background-image: var(--gradient-border-jade), linear-gradient(to bottom, white, white);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+  }
+
+  .border-gradient-brown {
+    border: 2px solid transparent;
+    background-image: var(--gradient-border-brown), linear-gradient(to bottom, white, white);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+  }
+
+  .border-gradient-verde {
+    border: 2px solid transparent;
+    background-image: var(--gradient-border-verde), linear-gradient(to bottom, white, white);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+  }
+
+  /* Gradient Text */
+  .text-gradient-jade {
+    background: var(--gradient-jade);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .text-gradient-brown {
+    background: var(--gradient-brown);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .text-gradient-verde {
+    background: var(--gradient-verde);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Shadow Effects */
+  .shadow-jade-glow {
+    box-shadow: var(--shadow-jade-glow);
+  }
+
+  .shadow-jade {
+    box-shadow: var(--shadow-jade-lg);
+  }
+
+  .shadow-brown {
+    box-shadow: var(--shadow-brown-lg);
+  }
+
+  .shadow-verde {
+    box-shadow: var(--shadow-verde-lg);
+  }
+
+  .shadow-verde-glow {
+    box-shadow: var(--shadow-verde-glow);
+  }
+
+  .shadow-sun {
+    box-shadow: var(--shadow-sun-lg);
+  }
+
+  .shadow-sun-glow {
+    box-shadow: var(--shadow-sun-glow);
+  }
+
+  /* Hover Effects - Jade Glow */
+  .hover-jade-glow {
+    transition: all 300ms var(--ease-smooth);
+  }
+
+  .hover-jade-glow:hover {
+    box-shadow: var(--shadow-jade-glow);
+    transform: translateY(-2px);
+  }
+
+  /* Hover Effects - Sun Glow */
+  .hover-sun-glow {
+    transition: all 300ms var(--ease-smooth);
+  }
+
+  .hover-sun-glow:hover {
+    box-shadow: var(--shadow-sun-glow);
+    transform: translateY(-2px);
+  }
+
+  /* Hover Effects - Scale */
+  .hover-scale {
+    transition: transform 300ms var(--ease-smooth);
+  }
+
+  .hover-scale:hover {
+    transform: scale(1.02);
+  }
+
+  /* Glassmorphism */
+  .glass-jade {
+    background: rgba(45, 179, 182, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(45, 179, 182, 0.2);
+  }
+
+  .glass-white {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  /* Premium Card Styles - Learning States */
+  .card-jade {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid rgba(45, 179, 182, 0.1);
+    transition: all 300ms var(--ease-smooth);
+  }
+
+  .card-jade:hover {
+    border-color: rgba(45, 179, 182, 0.3);
+    box-shadow: var(--shadow-jade-lg);
+    transform: translateY(-2px);
+  }
+
+  .card-brown {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid rgba(212, 165, 116, 0.2);
+    transition: all 300ms var(--ease-smooth);
+  }
+
+  .card-brown:hover {
+    border-color: rgba(212, 165, 116, 0.4);
+    box-shadow: var(--shadow-brown-lg);
+    transform: translateY(-2px);
+  }
+
+  .card-verde {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid rgba(118, 181, 123, 0.2);
+    transition: all 300ms var(--ease-smooth);
+  }
+
+  .card-verde:hover {
+    border-color: rgba(118, 181, 123, 0.4);
+    box-shadow: var(--shadow-verde-lg);
+    transform: translateY(-2px);
+  }
+
+  /* Gradient Overlays */
+  .overlay-jade-glow {
+    position: relative;
+  }
+
+  .overlay-jade-glow::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    background: var(--gradient-jade-glow);
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  /* Smooth Transitions */
+  .transition-smooth {
+    transition: all 300ms var(--ease-smooth);
+  }
+
+  .transition-bounce {
+    transition: all 400ms var(--ease-bounce);
+  }
+
+  /* Progress Bar Gradient */
+  .progress-jade {
+    background: var(--gradient-jade);
+    border-radius: 9999px;
+    height: 100%;
+    transition: width 500ms var(--ease-smooth);
+  }
+
+  .progress-sun {
+    background: var(--gradient-sun);
+    border-radius: 9999px;
+    height: 100%;
+    transition: width 500ms var(--ease-smooth);
   }
 }

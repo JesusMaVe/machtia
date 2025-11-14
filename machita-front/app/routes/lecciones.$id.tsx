@@ -5,7 +5,7 @@ import { leccionesApi, LeccionDetalle, type Leccion } from "@/features/lecciones
 import { LoadingButton } from "@/shared/components/atoms";
 
 export default function LeccionDetallePage() {
-  const { leccionId } = useParams<{ leccionId: string }>();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, refreshUser } = useAuth();
 
@@ -15,7 +15,7 @@ export default function LeccionDetallePage() {
 
   useEffect(() => {
     const cargarLeccion = async () => {
-      if (!leccionId) {
+      if (!id) {
         setError("ID de lección no válido");
         setIsLoading(false);
         return;
@@ -23,7 +23,7 @@ export default function LeccionDetallePage() {
 
       try {
         setIsLoading(true);
-        const data = await leccionesApi.get(leccionId);
+        const data = await leccionesApi.get(id);
 
         if (data.bloqueada) {
           setError("Esta lección aún está bloqueada. Completa las lecciones anteriores primero.");
@@ -40,7 +40,7 @@ export default function LeccionDetallePage() {
     };
 
     cargarLeccion();
-  }, [leccionId]);
+  }, [id]);
 
   const handleComplete = async () => {
     if (!leccion) return;
@@ -92,7 +92,7 @@ export default function LeccionDetallePage() {
             <h2 className="text-xl font-bold text-red-600 mb-4">Error</h2>
             <p className="text-gray-700 mb-4">{error || "Lección no encontrada"}</p>
             <button
-              onClick={() => navigate("/lecciones")}
+              onClick={() => navigate("/aprende")}
               className="w-full bg-tierra text-white px-4 py-2 rounded-lg hover:bg-tierra-dark"
             >
               Volver a Lecciones

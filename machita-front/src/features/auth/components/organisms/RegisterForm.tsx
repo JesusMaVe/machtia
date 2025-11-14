@@ -25,7 +25,12 @@ import {
   CheckCircledIcon,
 } from "@radix-ui/react-icons";
 
-export function RegisterForm() {
+interface RegisterFormProps {
+  onSuccess?: () => void;
+  showCard?: boolean;
+}
+
+export function RegisterForm({ onSuccess, showCard = true }: RegisterFormProps) {
   const navigate = useNavigate();
   const { register: registerUser } = useAuth();
   const [error, setError] = useState<string | null>(null);
@@ -55,13 +60,90 @@ export function RegisterForm() {
     try {
       const { confirmPassword, ...credentials } = data;
       await registerUser(credentials);
-      navigate("/dashboard");
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        navigate("/aprende");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al registrar usuario");
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const formContent = (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      {error && (
+        <Alert variant="destructive" className="mb-4">
+          <ExclamationTriangleIcon className="h-4 w-4" />
+          <div className="ml-2">{error}</div>
+        </Alert>
+      )}
+
+      <FormField
+        id="nombre"
+        label="Nombre"
+        type="text"
+        placeholder="Tu nombre"
+        icon={<PersonIcon className="h-4 w-4" />}
+        error={errors.nombre?.message}
+        disabled={isSubmitting}
+        {...register("nombre")}
+      />
+
+      <FormField
+        id="email"
+        label="Email"
+        type="email"
+        placeholder="tu@email.com"
+        icon={<EnvelopeClosedIcon className="h-4 w-4" />}
+        error={errors.email?.message}
+        disabled={isSubmitting}
+        {...register("email")}
+      />
+
+      <div className="space-y-2">
+        <FormField
+          id="password"
+          label="Contraseña"
+          type="password"
+          placeholder="••••••••"
+          icon={<LockClosedIcon className="h-4 w-4" />}
+          error={errors.password?.message}
+          disabled={isSubmitting}
+          {...register("password")}
+        />
+        <PasswordStrengthIndicator password={password} />
+      </div>
+
+      <FormField
+        id="confirmPassword"
+        label="Confirmar Contraseña"
+        type="password"
+        placeholder="••••••••"
+        icon={<CheckCircledIcon className="h-4 w-4" />}
+        error={errors.confirmPassword?.message}
+        disabled={isSubmitting}
+        {...register("confirmPassword")}
+      />
+
+      <PasswordRequirements />
+
+      <LoadingButton
+        type="submit"
+        className="w-full"
+        isLoading={isSubmitting}
+        loadingText="Registrando..."
+      >
+        Crear Cuenta
+      </LoadingButton>
+    </form>
+  );
+
+  if (!showCard) {
+    return formContent;
+  }
 
   return (
     <Card className="w-full max-w-md">
@@ -71,74 +153,7 @@ export function RegisterForm() {
           Completa los datos para registrarte
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {error && (
-            <Alert variant="destructive" className="mb-4">
-              <ExclamationTriangleIcon className="h-4 w-4" />
-              <div className="ml-2">{error}</div>
-            </Alert>
-          )}
-
-          <FormField
-            id="nombre"
-            label="Nombre"
-            type="text"
-            placeholder="Tu nombre"
-            icon={<PersonIcon className="h-4 w-4" />}
-            error={errors.nombre?.message}
-            disabled={isSubmitting}
-            {...register("nombre")}
-          />
-
-          <FormField
-            id="email"
-            label="Email"
-            type="email"
-            placeholder="tu@email.com"
-            icon={<EnvelopeClosedIcon className="h-4 w-4" />}
-            error={errors.email?.message}
-            disabled={isSubmitting}
-            {...register("email")}
-          />
-
-          <div className="space-y-2">
-            <FormField
-              id="password"
-              label="Contraseña"
-              type="password"
-              placeholder="••••••••"
-              icon={<LockClosedIcon className="h-4 w-4" />}
-              error={errors.password?.message}
-              disabled={isSubmitting}
-              {...register("password")}
-            />
-            <PasswordStrengthIndicator password={password} />
-          </div>
-
-          <FormField
-            id="confirmPassword"
-            label="Confirmar Contraseña"
-            type="password"
-            placeholder="••••••••"
-            icon={<CheckCircledIcon className="h-4 w-4" />}
-            error={errors.confirmPassword?.message}
-            disabled={isSubmitting}
-            {...register("confirmPassword")}
-          />
-
-          <PasswordRequirements />
-
-          <LoadingButton
-            type="submit"
-            className="w-full"
-            isLoading={isSubmitting}
-            loadingText="Registrando..."
-          >
-            Crear Cuenta
-          </LoadingButton>
-        </form>
-      </CardContent>
+      <CardContent>{formContent}</CardContent>
       <CardFooter className="flex flex-col space-y-4">
         <div className="text-sm text-muted-foreground text-center">
           ¿Ya tienes una cuenta?{" "}

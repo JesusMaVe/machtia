@@ -129,7 +129,7 @@ export function LeccionDetalle({ leccion, onComplete, onFail }: LeccionDetallePr
 
             <div className="flex gap-3 pt-4">
               <Button asChild variant="outline" className="flex-1">
-                <Link to="/lecciones">
+                <Link to="/aprende">
                   <ArrowLeftIcon className="mr-2 h-4 w-4" />
                   Volver a Lecciones
                 </Link>

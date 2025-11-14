@@ -13,7 +13,11 @@ CLAUDE.md
 # ============================================
 # Python / Django (Backend)
 # ============================================
-
+API_MAPPING.md
+INTEGRACION_NIVELES.md
+CAMBIOS_INTEGRACION.md
+RESUMEN_CAMBIOS.md
+.playwright-mcp/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
