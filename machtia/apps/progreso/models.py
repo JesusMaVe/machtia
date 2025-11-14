@@ -238,14 +238,12 @@ class Racha(Document):
         """
         Verifica y desbloquea logros basados en estadísticas automáticamente.
 
-        Logros disponibles:
+        Logros disponibles (Beta - objetivos realistas):
         - primera_leccion: Completar primera lección
-        - racha_7: Mantener racha de 7 días
-        - racha_30: Mantener racha de 30 días
-        - lecciones_10: Completar 10 lecciones
-        - lecciones_50: Completar 50 lecciones
-        - rico: Acumular 100 tomins
-        - millonario: Acumular 1000 tomins
+        - estudiante_dedicado: Completar 5 lecciones
+        - racha_3: Mantener racha de 3 días
+        - explorador: Completar lecciones de 2 temas diferentes
+        - coleccionista: Acumular 50 tomins
 
         Returns:
             list: Lista de logros desbloqueados en esta verificación
@@ -257,69 +255,62 @@ class Racha(Document):
             if self.desbloquear_logro(
                 'primera_leccion',
                 'Primera Lección',
-                'Completaste tu primera lección de Náhuatl',
-                '🎓'
+                'Completa tu primera lección',
+                '🎯'
             ):
                 logros_nuevos.append('primera_leccion')
 
-        # Racha de 7 días
-        if self.rachaActual >= 7:
+        # Estudiante dedicado - 5 lecciones
+        if self.totalLeccionesCompletadas >= 5:
             if self.desbloquear_logro(
-                'racha_7',
-                'Semana Completa',
-                'Mantuviste una racha de 7 días',
-                '🔥'
-            ):
-                logros_nuevos.append('racha_7')
-
-        # Racha de 30 días
-        if self.rachaActual >= 30:
-            if self.desbloquear_logro(
-                'racha_30',
-                'Mes de Dedicación',
-                'Mantuviste una racha de 30 días',
-                '🏆'
-            ):
-                logros_nuevos.append('racha_30')
-
-        # 10 lecciones
-        if self.totalLeccionesCompletadas >= 10:
-            if self.desbloquear_logro(
-                'lecciones_10',
-                'Aprendiz Dedicado',
-                'Completaste 10 lecciones',
+                'estudiante_dedicado',
+                'Estudiante Dedicado',
+                'Completa 5 lecciones',
                 '📚'
             ):
-                logros_nuevos.append('lecciones_10')
+                logros_nuevos.append('estudiante_dedicado')
 
-        # 50 lecciones
-        if self.totalLeccionesCompletadas >= 50:
+        # Racha de 3 días
+        if self.rachaActual >= 3:
             if self.desbloquear_logro(
-                'lecciones_50',
-                'Maestro del Náhuatl',
-                'Completaste 50 lecciones',
-                '🎖️'
+                'racha_3',
+                'Racha de 3 Días',
+                'Estudia 3 días seguidos',
+                '🔥'
             ):
-                logros_nuevos.append('lecciones_50')
+                logros_nuevos.append('racha_3')
 
-        # 100 tomins
-        if self.totalTominsGanados >= 100:
+        # Explorador - completar lecciones de 2 temas diferentes
+        # Verificar temas únicos de las lecciones completadas
+        from mongoengine.connection import get_db
+        db = get_db()
+
+        # Obtener usuario para acceder a leccionesCompletadas
+        usuario_data = db.usuarios.find_one({'_id': self.usuario_id})
+        if usuario_data:
+            temas_unicos = set()
+            for leccion_id in usuario_data.get('leccionesCompletadas', []):
+                leccion_data = db.lecciones.find_one({'_id': leccion_id})
+                if leccion_data and 'tema' in leccion_data:
+                    temas_unicos.add(leccion_data['tema'])
+
+            if len(temas_unicos) >= 2:
+                if self.desbloquear_logro(
+                    'explorador',
+                    'Explorador',
+                    'Completa lecciones de 2 temas diferentes',
+                    '🗺️'
+                ):
+                    logros_nuevos.append('explorador')
+
+        # Coleccionista - 50 tomins
+        if self.totalTominsGanados >= 50:
             if self.desbloquear_logro(
-                'rico',
-                'Rico en Tomins',
-                'Acumulaste 100 tomins',
+                'coleccionista',
+                'Coleccionista',
+                'Acumula 50 tomins',
                 '💰'
             ):
-                logros_nuevos.append('rico')
-
-        # 1000 tomins
-        if self.totalTominsGanados >= 1000:
-            if self.desbloquear_logro(
-                'millonario',
-                'Millonario',
-                'Acumulaste 1000 tomins',
-                '💎'
-            ):
-                logros_nuevos.append('millonario')
+                logros_nuevos.append('coleccionista')
 
         return logros_nuevos

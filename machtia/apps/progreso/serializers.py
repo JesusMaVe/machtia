@@ -163,62 +163,46 @@ def serializar_logros_disponibles_frontend(racha) -> list:
     Returns:
         list: Lista de todos los logros con su estado
     """
-    # Definir todos los logros disponibles
+    # Definir todos los logros disponibles (Beta - objetivos realistas)
     logros_disponibles = [
         {
             'id': 'primera_leccion',
             'nombre': 'Primera Lección',
-            'descripcion': 'Completaste tu primera lección de Náhuatl',
-            'icono': '🎓',
+            'descripcion': 'Completa tu primera lección',
+            'icono': '🎯',
             'requisito': 'Completar 1 lección',
             'desbloqueado': False
         },
         {
-            'id': 'racha_7',
-            'nombre': 'Semana Completa',
-            'descripcion': 'Mantuviste una racha de 7 días',
-            'icono': '🔥',
-            'requisito': 'Racha de 7 días',
-            'desbloqueado': False
-        },
-        {
-            'id': 'racha_30',
-            'nombre': 'Mes de Dedicación',
-            'descripcion': 'Mantuviste una racha de 30 días',
-            'icono': '🏆',
-            'requisito': 'Racha de 30 días',
-            'desbloqueado': False
-        },
-        {
-            'id': 'lecciones_10',
-            'nombre': 'Aprendiz Dedicado',
-            'descripcion': 'Completaste 10 lecciones',
+            'id': 'estudiante_dedicado',
+            'nombre': 'Estudiante Dedicado',
+            'descripcion': 'Completa 5 lecciones',
             'icono': '📚',
-            'requisito': 'Completar 10 lecciones',
+            'requisito': 'Completar 5 lecciones',
             'desbloqueado': False
         },
         {
-            'id': 'lecciones_50',
-            'nombre': 'Maestro del Náhuatl',
-            'descripcion': 'Completaste 50 lecciones',
-            'icono': '🎖️',
-            'requisito': 'Completar 50 lecciones',
+            'id': 'racha_3',
+            'nombre': 'Racha de 3 Días',
+            'descripcion': 'Estudia 3 días seguidos',
+            'icono': '🔥',
+            'requisito': 'Racha de 3 días',
             'desbloqueado': False
         },
         {
-            'id': 'rico',
-            'nombre': 'Rico en Tomins',
-            'descripcion': 'Acumulaste 100 tomins',
+            'id': 'explorador',
+            'nombre': 'Explorador',
+            'descripcion': 'Completa lecciones de 2 temas diferentes',
+            'icono': '🗺️',
+            'requisito': 'Completar 2 temas diferentes',
+            'desbloqueado': False
+        },
+        {
+            'id': 'coleccionista',
+            'nombre': 'Coleccionista',
+            'descripcion': 'Acumula 50 tomins',
             'icono': '💰',
-            'requisito': 'Acumular 100 tomins',
-            'desbloqueado': False
-        },
-        {
-            'id': 'millonario',
-            'nombre': 'Millonario',
-            'descripcion': 'Acumulaste 1000 tomins',
-            'icono': '💎',
-            'requisito': 'Acumular 1000 tomins',
+            'requisito': 'Acumular 50 tomins',
             'desbloqueado': False
         }
     ]

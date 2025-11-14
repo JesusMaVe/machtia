@@ -5,9 +5,7 @@ import {
   type Racha,
   type Estadisticas,
   type Logro,
-  type ActividadUsuario,
 } from "@/features/progreso";
-import { ActividadHeatmap } from "@/features/progreso/components/organisms/ActividadHeatmap";
 import { PageHeader } from "@/shared/components/molecules";
 import { LoadingButton } from "@/shared/components/atoms";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,27 +14,23 @@ export default function ProgresoPage() {
   const [racha, setRacha] = useState<Racha | null>(null);
   const [estadisticas, setEstadisticas] = useState<Estadisticas | null>(null);
   const [logros, setLogros] = useState<Logro[]>([]);
-  const [actividad, setActividad] = useState<ActividadUsuario | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [periodoActividad, setPeriodoActividad] = useState<number>(30);
 
   useEffect(() => {
     const cargarProgreso = async () => {
       try {
         setIsLoading(true);
 
-        const [rachaData, estadisticasData, logrosData, actividadData] = await Promise.all([
+        const [rachaData, estadisticasData, logrosData] = await Promise.all([
           progresoApi.getRacha(),
           progresoApi.getEstadisticas(),
           progresoApi.getLogros(),
-          progresoApi.getActividad(periodoActividad),
         ]);
 
         setRacha(rachaData);
         setEstadisticas(estadisticasData);
         setLogros(logrosData);
-        setActividad(actividadData);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Error al cargar progreso");
       } finally {
@@ -45,17 +39,7 @@ export default function ProgresoPage() {
     };
 
     cargarProgreso();
-  }, [periodoActividad]);
-
-  const handlePeriodoChange = async (dias: number) => {
-    try {
-      setPeriodoActividad(dias);
-      const actividadData = await progresoApi.getActividad(dias);
-      setActividad(actividadData);
-    } catch (err) {
-      console.error("Error al cambiar período:", err);
-    }
-  };
+  }, []);
 
   if (isLoading) {
     return (
@@ -90,52 +74,40 @@ export default function ProgresoPage() {
         <div className="mb-8">
           <PageHeader
             title="Mi Progreso"
-            description="Revisa tus logros, estadísticas y racha de estudio"
+            description="Revisa tus logros y estadísticas de aprendizaje"
           />
         </div>
 
-        {actividad && (
-          <div className="mb-8">
-            <ActividadHeatmap
-              diasActividad={actividad.actividad.historial}
-              periodo={actividad.periodo}
-              onPeriodoChange={handlePeriodoChange}
-            />
-          </div>
-        )}
-
-        {/* Sección de estadísticas rápidas - Premium gradient cards */}
+        {/* Sección de estadísticas rápidas - Minimalist white cards */}
         {estadisticas && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <Card className="card-jade overflow-hidden">
+            <Card className="bg-white border-gray-200 shadow-sm">
               <CardContent className="pt-6 text-center">
-                <div className="text-3xl font-bold text-gradient-jade">
+                <div className="text-3xl font-bold text-[#2db3b6]">
                   {estadisticas.leccionesCompletadas}
                 </div>
-                <p className="text-sm text-muted-foreground mt-1">Lecciones</p>
+                <p className="text-sm text-muted-foreground mt-1">Lecciones completadas</p>
               </CardContent>
             </Card>
-            <Card className="card-sun overflow-hidden">
+            <Card className="bg-white border-gray-200 shadow-sm">
               <CardContent className="pt-6 text-center">
-                <div className="text-3xl font-bold text-gradient-sun">
+                <div className="text-3xl font-bold text-[#f3b62a]">
                   {estadisticas.tominsAcumulados}
                 </div>
-                <p className="text-sm text-muted-foreground mt-1">Tomins</p>
+                <p className="text-sm text-muted-foreground mt-1">Tomins acumulados</p>
               </CardContent>
             </Card>
-            <Card className="card-jade overflow-hidden">
+            <Card className="bg-white border-gray-200 shadow-sm">
               <CardContent className="pt-6 text-center">
-                <div className="text-3xl font-bold text-gradient-jade">
+                <div className="text-3xl font-bold text-[#2db3b6]">
                   {estadisticas.palabrasAprendidas}
                 </div>
-                <p className="text-sm text-muted-foreground mt-1">Palabras</p>
+                <p className="text-sm text-muted-foreground mt-1">Palabras aprendidas</p>
               </CardContent>
             </Card>
-            <Card className="card-sun overflow-hidden">
+            <Card className="bg-white border-gray-200 shadow-sm">
               <CardContent className="pt-6 text-center">
-                <div className="text-3xl font-bold text-gradient-sun">
-                  {racha?.diasActuales || 0}
-                </div>
+                <div className="text-3xl font-bold text-[#2db3b6]">{racha?.diasActuales || 0}</div>
                 <p className="text-sm text-muted-foreground mt-1">
                   {racha && racha.diasActuales === 1 ? "Día" : "Días"} de racha
                 </p>
