@@ -19,8 +19,9 @@ export function LeccionCard({ leccion }: LeccionCardProps) {
       <Card
         className={`
           h-full transition-smooth
-          ${completada ? "border-[#76b57b]/30 bg-gradient-verde-soft hover:shadow-verde" : ""}
-          ${bloqueada ? "opacity-60 cursor-not-allowed border-gray-200" : completada ? "cursor-pointer card-verde" : "cursor-pointer card-brown"}
+          ${completada ? "border-[#76b57b]/30 bg-gradient-verde-soft hover:shadow-verde card-verde" : ""}
+          ${bloqueada ? "opacity-60 cursor-not-allowed border-gray-200 bg-gradient-gray-lock" : ""}
+          ${!completada && !bloqueada ? "cursor-pointer card-brown border-[#d4a574]/30" : ""}
         `}
       >
         <CardHeader className="pb-3">

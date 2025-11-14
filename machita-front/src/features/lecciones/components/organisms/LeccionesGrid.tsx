@@ -31,19 +31,14 @@ export function LeccionesGrid({ lecciones }: LeccionesGridProps) {
     );
   }, [lecciones]);
 
-  const renderNivel = (
-    titulo: string,
-    IconComponent: React.ReactNode,
-    lecciones: Leccion[],
-    colorClass: string
-  ) => {
+  const renderNivel = (titulo: string, lecciones: Leccion[]) => {
     if (lecciones.length === 0) return null;
 
     return (
       <section className="mb-8">
         <div className="flex items-center gap-2 mb-4">
-          {IconComponent}
-          <h2 className={`text-xl font-bold ${colorClass}`}>NIVEL: {titulo.toUpperCase()}</h2>
+          <Circle className="h-5 w-5 text-[#d4a574]" fill="currentColor" />
+          <h2 className="text-xl font-bold text-foreground">NIVEL: {titulo.toUpperCase()}</h2>
           <span className="text-sm text-muted-foreground">({lecciones.length} lecciones)</span>
         </div>
 
@@ -58,24 +53,9 @@ export function LeccionesGrid({ lecciones }: LeccionesGridProps) {
 
   return (
     <div className="space-y-8">
-      {renderNivel(
-        "Principiante",
-        <Circle className="h-6 w-6 text-verde-suave" fill="currentColor" />,
-        leccionesPorNivel.principiante,
-        "text-verde-suave"
-      )}
-      {renderNivel(
-        "Intermedio",
-        <Circle className="h-6 w-6 text-tierra" fill="currentColor" />,
-        leccionesPorNivel.intermedio,
-        "text-tierra-dark"
-      )}
-      {renderNivel(
-        "Avanzado",
-        <Circle className="h-6 w-6 text-verde-amarillo" fill="currentColor" />,
-        leccionesPorNivel.avanzado,
-        "text-verde-amarillo"
-      )}
+      {renderNivel("Principiante", leccionesPorNivel.principiante)}
+      {renderNivel("Intermedio", leccionesPorNivel.intermedio)}
+      {renderNivel("Avanzado", leccionesPorNivel.avanzado)}
 
       {(!Array.isArray(lecciones) || lecciones.length === 0) && (
         <div className="text-center py-12">

@@ -78,11 +78,11 @@ export default function LeccionesPage() {
 
             {user && (
               <div className="mt-4 flex items-center gap-4 text-sm">
-                <span className="px-3 py-1 bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-300 rounded-full font-medium flex items-center gap-1.5">
+                <span className="px-3 py-1 bg-gradient-sun-soft text-[#f3b62a] border border-[#f3b62a]/30 rounded-full font-medium flex items-center gap-1.5">
                   <Coins className="h-4 w-4" />
                   {user.tomin} tomins
                 </span>
-                <span className="px-3 py-1 bg-red-100 dark:bg-red-950/20 text-red-600 dark:text-red-400 rounded-full font-medium flex items-center gap-1.5">
+                <span className="px-3 py-1 bg-gradient-brown-soft text-[#d4a574] border border-[#d4a574]/30 rounded-full font-medium flex items-center gap-1.5">
                   <Heart className="h-4 w-4" fill="currentColor" />
                   {user.vidas} vidas
                 </span>

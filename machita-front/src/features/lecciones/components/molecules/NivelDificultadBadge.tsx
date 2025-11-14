@@ -10,13 +10,15 @@ interface NivelDificultadBadgeProps {
 
 export function NivelDificultadBadge({ dificultad, size = "md" }: NivelDificultadBadgeProps) {
   const getColorClass = (nivel: Dificultad): string => {
+    // Use neutral brown tones for all difficulty levels - difficulty is informational only
+    // Don't use green/yellow/red as those are reserved for completion states
     switch (nivel) {
       case DIFICULTADES.PRINCIPIANTE:
-        return "bg-verde-suave/30 text-verde-suave border-verde-suave/40 hover:bg-verde-suave/40";
+        return "bg-gradient-brown-soft text-[#d4a574] border-[#d4a574]/30";
       case DIFICULTADES.INTERMEDIO:
-        return "bg-tierra/30 text-tierra-dark border-tierra/40 hover:bg-tierra/40";
+        return "bg-gradient-brown-soft text-[#c49563] border-[#c49563]/30";
       case DIFICULTADES.AVANZADO:
-        return "bg-verde-amarillo/30 text-verde-amarillo border-verde-amarillo/40 hover:bg-verde-amarillo/40";
+        return "bg-gradient-brown-soft text-[#b88552] border-[#b88552]/30";
       default:
         return "bg-gray-200 text-gray-600 border-gray-300";
     }

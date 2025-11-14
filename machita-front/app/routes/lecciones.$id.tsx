@@ -93,7 +93,7 @@ export default function LeccionDetallePage() {
             <p className="text-gray-700 mb-4">{error || "Lección no encontrada"}</p>
             <button
               onClick={() => navigate("/aprende")}
-              className="w-full bg-tierra text-white px-4 py-2 rounded-lg hover:bg-tierra-dark"
+              className="w-full bg-gradient-brown hover:shadow-brown text-white px-4 py-2 rounded-lg transition-smooth"
             >
               Volver a Lecciones
             </button>

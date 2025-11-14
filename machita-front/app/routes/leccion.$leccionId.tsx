@@ -94,8 +94,8 @@ export default function LeccionDetallePage() {
           <h2 className="text-xl font-bold text-red-600 mb-4">Error</h2>
           <p className="text-gray-700 mb-4">{error || "Lección no encontrada"}</p>
           <Button
-            onClick={() => navigate("/dashboard")}
-            className="w-full bg-tierra hover:bg-tierra-dark"
+            onClick={() => navigate("/aprende")}
+            className="w-full bg-gradient-brown hover:shadow-brown text-white"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Volver al Inicio
@@ -110,9 +110,9 @@ export default function LeccionDetallePage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Botón Volver */}
         <Button
-          onClick={() => navigate("/dashboard")}
+          onClick={() => navigate("/aprende")}
           variant="ghost"
-          className="mb-6 text-tierra hover:text-tierra-dark"
+          className="mb-6 text-[#d4a574] hover:text-[#c49563] hover:bg-gradient-brown-soft"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Volver al Inicio
