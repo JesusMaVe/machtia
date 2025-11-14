@@ -5,7 +5,7 @@ export default [
   route("login", "routes/login.tsx"),
   route("register", "routes/register.tsx"),
   route("dashboard", "routes/dashboard.tsx"),
-  route("lecciones", "routes/lecciones.tsx"),
-  route("lecciones/:id", "routes/lecciones.$id.tsx"),
+  route("lecciones/:nivelId", "routes/lecciones.$nivelId.tsx"),
+  route("lecciones/:nivelId/:leccionId", "routes/lecciones.$nivelId.$leccionId.tsx"),
   route("progreso", "routes/progreso.tsx"),
 ] satisfies RouteConfig;

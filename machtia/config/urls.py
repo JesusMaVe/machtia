@@ -21,6 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # API endpoints
     path('api/auth/', include('apps.autenticacion.urls')),
+    path('api/niveles/', include('apps.niveles.urls')),
     path('api/lecciones/', include('apps.lecciones.urls')),
     path('api/progreso/', include('apps.progreso.urls')),
     path('api/vidas/', include('apps.vidas.urls')),

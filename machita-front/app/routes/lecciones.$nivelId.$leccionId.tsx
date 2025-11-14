@@ -5,7 +5,7 @@ import { leccionesApi, LeccionDetalle, type Leccion } from "@/features/lecciones
 import { LoadingButton } from "@/shared/components/atoms";
 
 export default function LeccionDetallePage() {
-  const { id } = useParams<{ id: string }>();
+  const { leccionId } = useParams<{ leccionId: string }>();
   const navigate = useNavigate();
   const { user, refreshUser } = useAuth();
 
@@ -15,7 +15,7 @@ export default function LeccionDetallePage() {
 
   useEffect(() => {
     const cargarLeccion = async () => {
-      if (!id) {
+      if (!leccionId) {
         setError("ID de lección no válido");
         setIsLoading(false);
         return;
@@ -23,7 +23,7 @@ export default function LeccionDetallePage() {
 
       try {
         setIsLoading(true);
-        const data = await leccionesApi.get(id);
+        const data = await leccionesApi.get(leccionId);
 
         if (data.bloqueada) {
           setError("Esta lección aún está bloqueada. Completa las lecciones anteriores primero.");
@@ -40,7 +40,7 @@ export default function LeccionDetallePage() {
     };
 
     cargarLeccion();
-  }, [id]);
+  }, [leccionId]);
 
   const handleComplete = async () => {
     if (!leccion) return;
