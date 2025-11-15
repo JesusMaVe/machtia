@@ -85,7 +85,7 @@ export function PyramidHero({
           onClick={() => handleNivelClick(3)}
           className={`w-64 h-32 rounded-xl flex items-center justify-center shadow-md border-2 ${getNivelClass(3)}`}
         >
-          <div className="text-center text-obsidiana px-4">
+          <div className="text-center text-obsidiana dark:text-white px-4">
             {progresoNiveles[3]?.desbloqueado ? (
               <>
                 <div className="flex items-center justify-center gap-2 mb-1">
@@ -115,7 +115,7 @@ export function PyramidHero({
           onClick={() => handleNivelClick(2)}
           className={`w-80 h-32 rounded-xl flex items-center justify-center shadow-md border-2 ${getNivelClass(2)}`}
         >
-          <div className="text-center text-obsidiana px-4">
+          <div className="text-center text-obsidiana dark:text-white px-4">
             {progresoNiveles[2]?.desbloqueado ? (
               <>
                 <div className="flex items-center justify-center gap-2 mb-1">
@@ -147,7 +147,7 @@ export function PyramidHero({
             className={`w-full min-h-32 rounded-xl shadow-md border-2 ${getNivelClass(1)}`}
           >
             <div className="p-6">
-              <div className="text-center text-obsidiana mb-4">
+              <div className="text-center text-obsidiana dark:text-white mb-4">
                 <div className="flex items-center justify-center gap-2 mb-1">
                   <TriangleUpIcon className="h-6 w-6" />
                   <p className="text-2xl font-bold">Nivel 1 - Principiante</p>
@@ -185,7 +185,7 @@ export function PyramidHero({
                               Tu Próxima Lección
                             </p>
                           </div>
-                          <h3 className="font-bold text-lg text-[#161f16] mt-1">
+                          <h3 className="font-bold text-lg text-[#161f16] dark:text-white mt-1">
                             Lección {proximaLeccion.numero}: {proximaLeccion.titulo}
                           </h3>
                         </div>
@@ -194,11 +194,11 @@ export function PyramidHero({
                         </Badge>
                       </div>
 
-                      <p className="text-sm text-gray-600 leading-relaxed">
+                      <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
                         {proximaLeccion.descripcion}
                       </p>
 
-                      <div className="flex items-center gap-4 text-xs text-gray-500">
+                      <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
                         <div className="flex items-center gap-1.5">
                           <ReaderIcon className="h-3.5 w-3.5" />
                           <span>{proximaLeccion.palabras.length} palabras</span>
@@ -239,7 +239,7 @@ export function PyramidHero({
       {/* Hint para interactividad */}
       <div className="flex items-center justify-center gap-2 mt-6">
         <LightningBoltIcon className="h-4 w-4 text-gray-400" />
-        <p className="text-center text-sm text-gray-500">
+        <p className="text-center text-sm text-gray-500 dark:text-gray-400">
           Haz click en un nivel para ver sus lecciones
         </p>
       </div>

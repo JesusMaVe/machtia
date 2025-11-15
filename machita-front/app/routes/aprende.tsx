@@ -185,8 +185,8 @@ export default function AprendePage() {
         <div className="space-y-12">
           {/* Sección de bienvenida */}
           <div className="space-y-2 text-center">
-            <h1 className="text-4xl font-bold text-obsidiana">¡Bienvenido, {user.nombre}!</h1>
-            <p className="text-gray-600 text-lg">
+            <h1 className="text-4xl font-bold text-obsidiana dark:text-white">¡Bienvenido, {user.nombre}!</h1>
+            <p className="text-gray-600 dark:text-gray-300 text-lg">
               Continúa tu aprendizaje de Náhuatl desde donde lo dejaste
             </p>
           </div>
@@ -204,10 +204,10 @@ export default function AprendePage() {
           {/* Separador visual */}
           <div className="relative py-4">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
+              <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-cream px-4 text-sm text-gray-500 font-medium">
+              <span className="bg-cream dark:bg-dark-bg px-4 text-sm text-gray-500 dark:text-gray-400 font-medium">
                 Explora lecciones por nivel
               </span>
             </div>

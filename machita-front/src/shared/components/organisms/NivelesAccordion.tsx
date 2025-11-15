@@ -140,17 +140,17 @@ export function NivelesAccordion({
                   <div className="flex items-center gap-3">
                     {!isDesbloqueado && <LockClosedIcon className="h-5 w-5 text-gray-400" />}
                     <div className="text-left">
-                      <h3 className="text-lg font-bold text-obsidiana">
+                      <h3 className="text-lg font-bold text-obsidiana dark:text-white">
                         Nivel {nivel.numero} - {nivel.titulo}
                       </h3>
                       {isDesbloqueado && progreso && (
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-gray-600 dark:text-gray-300">
                           {progreso.leccionesCompletadas}/{progreso.totalLecciones} lecciones •{" "}
                           {porcentaje}% completado
                         </p>
                       )}
                       {!isDesbloqueado && (
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                           Completa Nivel {nivel.numero - 1} para desbloquear
                         </p>
                       )}
@@ -176,7 +176,7 @@ export function NivelesAccordion({
                   {/* Filtros */}
                   {temasDisponibles.length > 0 && (
                     <div className="mb-6 flex items-center gap-3">
-                      <span className="text-sm font-medium text-gray-700">Filtrar por tema:</span>
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Filtrar por tema:</span>
                       <Select
                         value={filtrosTema[nivel.numero] || "todos"}
                         onValueChange={(value) => handleFiltroTemaChange(nivel.numero, value)}
@@ -210,7 +210,7 @@ export function NivelesAccordion({
                     <LeccionesGrid lecciones={leccionesFiltradas} />
                   ) : (
                     <div className="text-center py-12">
-                      <p className="text-gray-500">No hay lecciones disponibles con este filtro</p>
+                      <p className="text-gray-500 dark:text-gray-400">No hay lecciones disponibles con este filtro</p>
                       <Button
                         onClick={() => limpiarFiltro(nivel.numero)}
                         variant="link"

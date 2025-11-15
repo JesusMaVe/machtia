@@ -46,6 +46,15 @@
   --color-cream: #fafaf9; /* Pure cream white */
   --color-cream-jade: #f0fffe; /* Cream with jade tint */
 
+  /* DARK MODE COLORS - NEW */
+  --color-dark-bg: #0a0a0a; /* Pure black background */
+  --color-dark-bg-elevated: #1a1a1a; /* Elevated surfaces (cards) */
+  --color-dark-orange: #f97316; /* Primary accent in dark mode */
+  --color-dark-purple: #a855f7; /* Secondary accent (completed state) */
+  --color-dark-brown: #92400e; /* Tertiary elements, borders */
+  --color-dark-red: #dc2626; /* Errors and alerts */
+  --color-dark-foreground: #fafafa; /* Light text on dark bg */
+
   /* GRADIENTS - Learning State System */
 
   /* Background Gradients - Light mode */
@@ -92,6 +101,22 @@
     rgba(243, 182, 42, 0.15) 0%,
     rgba(251, 191, 36, 0.15) 100%
   );
+
+  /* DARK MODE GRADIENTS */
+  --gradient-dark-bg: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  --gradient-dark-orange: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+  --gradient-dark-orange-soft: linear-gradient(
+    135deg,
+    rgba(249, 115, 22, 0.15) 0%,
+    rgba(251, 146, 60, 0.15) 100%
+  );
+  --gradient-dark-purple: linear-gradient(135deg, #a855f7 0%, #c084fc 100%);
+  --gradient-dark-purple-soft: linear-gradient(
+    135deg,
+    rgba(168, 85, 247, 0.15) 0%,
+    rgba(192, 132, 252, 0.15) 100%
+  );
+  --gradient-dark-brown: linear-gradient(135deg, #92400e 0%, #78350f 100%);
 
   /* Border Gradients */
   --gradient-border-jade: linear-gradient(45deg, #2db3b6, #8ff1fb);
@@ -229,13 +254,14 @@ body {
 }
 
 .dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
+  /* Dark mode color system using Nahuatl palette */
+  --background: oklch(0.129 0.042 264.695); /* Dark background #0a0a0a */
+  --foreground: oklch(0.984 0.003 247.858); /* Light text #fafafa */
+  --card: oklch(0.208 0.042 265.755); /* Elevated card #1a1a1a */
+  --card-foreground: oklch(0.984 0.003 247.858); /* Light text on cards */
   --popover: oklch(0.208 0.042 265.755);
   --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
+  --primary: oklch(0.929 0.013 255.508); /* Orange accent #f97316 */
   --primary-foreground: oklch(0.208 0.042 265.755);
   --secondary: oklch(0.279 0.041 260.031);
   --secondary-foreground: oklch(0.984 0.003 247.858);
@@ -243,7 +269,7 @@ body {
   --muted-foreground: oklch(0.704 0.04 256.788);
   --accent: oklch(0.279 0.041 260.031);
   --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
+  --destructive: oklch(0.704 0.191 22.216); /* Red #dc2626 */
   --warning: oklch(0.828 0.189 84.429);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
@@ -514,5 +540,136 @@ body {
     border-radius: 9999px;
     height: 100%;
     transition: width 500ms var(--ease-smooth);
+  }
+
+  /* Dark Mode Utilities */
+  .dark .bg-cream {
+    background: var(--color-dark-bg);
+  }
+
+  .dark .bg-gradient-nahuatl {
+    background: var(--gradient-dark-bg);
+  }
+
+  /* Dark mode glass effects */
+  .dark .glass-white {
+    background: rgba(26, 26, 26, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Dark mode card states - Learning System */
+  /* INCOMPLETE STATE - Orange in dark mode (was Brown in light) */
+  .dark .bg-gradient-brown {
+    background: var(--gradient-dark-orange);
+  }
+
+  .dark .bg-gradient-brown-soft {
+    background: var(--gradient-dark-orange-soft);
+  }
+
+  .dark .border-\\[\\#d4a574\\] {
+    border-color: #f97316 !important;
+  }
+
+  .dark .shadow-brown {
+    box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.15), 0 4px 6px -2px rgba(249, 115, 22, 0.05);
+  }
+
+  /* COMPLETED STATE - Purple in dark mode (was Green in light) */
+  .dark .bg-gradient-verde {
+    background: var(--gradient-dark-purple);
+  }
+
+  .dark .bg-gradient-verde-soft {
+    background: var(--gradient-dark-purple-soft);
+  }
+
+  .dark .border-\\[\\#76b57b\\] {
+    border-color: #a855f7 !important;
+  }
+
+  .dark .shadow-verde {
+    box-shadow: 0 10px 15px -3px rgba(168, 85, 247, 0.15), 0 4px 6px -2px rgba(168, 85, 247, 0.05);
+  }
+
+  .dark .shadow-verde-glow {
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+  }
+
+  /* CURRENT ACCENT - Orange glow in dark mode (was Turquoise in light) */
+  .dark .ring-\\[\\#2db3b6\\]\\/40 {
+    --tw-ring-color: rgba(249, 115, 22, 0.4) !important;
+  }
+
+  .dark .ring-\\[\\#2db3b6\\]\\/60 {
+    --tw-ring-color: rgba(249, 115, 22, 0.6) !important;
+  }
+
+  .dark .border-\\[\\#2db3b6\\]\\/20 {
+    border-color: rgba(249, 115, 22, 0.2) !important;
+  }
+
+  .dark .shadow-jade-glow {
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.3);
+  }
+
+  .dark .shadow-jade-lg {
+    box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.15), 0 4px 6px -2px rgba(249, 115, 22, 0.05);
+  }
+
+  .dark .shadow-jade-xl {
+    box-shadow: 0 20px 25px -5px rgba(249, 115, 22, 0.2), 0 10px 10px -5px rgba(249, 115, 22, 0.04);
+  }
+
+  /* Jade/Turquoise becomes Orange in dark mode for badges and accents */
+  .dark .bg-gradient-jade {
+    background: var(--gradient-dark-orange);
+  }
+
+  .dark .text-gradient-jade {
+    background: var(--gradient-dark-orange);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .dark .text-\\[\\#2db3b6\\] {
+    color: #f97316 !important;
+  }
+
+  .dark .border-\\[\\#2db3b6\\] {
+    border-color: #f97316 !important;
+  }
+
+  /* Error states - Red in dark mode */
+  .dark .text-red-600 {
+    color: var(--color-dark-red);
+  }
+
+  .dark .bg-red-50 {
+    background: rgba(220, 38, 38, 0.1);
+  }
+
+  .dark .border-red-200 {
+    border-color: rgba(220, 38, 38, 0.3);
+  }
+
+  /* Text colors in dark mode */
+  .dark .text-obsidiana,
+  .dark .text-\\[\\#161f16\\] {
+    color: var(--color-dark-foreground) !important;
+  }
+
+  .dark .text-gray-600 {
+    color: #d1d5db;
+  }
+
+  .dark .text-gray-500 {
+    color: #9ca3af;
+  }
+
+  .dark .text-gray-400 {
+    color: #6b7280;
   }
 }

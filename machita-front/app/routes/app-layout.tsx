@@ -12,12 +12,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { User, LogOut } from "lucide-react";
+import { SunIcon, MoonIcon } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
 import { progresoApi, type Racha } from "@/features/progreso";
+import { useTheme } from "@/shared/context";
 
 export default function AppLayout() {
   const { user, isAuthenticated, logout, isLoading } = useAuth();
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
   const [racha, setRacha] = useState<Racha | null>(null);
 
   useEffect(() => {
@@ -106,6 +109,21 @@ export default function AppLayout() {
               >
                 Mi Progreso
               </NavLink>
+
+              {/* Theme Toggle Button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleTheme}
+                className="h-9 w-9 rounded-full transition-smooth hover:bg-[#2db3b6]/10"
+                aria-label="Toggle theme"
+              >
+                {theme === "dark" ? (
+                  <SunIcon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+                ) : (
+                  <MoonIcon className="h-5 w-5 text-gray-600" />
+                )}
+              </Button>
             </div>
 
             {/* User Menu with jade gradient */}

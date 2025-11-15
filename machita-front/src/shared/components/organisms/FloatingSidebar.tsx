@@ -12,7 +12,7 @@ interface FloatingSidebarProps {
 export function FloatingSidebar({ vidas, tomins, racha = 0 }: FloatingSidebarProps) {
   return (
     <aside className="fixed right-4 top-20 z-40 hidden lg:block">
-      <Card className="p-4 space-y-3 shadow-jade-lg border-2 border-[#2db3b6]/20 glass-white">
+      <Card className="p-4 space-y-3 shadow-jade-lg border-2 border-[#2db3b6]/20 glass-white dark:bg-dark-bg-elevated">
         <TooltipProvider>
           {/* Vidas */}
           <Tooltip>
@@ -20,9 +20,9 @@ export function FloatingSidebar({ vidas, tomins, racha = 0 }: FloatingSidebarPro
               <div className="flex items-center justify-between gap-3 cursor-default">
                 <div className="flex items-center gap-2">
                   <Heart className="h-5 w-5 text-red-500 fill-red-500" />
-                  <span className="font-semibold text-lg text-obsidiana">{vidas}</span>
+                  <span className="font-semibold text-lg text-obsidiana dark:text-gray-100">{vidas}</span>
                 </div>
-                <span className="text-xs text-gray-500">/ 5</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">/ 5</span>
               </div>
             </TooltipTrigger>
             <TooltipContent side="left">
@@ -57,8 +57,8 @@ export function FloatingSidebar({ vidas, tomins, racha = 0 }: FloatingSidebarPro
                   <div className="flex items-center gap-2 cursor-default">
                     <Flame className="h-5 w-5 text-orange-500" />
                     <div className="flex flex-col">
-                      <span className="font-semibold text-lg text-obsidiana">{racha}</span>
-                      <span className="text-xs text-gray-500">{racha === 1 ? "día" : "días"}</span>
+                      <span className="font-semibold text-lg text-obsidiana dark:text-gray-100">{racha}</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">{racha === 1 ? "día" : "días"}</span>
                     </div>
                   </div>
                 </TooltipTrigger>
