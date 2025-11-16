@@ -82,7 +82,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       await authAPI.logout();
     } catch (error) {
-      console.error("Error en logout:", error);
+
     } finally {
       removeToken();
       setUser(null);

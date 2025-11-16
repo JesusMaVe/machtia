@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import {
   RocketIcon,
   LockClosedIcon,
@@ -37,6 +37,8 @@ export function PyramidHero({
   onNivelClick,
   vidasDisponibles,
 }: PyramidHeroProps) {
+  const navigate = useNavigate();
+
   const getNivelByNumero = (numero: number) => {
     return niveles.find((n) => n.numero === numero);
   };
@@ -72,9 +74,17 @@ export function PyramidHero({
 
   const handleNivelClick = (numero: number) => {
     const progreso = progresoNiveles[numero];
-    if (progreso?.desbloqueado && onNivelClick) {
-      onNivelClick(numero);
-    }
+    if (!progreso?.desbloqueado) return;
+
+    // Mapear número de nivel a dificultad para el filtro
+    const dificultadMap: Record<number, string> = {
+      1: "principiante",
+      2: "intermedio",
+      3: "avanzado",
+    };
+
+    // Redirigir a /lecciones con query param de dificultad
+    navigate(`/lecciones?dificultad=${dificultadMap[numero]}`);
   };
 
   return (

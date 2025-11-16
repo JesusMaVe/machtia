@@ -33,7 +33,7 @@ export default function AppLayout() {
         const rachaData = await progresoApi.getRacha().catch(() => null);
         setRacha(rachaData);
       } catch (err) {
-        console.error("Error al cargar racha:", err);
+
       }
     };
 
@@ -49,7 +49,7 @@ export default function AppLayout() {
         const estado = await vidasApi.getEstado();
         setEstadoVidas(estado);
       } catch (err) {
-        console.error("Error al cargar estado de vidas:", err);
+
       }
     };
 
@@ -120,17 +120,27 @@ export default function AppLayout() {
                 to="/aprende"
                 className={({ isActive }) =>
                   `text-sm font-medium transition-smooth hover:text-[#2db3b6] ${
-                    isActive ? "text-[#2db3b6] font-semibold" : "text-gray-600"
+                    isActive ? "text-[#2db3b6] font-semibold" : "text-gray-600 dark:text-gray-300"
                   }`
                 }
               >
                 Aprende
               </NavLink>
               <NavLink
+                to="/lecciones"
+                className={({ isActive }) =>
+                  `text-sm font-medium transition-smooth hover:text-[#2db3b6] ${
+                    isActive ? "text-[#2db3b6] font-semibold" : "text-gray-600 dark:text-gray-300"
+                  }`
+                }
+              >
+                Lecciones
+              </NavLink>
+              <NavLink
                 to="/progreso"
                 className={({ isActive }) =>
                   `text-sm font-medium transition-smooth hover:text-[#2db3b6] ${
-                    isActive ? "text-[#2db3b6] font-semibold" : "text-gray-600"
+                    isActive ? "text-[#2db3b6] font-semibold" : "text-gray-600 dark:text-gray-300"
                   }`
                 }
               >

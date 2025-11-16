@@ -49,10 +49,8 @@ export default function LeccionDetallePage() {
       const resultado = await leccionesApi.complete(leccion.id);
 
       await refreshUser();
-
-      console.log("Lección completada:", resultado);
     } catch (err) {
-      console.error("Error al completar lección:", err);
+
     }
   };
 
@@ -65,10 +63,10 @@ export default function LeccionDetallePage() {
       await refreshUser();
 
       if (resultado.vidasRestantes === 0) {
-        console.log("Sin vidas:", resultado);
+
       }
     } catch (err) {
-      console.error("Error al registrar fallo:", err);
+
     }
   };
 

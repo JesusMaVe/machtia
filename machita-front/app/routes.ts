@@ -7,6 +7,7 @@ export default [
   // Layout para usuarios autenticados (con navegación persistente)
   layout("routes/app-layout.tsx", [
     route("aprende", "routes/aprende.tsx"),
+    route("lecciones", "routes/lecciones.tsx"),
     route("leccion/:leccionId", "routes/leccion.$leccionId.tsx"),
     route("progreso", "routes/progreso.tsx"),
   ]),

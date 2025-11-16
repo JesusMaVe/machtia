@@ -15,24 +15,27 @@ export function LeccionCard({ leccion }: LeccionCardProps) {
     leccion;
 
   return (
-    <Link to={bloqueada ? "#" : `/leccion/${id}`} className="block">
+    <Link
+      to={bloqueada ? "#" : `/leccion/${id}`}
+      className="block h-full"
+      onClick={(e) => bloqueada && e.preventDefault()}
+    >
       <Card
         className={`
-          h-full transition-smooth
-          ${completada ? "border-[#76b57b]/30 bg-gradient-verde-soft hover:shadow-verde card-verde" : ""}
-          ${bloqueada ? "opacity-60 cursor-not-allowed border-gray-200 bg-gradient-gray-lock" : ""}
-          ${!completada && !bloqueada ? "cursor-pointer card-brown border-[#d4a574]/30" : ""}
+          h-full transition-smooth flex flex-col bg-white dark:bg-[#1a1a1a]
+          ${completada ? "border-[#76b57b]/40 shadow-sm hover:shadow-verde-soft" : "border-gray-200 dark:border-gray-700"}
+          ${bloqueada ? "cursor-not-allowed" : "cursor-pointer hover:shadow-md hover:-translate-y-0.5"}
         `}
       >
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0">
-              <CardTitle className="text-base flex items-center gap-2 dark:text-white">
+              <CardTitle className={`text-base flex items-center gap-2 ${bloqueada ? "text-gray-400 dark:text-gray-500" : "text-obsidiana dark:text-white"}`}>
                 <span>Lección {numero}</span>
-                {completada && <CheckCircledIcon className="h-4 w-4 text-[#76b57b] shrink-0" />}
-                {bloqueada && <LockClosedIcon className="h-4 w-4 text-muted-foreground shrink-0" />}
+                {completada && <CheckCircledIcon className="h-4 w-4 text-[#76b57b] dark:text-purple-400 shrink-0" />}
+                {bloqueada && <LockClosedIcon className="h-4 w-4 text-gray-400 dark:text-gray-500 shrink-0" />}
               </CardTitle>
-              <CardDescription className="mt-1 line-clamp-1 dark:text-gray-300">
+              <CardDescription className={`mt-1 line-clamp-1 ${bloqueada ? "text-gray-400 dark:text-gray-500" : "dark:text-gray-300"}`}>
                 {titulo}
               </CardDescription>
             </div>
@@ -40,17 +43,19 @@ export function LeccionCard({ leccion }: LeccionCardProps) {
           </div>
         </CardHeader>
 
-        <CardContent className="pb-4">
-          <p className="text-sm text-muted-foreground dark:text-gray-300 mb-3 line-clamp-2">
+        <CardContent className="pb-4 flex-1 flex flex-col justify-between">
+          <p className={`text-sm mb-3 line-clamp-2 ${bloqueada ? "text-gray-400 dark:text-gray-500" : "text-muted-foreground dark:text-gray-300"}`}>
             {descripcion}
           </p>
 
-          <div className="flex items-center justify-between text-xs text-muted-foreground dark:text-gray-400">
+          <div className="flex items-center justify-between text-xs">
             <div className="flex items-center gap-3">
-              <span>{palabras.length} palabras</span>
+              <span className={bloqueada ? "text-gray-400 dark:text-gray-500" : "text-muted-foreground dark:text-gray-400"}>
+                {palabras.length} palabras
+              </span>
               <Badge
                 variant="outline"
-                className="bg-gradient-sun-soft text-[#f3b62a] border-[#f3b62a]/30"
+                className={`${bloqueada ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 border-gray-300 dark:border-gray-600" : "bg-gradient-sun-soft text-[#f3b62a] border-[#f3b62a]/30"}`}
               >
                 <Coins className="h-3 w-3 mr-1" />+{tomins}
               </Badge>

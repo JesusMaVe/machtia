@@ -17,12 +17,15 @@ export default function LeccionDetallePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Guard: Verificar vidas al cargar
   useEffect(() => {
     const cargarLeccion = async () => {
       if (!leccionId) {
         setError("ID de lección no válido");
         setIsLoading(false);
+        return;
+      }
+
+      if (!user) {
         return;
       }
 
@@ -36,8 +39,7 @@ export default function LeccionDetallePage() {
           return;
         }
 
-        // Guard: Bloquear solo si NO tiene vidas Y la lección NO está completada
-        if (user && user.vidas === 0 && !data.completada) {
+        if (user.vidas === 0 && !data.completada) {
           setError("sin_vidas");
           setIsLoading(false);
           return;
@@ -52,38 +54,33 @@ export default function LeccionDetallePage() {
     };
 
     cargarLeccion();
-  }, [leccionId, user]);
+  }, [leccionId]);
 
   const handleComplete = async () => {
     if (!leccion) return;
 
-    // Si la lección ya está completada, no llamar al backend
     if (leccion.completada) {
-      console.log("Lección en modo práctica - no se ganan tomins");
-      navigate("/aprende");
       return;
     }
 
     try {
       const resultado = await leccionesApi.complete(leccion.id);
 
+      setLeccion({
+        ...leccion,
+        completada: true,
+      });
+
       await refreshUser();
-
-      console.log("Lección completada:", resultado);
-
-      // Redirigir al dashboard después de completar
-      navigate("/aprende");
     } catch (err) {
-      console.error("Error al completar lección:", err);
+
     }
   };
 
   const handleFail = async () => {
     if (!leccion) return;
 
-    // Si la lección ya está completada, no llamar al backend (no perder vidas)
     if (leccion.completada) {
-      console.log("Lección en modo práctica - no se pierden vidas");
       return;
     }
 
@@ -92,13 +89,11 @@ export default function LeccionDetallePage() {
 
       await refreshUser();
 
-      // Auto-redirect: Si se queda sin vidas, abrir modal
       if (resultado.vidasRestantes === 0) {
-        console.log("Sin vidas, abriendo modal:", resultado);
         openModal();
       }
     } catch (err) {
-      console.error("Error al registrar fallo:", err);
+
     }
   };
 

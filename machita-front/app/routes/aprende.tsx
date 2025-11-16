@@ -6,7 +6,9 @@ import type { Nivel } from "@/features/niveles/types";
 import type { Route } from "./+types/aprende";
 import { LoadingButton } from "@/shared/components/atoms";
 import { PyramidHero } from "@/features/dashboard/components/PyramidHero";
-import { NivelesAccordion } from "@/shared/components/organisms";
+import { Link } from "react-router";
+import { Button } from "@/components/ui/button";
+import { ReaderIcon } from "@radix-ui/react-icons";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -47,7 +49,6 @@ export default function AprendePage() {
         const primeraIncompleta = leccionesData.find((l) => !l.completada && !l.bloqueada);
         setProximaLeccion(primeraIncompleta || null);
       } catch (err) {
-        console.error("Error al cargar datos:", err);
         setError("Error al cargar las lecciones");
       } finally {
         setIsLoading(false);
@@ -63,22 +64,6 @@ export default function AprendePage() {
     intermedio: 2,
     avanzado: 3,
   };
-
-  // Calcular lecciones por nivel (agrupadas por dificultad)
-  const leccionesPorNivel = useMemo(() => {
-    const porNivel: Record<number, Leccion[]> = {
-      1: [],
-      2: [],
-      3: [],
-    };
-
-    todasLecciones.forEach((leccion) => {
-      const nivelNum = dificultadToNivel[leccion.dificultad] || 1;
-      porNivel[nivelNum].push(leccion);
-    });
-
-    return porNivel;
-  }, [todasLecciones]);
 
   // Calcular progreso de niveles
   const progresoNiveles = useMemo(() => {
@@ -203,26 +188,22 @@ export default function AprendePage() {
             vidasDisponibles={user.vidas}
           />
 
-          {/* Separador visual */}
-          <div className="relative py-4">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
-            </div>
-            <div className="relative flex justify-center">
-              <span className="bg-cream dark:bg-dark-bg px-4 text-sm text-gray-500 dark:text-gray-400 font-medium">
-                Explora lecciones por nivel
-              </span>
-            </div>
+          {/* CTA para explorar catálogo completo */}
+          <div className="text-center py-8">
+            <Button
+              asChild
+              size="lg"
+              className="bg-gradient-jade hover:shadow-jade-glow text-white shadow-jade-md transition-smooth hover:-translate-y-0.5"
+            >
+              <Link to="/lecciones" className="flex items-center gap-2">
+                <ReaderIcon className="h-5 w-5" />
+                Explorar todas las lecciones
+              </Link>
+            </Button>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-3">
+              Navega por el catálogo completo con filtros por dificultad y tema
+            </p>
           </div>
-
-          {/* Acordeón de niveles con lecciones */}
-          <NivelesAccordion
-            niveles={niveles}
-            nivelActualNumero={nivelActualNumero}
-            todasLecciones={todasLecciones}
-            leccionesPorNivel={leccionesPorNivel}
-            progresoNiveles={progresoNiveles}
-          />
         </div>
       </div>
     </div>

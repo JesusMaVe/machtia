@@ -25,7 +25,7 @@ export function AudioPlayer({ audioUrl, size = "md", variant = "outline" }: Audi
         setIsPlaying(true);
       }
     } catch (error) {
-      console.error("Error reproduciendo audio:", error);
+
     }
   };
 

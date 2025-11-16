@@ -164,35 +164,61 @@ export function LeccionDetalle({ leccion, onComplete, onFail }: LeccionDetallePr
             )}
 
             {/* Action Buttons */}
-            <div className="flex gap-3 pt-4">
-              {/* Back button: Neutral outline, no colored backgrounds */}
-              <Button
-                asChild
-                variant="outline"
-                className="flex-1 border-gray-300 hover:bg-gray-50 transition-colors"
-              >
-                <Link to="/aprende">
-                  <ArrowLeftIcon className="mr-2 h-4 w-4" />
-                  Volver a Lecciones
-                </Link>
-              </Button>
-              {/* Retry CTA: Turquoise primary button (only colored CTA) */}
-              {!aprobado && (
-                <Button
-                  onClick={() => {
-                    setEstado({
-                      leccionId: leccion.id,
-                      palabraActual: 0,
-                      totalPalabras: leccion.palabras.length,
-                      respuestasCorrectas: 0,
-                      respuestasIncorrectas: 0,
-                    });
-                    setMostrarResultado(false);
-                  }}
-                  className="flex-1 bg-gradient-jade hover:shadow-jade-glow text-white transition-all duration-300"
-                >
-                  Intentar de Nuevo
-                </Button>
+            <div className="space-y-3 pt-4">
+              {/* Si aprobó: mostrar opciones de navegación */}
+              {aprobado ? (
+                <>
+                  <div className="flex gap-3">
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="flex-1 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    >
+                      <Link to="/aprende">
+                        <ArrowLeftIcon className="mr-2 h-4 w-4" />
+                        Volver a Aprende
+                      </Link>
+                    </Button>
+                    <Button
+                      asChild
+                      className="flex-1 bg-gradient-jade hover:shadow-jade-glow text-white transition-all duration-300"
+                    >
+                      <Link to="/lecciones">Ver Catálogo</Link>
+                    </Button>
+                  </div>
+                  <p className="text-xs text-center text-gray-500 dark:text-gray-400">
+                    Continúa tu aprendizaje o explora más lecciones
+                  </p>
+                </>
+              ) : (
+                /* Si no aprobó: mostrar reintentar */
+                <div className="flex gap-3">
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="flex-1 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                  >
+                    <Link to="/aprende">
+                      <ArrowLeftIcon className="mr-2 h-4 w-4" />
+                      Volver a Aprende
+                    </Link>
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setEstado({
+                        leccionId: leccion.id,
+                        palabraActual: 0,
+                        totalPalabras: leccion.palabras.length,
+                        respuestasCorrectas: 0,
+                        respuestasIncorrectas: 0,
+                      });
+                      setMostrarResultado(false);
+                    }}
+                    className="flex-1 bg-gradient-jade hover:shadow-jade-glow text-white transition-all duration-300"
+                  >
+                    Intentar de Nuevo
+                  </Button>
+                </div>
               )}
             </div>
           </CardContent>

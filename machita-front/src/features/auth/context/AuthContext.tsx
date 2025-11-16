@@ -79,7 +79,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       await authApi.logout();
     } catch (error) {
-      console.error("Error en logout:", error);
+
     } finally {
       removeToken();
       setUser(null);
@@ -101,7 +101,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await authApi.me();
       setUser(response.user);
     } catch (error) {
-      console.error("Error refreshing user:", error);
+
     }
   };
 
