@@ -406,6 +406,102 @@ def logout(request):
         }, status=status.HTTP_200_OK)
 
 
+@api_view(['POST'])
+@rate_limit_login  # SEGURIDAD: Mismo rate limit que login (5/min)
+def refresh_token(request):
+    """
+    Renueva un access token usando un refresh token válido.
+
+    SEGURIDAD MEDIA CORREGIDA: Implementa sistema de refresh tokens para
+    reducir ventana de exposición de access tokens (15 min vs 24 horas).
+
+    Body:
+        {
+            "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        }
+
+    Returns:
+        JSON con nuevo access_token (refresh_token se mantiene igual)
+    """
+    try:
+        from .utils import decodificar_token, generar_token
+        from .blacklist_models import TokenBlacklist
+        from datetime import datetime
+
+        refresh_token_str = request.data.get('refresh_token')
+
+        if not refresh_token_str:
+            return Response({
+                'status': 'error',
+                'message': 'Refresh token no proporcionado'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Decodificar y validar refresh token
+            payload = decodificar_token(refresh_token_str)
+
+            # SEGURIDAD: Validar que sea un refresh token (no un access token)
+            token_type = payload.get('token_type')
+            if token_type != 'refresh':
+                return Response({
+                    'status': 'error',
+                    'message': 'Token inválido. Se requiere un refresh token.'
+                }, status=status.HTTP_401_UNAUTHORIZED)
+
+            # Obtener user_id del payload
+            user_id = payload.get('user_id')
+            if not user_id:
+                return Response({
+                    'status': 'error',
+                    'message': 'Token inválido'
+                }, status=status.HTTP_401_UNAUTHORIZED)
+
+            # Generar SOLO nuevo access token (refresh token se mantiene)
+            # Usamos la función existente pero solo retornamos el access token
+            tokens = generar_token(user_id)
+
+            # Log de evento de seguridad
+            ip_cliente = obtener_ip_cliente(request)
+            log_security_event(
+                'TOKEN_REFRESHED',
+                user_id=user_id,
+                ip_address=ip_cliente,
+                details='Access token renovado exitosamente',
+                severity='INFO'
+            )
+
+            return Response({
+                'status': 'success',
+                'message': 'Access token renovado exitosamente',
+                'access_token': tokens['access_token'],
+                'token_type': 'Bearer',
+                'access_token_expires_in': tokens['access_token_expires_in']
+                # NO retornamos nuevo refresh_token - se reutiliza el existente
+            }, status=status.HTTP_200_OK)
+
+        except jwt.ExpiredSignatureError:
+            # Refresh token expirado - usuario debe volver a autenticarse
+            return Response({
+                'status': 'error',
+                'message': 'Refresh token expirado. Por favor inicia sesión nuevamente.',
+                'codigo': 'REFRESH_TOKEN_EXPIRED'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+
+        except jwt.InvalidTokenError:
+            # Refresh token inválido o revocado
+            return Response({
+                'status': 'error',
+                'message': 'Refresh token inválido o revocado'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+
+    except Exception as e:
+        return manejar_error_seguro(
+            e,
+            'Error al renovar token. Por favor intenta nuevamente.',
+            contexto='Error en refresh_token()'
+        )
+
+
 @api_view(['GET'])
 @require_auth
 @rate_limit_api  # SEGURIDAD: 100 peticiones por minuto por IP

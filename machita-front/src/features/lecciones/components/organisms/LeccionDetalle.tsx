@@ -72,32 +72,43 @@ export function LeccionDetalle({ leccion, onComplete, onFail }: LeccionDetallePr
   if (mostrarResultado) {
     const porcentajeAciertos = (estado.respuestasCorrectas / estado.totalPalabras) * 100;
     const aprobado = porcentajeAciertos >= 70;
+    const esModoPractica = leccion.completada; // Si ya está completada, es modo práctica
 
     return (
       <div className="max-w-2xl mx-auto">
         {/* MINIMALIST DESIGN: White card with subtle shadow - color only on icon, numbers, and CTA */}
-        <Card className="bg-white border-gray-200 shadow-lg">
+        <Card className="bg-white dark:bg-[#1a1a1a] border-gray-200 dark:border-gray-700 shadow-lg">
           <CardHeader className="text-center">
             {/* Icon Circle: Only colored element at top - green for success, brown for retry */}
             <div className="flex justify-center mb-6">
               {aprobado ? (
-                <div className="h-20 w-20 rounded-full bg-[#76b57b] flex items-center justify-center shadow-sm">
+                <div className="h-20 w-20 rounded-full bg-[#76b57b] dark:bg-purple-600 flex items-center justify-center shadow-sm">
                   <CheckIcon className="h-10 w-10 text-white" />
                 </div>
               ) : (
-                <div className="h-20 w-20 rounded-full bg-[#d4a574] flex items-center justify-center shadow-sm">
+                <div className="h-20 w-20 rounded-full bg-[#d4a574] dark:bg-orange-600 flex items-center justify-center shadow-sm">
                   <Cross2Icon className="h-10 w-10 text-white" />
                 </div>
               )}
             </div>
             {/* Title: Black text, no colored backgrounds */}
-            <CardTitle className="text-2xl text-foreground">
-              {aprobado ? "¡Lección Completada!" : "Inténtalo de Nuevo"}
+            <CardTitle className="text-2xl text-obsidiana dark:text-white">
+              {esModoPractica
+                ? aprobado
+                  ? "¡Práctica Completada!"
+                  : "Práctica - Inténtalo de Nuevo"
+                : aprobado
+                  ? "¡Lección Completada!"
+                  : "Inténtalo de Nuevo"}
             </CardTitle>
-            <CardDescription className="text-muted-foreground">
-              {aprobado
-                ? `Has completado la lección "${leccion.titulo}"`
-                : "Necesitas al menos 70% de aciertos para aprobar"}
+            <CardDescription className="text-gray-600 dark:text-gray-300">
+              {esModoPractica
+                ? aprobado
+                  ? `Modo práctica: "${leccion.titulo}" - Sin vidas ni tomins`
+                  : "Modo práctica: Necesitas al menos 70% de aciertos"
+                : aprobado
+                  ? `Has completado la lección "${leccion.titulo}"`
+                  : "Necesitas al menos 70% de aciertos para aprobar"}
             </CardDescription>
           </CardHeader>
 
@@ -105,18 +116,18 @@ export function LeccionDetalle({ leccion, onComplete, onFail }: LeccionDetallePr
             {/* Stats Cards: WHITE backgrounds, color only on numbers */}
             <div className="grid grid-cols-2 gap-4 text-center">
               {/* Correctas Card: White background, green number only */}
-              <div className="p-5 bg-white border border-gray-200 rounded-lg shadow-sm">
+              <div className="p-5 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
                 <p
-                  className={`text-4xl font-bold ${aprobado ? "text-[#76b57b]" : "text-gray-400"}`}
+                  className={`text-4xl font-bold ${aprobado ? "text-[#76b57b] dark:text-purple-400" : "text-gray-400"}`}
                 >
                   {estado.respuestasCorrectas}
                 </p>
                 <p className="text-sm text-muted-foreground mt-2">Correctas</p>
               </div>
               {/* Incorrectas Card: White background, brown number only (or gray if passed) */}
-              <div className="p-5 bg-white border border-gray-200 rounded-lg shadow-sm">
+              <div className="p-5 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
                 <p
-                  className={`text-4xl font-bold ${!aprobado ? "text-[#d4a574]" : "text-gray-400"}`}
+                  className={`text-4xl font-bold ${!aprobado ? "text-[#d4a574] dark:text-orange-400" : "text-gray-400"}`}
                 >
                   {estado.respuestasIncorrectas}
                 </p>
@@ -126,17 +137,28 @@ export function LeccionDetalle({ leccion, onComplete, onFail }: LeccionDetallePr
 
             {/* Percentage: Black text, no colored background */}
             <div className="text-center py-2">
-              <p className="text-5xl font-bold text-foreground">
+              <p className="text-5xl font-bold text-obsidiana dark:text-white">
                 {Math.round(porcentajeAciertos)}%
               </p>
               <p className="text-sm text-muted-foreground mt-2">Porcentaje de aciertos</p>
             </div>
 
-            {/* Tomin Badge: Gold color (only colored accent besides icon and CTA) */}
-            {aprobado && (
-              <div className="text-center p-4 bg-white border-2 border-[#f3b62a] rounded-lg">
+            {/* Tomin Badge: Gold color - SOLO si NO es modo práctica y aprobó */}
+            {aprobado && !esModoPractica && (
+              <div className="text-center p-4 bg-white dark:bg-[#0a0a0a] border-2 border-[#f3b62a] rounded-lg">
                 <p className="text-lg font-semibold text-[#f3b62a] flex items-center justify-center gap-2">
                   <Coins className="h-5 w-5" />+{leccion.tomins} tomins ganados
+                </p>
+              </div>
+            )}
+
+            {/* Mensaje informativo en modo práctica */}
+            {esModoPractica && (
+              <div className="text-center p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  Modo práctica: Esta lección ya fue completada.
+                  <br />
+                  No ganas tomins ni pierdes vidas al practicar.
                 </p>
               </div>
             )}
@@ -181,6 +203,18 @@ export function LeccionDetalle({ leccion, onComplete, onFail }: LeccionDetallePr
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      {/* Banner de modo práctica */}
+      {leccion.completada && (
+        <div className="bg-blue-50 dark:bg-blue-950/20 border-l-4 border-blue-500 p-4 rounded-r-lg">
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+            <p className="text-sm font-medium text-blue-700 dark:text-blue-300">
+              Modo Práctica - Esta lección ya fue completada. No ganarás tomins ni perderás vidas.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Button asChild variant="ghost" size="sm">
@@ -189,8 +223,13 @@ export function LeccionDetalle({ leccion, onComplete, onFail }: LeccionDetallePr
             </Link>
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">{leccion.titulo}</h1>
-            <p className="text-sm text-gray-600">{leccion.descripcion}</p>
+            <h1 className="text-2xl font-bold text-obsidiana dark:text-white">
+              {leccion.titulo}
+              {leccion.completada && (
+                <span className="ml-2 text-sm text-blue-600 dark:text-blue-400">(Práctica)</span>
+              )}
+            </h1>
+            <p className="text-sm text-gray-600 dark:text-gray-300">{leccion.descripcion}</p>
           </div>
         </div>
         <NivelDificultadBadge dificultad={leccion.dificultad} />

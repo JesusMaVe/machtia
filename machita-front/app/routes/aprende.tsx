@@ -185,7 +185,9 @@ export default function AprendePage() {
         <div className="space-y-12">
           {/* Sección de bienvenida */}
           <div className="space-y-2 text-center">
-            <h1 className="text-4xl font-bold text-obsidiana dark:text-white">¡Bienvenido, {user.nombre}!</h1>
+            <h1 className="text-4xl font-bold text-obsidiana dark:text-white">
+              ¡Bienvenido, {user.nombre}!
+            </h1>
             <p className="text-gray-600 dark:text-gray-300 text-lg">
               Continúa tu aprendizaje de Náhuatl desde donde lo dejaste
             </p>

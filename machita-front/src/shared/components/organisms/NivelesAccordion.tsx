@@ -176,7 +176,9 @@ export function NivelesAccordion({
                   {/* Filtros */}
                   {temasDisponibles.length > 0 && (
                     <div className="mb-6 flex items-center gap-3">
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Filtrar por tema:</span>
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Filtrar por tema:
+                      </span>
                       <Select
                         value={filtrosTema[nivel.numero] || "todos"}
                         onValueChange={(value) => handleFiltroTemaChange(nivel.numero, value)}
@@ -210,7 +212,9 @@ export function NivelesAccordion({
                     <LeccionesGrid lecciones={leccionesFiltradas} />
                   ) : (
                     <div className="text-center py-12">
-                      <p className="text-gray-500 dark:text-gray-400">No hay lecciones disponibles con este filtro</p>
+                      <p className="text-gray-500 dark:text-gray-400">
+                        No hay lecciones disponibles con este filtro
+                      </p>
                       <Button
                         onClick={() => limpiarFiltro(nivel.numero)}
                         variant="link"

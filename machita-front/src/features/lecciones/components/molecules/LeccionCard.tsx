@@ -32,14 +32,18 @@ export function LeccionCard({ leccion }: LeccionCardProps) {
                 {completada && <CheckCircledIcon className="h-4 w-4 text-[#76b57b] shrink-0" />}
                 {bloqueada && <LockClosedIcon className="h-4 w-4 text-muted-foreground shrink-0" />}
               </CardTitle>
-              <CardDescription className="mt-1 line-clamp-1 dark:text-gray-300">{titulo}</CardDescription>
+              <CardDescription className="mt-1 line-clamp-1 dark:text-gray-300">
+                {titulo}
+              </CardDescription>
             </div>
             <NivelDificultadBadge dificultad={dificultad} size="sm" />
           </div>
         </CardHeader>
 
         <CardContent className="pb-4">
-          <p className="text-sm text-muted-foreground dark:text-gray-300 mb-3 line-clamp-2">{descripcion}</p>
+          <p className="text-sm text-muted-foreground dark:text-gray-300 mb-3 line-clamp-2">
+            {descripcion}
+          </p>
 
           <div className="flex items-center justify-between text-xs text-muted-foreground dark:text-gray-400">
             <div className="flex items-center gap-3">

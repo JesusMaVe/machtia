@@ -15,41 +15,69 @@ from .blacklist_models import TokenBlacklist
 
 def generar_token(usuario_id: str) -> dict:
     """
-    Genera un token JWT para el usuario con JWT ID único (jti).
+    Genera tokens JWT (Access + Refresh) para el usuario con JWT ID únicos (jti).
 
-    SEGURIDAD: El campo 'jti' permite rastrear y revocar tokens específicos
-    mediante el sistema de blacklist.
+    SEGURIDAD MEDIA CORREGIDA:
+    - Access Token: 15 minutos (antes 24 horas) - para operaciones diarias
+    - Refresh Token: 7 días - para renovar access tokens sin volver a autenticar
+    - Cada token tiene su propio jti para blacklist individual
 
     Args:
         usuario_id (str): ID del usuario en MongoDB
 
     Returns:
-        dict: Diccionario con 'access_token', 'expires_in' y 'jti'
+        dict: {
+            'access_token': str,
+            'refresh_token': str,
+            'access_token_expires_in': int (segundos),
+            'refresh_token_expires_in': int (segundos),
+            'token_type': 'Bearer'
+        }
     """
-    # Generar JWT ID único (jti) para este token
-    jti = str(uuid.uuid4())
+    # Generar Access Token (corto plazo - 15 minutos)
+    access_jti = str(uuid.uuid4())
+    access_exp = datetime.utcnow() + timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRATION_MINUTES)
 
-    # Calcular expiración
-    exp = datetime.utcnow() + timedelta(hours=settings.JWT_EXPIRATION_HOURS)
-
-    payload = {
+    access_payload = {
         'user_id': str(usuario_id),
-        'jti': jti,  # SEGURIDAD: JWT ID único para blacklist
-        'exp': exp,
+        'jti': access_jti,
+        'token_type': 'access',  # NUEVO: Identificar tipo de token
+        'exp': access_exp,
         'iat': datetime.utcnow()
     }
 
-    token = jwt.encode(
-        payload,
+    access_token = jwt.encode(
+        access_payload,
+        settings.JWT_SECRET,
+        algorithm=settings.JWT_ALGORITHM
+    )
+
+    # Generar Refresh Token (largo plazo - 7 días)
+    refresh_jti = str(uuid.uuid4())
+    refresh_exp = datetime.utcnow() + timedelta(days=settings.JWT_REFRESH_TOKEN_EXPIRATION_DAYS)
+
+    refresh_payload = {
+        'user_id': str(usuario_id),
+        'jti': refresh_jti,
+        'token_type': 'refresh',  # NUEVO: Identificar tipo de token
+        'exp': refresh_exp,
+        'iat': datetime.utcnow()
+    }
+
+    refresh_token = jwt.encode(
+        refresh_payload,
         settings.JWT_SECRET,
         algorithm=settings.JWT_ALGORITHM
     )
 
     return {
-        'access_token': token,
+        'access_token': access_token,
+        'refresh_token': refresh_token,
         'token_type': 'Bearer',
-        'expires_in': settings.JWT_EXPIRATION_HOURS * 3600,  # En segundos
-        'jti': jti  # Retornar jti para posible uso futuro
+        'access_token_expires_in': settings.JWT_ACCESS_TOKEN_EXPIRATION_MINUTES * 60,  # En segundos
+        'refresh_token_expires_in': settings.JWT_REFRESH_TOKEN_EXPIRATION_DAYS * 24 * 3600,  # En segundos
+        'access_jti': access_jti,  # Para debugging/logging
+        'refresh_jti': refresh_jti  # Para debugging/logging
     }
 
 
@@ -325,13 +353,19 @@ def serializar_usuario(usuario) -> dict:
 
 def validar_password_segura(password: str) -> tuple[bool, str]:
     """
-    Valida que la contraseña cumpla con requisitos de seguridad.
+    Valida que la contraseña cumpla con requisitos de seguridad estrictos.
 
-    Requisitos:
-    - Mínimo 8 caracteres
-    - Al menos 1 letra mayúscula
-    - Al menos 1 letra minúscula
-    - Al menos 1 número
+    SEGURIDAD MEDIA CORREGIDA: Protege contra contraseñas débiles, comunes y fácilmente adivinables.
+
+    Requisitos ESTRICTOS:
+    - Mínimo 12 caracteres (aumentado desde 8)
+    - Al menos 3 de los 4 tipos de caracteres:
+      * Mayúsculas (A-Z)
+      * Minúsculas (a-z)
+      * Números (0-9)
+      * Símbolos (!@#$%^&*()_+-=[]{}|;:,.<>?)
+    - NO estar en blacklist de contraseñas comunes
+    - NO contener secuencias obvias (123456, abcdef)
 
     Args:
         password (str): Contraseña a validar
@@ -343,16 +377,69 @@ def validar_password_segura(password: str) -> tuple[bool, str]:
     """
     import re
 
-    if len(password) < 8:
-        return False, 'La contraseña debe tener al menos 8 caracteres'
+    # Blacklist de contraseñas más comunes (Top 50)
+    # Fuente: OWASP, HaveIBeenPwned, NordPass research
+    CONTRASENAS_COMUNES = {
+        'password', 'password123', 'password1234', 'password12345',
+        '123456', '1234567', '12345678', '123456789', '1234567890',
+        'qwerty', 'qwerty123', 'qwertyuiop',
+        'abc123', 'abc123456',
+        'admin', 'admin123', 'admin1234',
+        'letmein', 'welcome', 'welcome123',
+        'monkey', 'dragon', 'master',
+        'sunshine', 'princess', 'football',
+        'iloveyou', 'starwars', 'batman',
+        'trustno1', 'pass', 'pass123',
+        'passw0rd', 'p@ssw0rd', 'p@ssword',
+        '111111', '000000', '121212',
+        'nahuatl', 'nahuatl123', 'machtia', 'machtia123',
+        'test', 'test123', 'test1234',
+        'guest', 'guest123', 'usuario', 'usuario123',
+        'changeme', 'change_me',
+    }
 
-    if not re.search(r'[A-Z]', password):
-        return False, 'La contraseña debe contener al menos una letra mayúscula'
+    # Requisito 1: Longitud mínima 12 caracteres
+    if len(password) < 12:
+        return False, 'La contraseña debe tener al menos 12 caracteres'
 
-    if not re.search(r'[a-z]', password):
-        return False, 'La contraseña debe contener al menos una letra minúscula'
+    # Requisito 2: Contar tipos de caracteres presentes
+    tiene_mayuscula = bool(re.search(r'[A-Z]', password))
+    tiene_minuscula = bool(re.search(r'[a-z]', password))
+    tiene_numero = bool(re.search(r'\d', password))
+    tiene_simbolo = bool(re.search(r'[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]', password))
 
-    if not re.search(r'\d', password):
-        return False, 'La contraseña debe contener al menos un número'
+    tipos_presentes = sum([tiene_mayuscula, tiene_minuscula, tiene_numero, tiene_simbolo])
+
+    if tipos_presentes < 3:
+        return False, (
+            'La contraseña debe contener al menos 3 de los siguientes: '
+            'mayúsculas, minúsculas, números, símbolos (!@#$%^&*()_+-=[]{}|;:,.<>?)'
+        )
+
+    # Requisito 3: Blacklist de contraseñas comunes
+    password_lower = password.lower()
+    if password_lower in CONTRASENAS_COMUNES:
+        return False, 'Esta contraseña es muy común y no está permitida. Elige una más segura.'
+
+    # Requisito 4: Detectar secuencias numéricas obvias
+    secuencias_numericas = [
+        '012345', '123456', '234567', '345678', '456789',
+        '098765', '987654', '876543', '765432', '654321',
+        '111111', '222222', '333333', '444444', '555555',
+        '666666', '777777', '888888', '999999', '000000',
+    ]
+    for secuencia in secuencias_numericas:
+        if secuencia in password:
+            return False, 'La contraseña no puede contener secuencias numéricas obvias (123456, 111111, etc.)'
+
+    # Requisito 5: Detectar secuencias alfabéticas obvias
+    secuencias_alfabeticas = ['abcdef', 'qwerty', 'asdfgh', 'zxcvbn']
+    for secuencia in secuencias_alfabeticas:
+        if secuencia in password_lower:
+            return False, 'La contraseña no puede contener secuencias de teclado obvias (qwerty, asdfgh, etc.)'
+
+    # Requisito 6: No repetir caracteres más de 3 veces consecutivas
+    if re.search(r'(.)\1{3,}', password):
+        return False, 'La contraseña no puede tener el mismo carácter repetido más de 3 veces consecutivas'
 
     return True, None

@@ -92,17 +92,35 @@ class Usuario(Document):
 
     def agregar_tomin(self, cantidad: int) -> None:
         """
-        Agrega tomins al usuario (nunca permite valores negativos).
+        Agrega tomins al usuario usando operación atómica (nunca permite valores negativos).
+
+        SEGURIDAD MEDIA CORREGIDA: Usa operaciones atómicas de MongoDB para
+        prevenir race conditions.
 
         Args:
             cantidad (int): Cantidad de tomins a agregar
         """
-        self.tomin = max(0, self.tomin + cantidad)
-        self.save()
+        from mongoengine.connection import get_db
+        from bson import ObjectId
+
+        # OPERACIÓN ATÓMICA: Incrementar tomins
+        db = get_db()
+        result = db.usuarios.find_one_and_update(
+            {'_id': ObjectId(self.id)},
+            {'$inc': {'tomin': cantidad}},  # Incrementar atómicamente
+            return_document=True
+        )
+
+        if result:
+            # Actualizar objeto local con el valor atómico
+            self.tomin = result['tomin']
 
     def usar_tomin(self, cantidad: int) -> bool:
         """
-        Usa tomins del usuario si tiene suficientes.
+        Usa tomins del usuario si tiene suficientes (operación atómica).
+
+        SEGURIDAD MEDIA CORREGIDA: Usa operaciones atómicas de MongoDB para
+        prevenir race conditions en compras simultáneas.
 
         Args:
             cantidad (int): Cantidad de tomins a usar
@@ -110,9 +128,25 @@ class Usuario(Document):
         Returns:
             bool: True si se pudieron usar, False si no tenía suficientes
         """
-        if self.tomin >= cantidad:
-            self.tomin -= cantidad
-            self.save()
+        from mongoengine.connection import get_db
+        from bson import ObjectId
+
+        # OPERACIÓN ATÓMICA: Decrementar tomins solo si tiene suficientes
+        db = get_db()
+        result = db.usuarios.find_one_and_update(
+            {
+                '_id': ObjectId(self.id),
+                'tomin': {'$gte': cantidad}  # Solo si tiene suficientes tomins
+            },
+            {
+                '$inc': {'tomin': -cantidad}  # Decrementar atómicamente
+            },
+            return_document=True
+        )
+
+        if result:
+            # Actualizar objeto local con el valor atómico
+            self.tomin = result['tomin']
             return True
         return False
 
@@ -217,29 +251,76 @@ class Usuario(Document):
 
     def usar_vida(self) -> bool:
         """
-        Usa una vida del usuario si tiene disponibles.
+        Usa una vida del usuario si tiene disponibles (operación atómica).
+
+        SEGURIDAD MEDIA CORREGIDA: Usa operaciones atómicas de MongoDB para
+        prevenir race conditions cuando múltiples peticiones simultáneas intentan
+        usar vidas al mismo tiempo.
 
         Returns:
             bool: True si se pudo usar, False si no tiene vidas
         """
+        from mongoengine.connection import get_db
+        from bson import ObjectId
+
         # Primero intentar regenerar vidas
         self.regenerar_vidas()
 
-        if self.vidas > 0:
-            self.vidas -= 1
-            self.save()
+        # OPERACIÓN ATÓMICA: Decrementar vidas solo si > 0
+        # Usa findAndModify para garantizar atomicidad
+        db = get_db()
+        result = db.usuarios.find_one_and_update(
+            {
+                '_id': ObjectId(self.id),
+                'vidas': {'$gt': 0}  # Solo si tiene vidas disponibles
+            },
+            {
+                '$inc': {'vidas': -1}  # Decrementar atómicamente
+            },
+            return_document=True  # Retornar documento actualizado
+        )
+
+        if result:
+            # Actualizar objeto local con el valor atómico
+            self.vidas = result['vidas']
             return True
         return False
 
     def agregar_vida(self, cantidad: int = 1) -> None:
         """
-        Agrega vidas al usuario (máximo 5).
+        Agrega vidas al usuario (máximo 5) usando operación atómica.
+
+        SEGURIDAD MEDIA CORREGIDA: Usa operaciones atómicas de MongoDB para
+        prevenir race conditions.
 
         Args:
             cantidad (int): Cantidad de vidas a agregar (default: 1)
         """
-        self.vidas = min(5, self.vidas + cantidad)
-        self.save()
+        from mongoengine.connection import get_db
+        from bson import ObjectId
+
+        # OPERACIÓN ATÓMICA: Agregar vidas pero mantener máximo de 5
+        db = get_db()
+        result = db.usuarios.find_one_and_update(
+            {'_id': ObjectId(self.id)},
+            [
+                {
+                    '$set': {
+                        'vidas': {
+                            '$min': [
+                                5,  # Máximo 5 vidas
+                                {'$add': ['$vidas', cantidad]}  # Sumar cantidad
+                            ]
+                        }
+                    }
+                }
+            ],
+            return_document=True
+        )
+
+        if result:
+            # Actualizar objeto local con el valor atómico
+            self.vidas = result['vidas']
 
     def tiene_vidas_disponibles(self) -> bool:
         """

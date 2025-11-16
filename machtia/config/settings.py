@@ -69,10 +69,15 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # SEGURIDAD MEDIA CORREGIDA: Headers de seguridad HTTP modernos (CSP, Permissions-Policy)
+    'apps.autenticacion.security_headers_middleware.SecurityHeadersMiddleware',
     'corsheaders.middleware.CorsMiddleware',  # CORS debe estar antes de CommonMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # CSRF nativo de Django deshabilitado para APIs REST con JWT
+    # 'django.middleware.csrf.CsrfViewMiddleware',
+    # SEGURIDAD MEDIA CORREGIDA: Protección CSRF personalizada para APIs REST
+    'apps.autenticacion.csrf_middleware.CSRFProtectionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -235,13 +240,25 @@ if not JWT_SECRET or JWT_SECRET == 'tu_jwt_secret_aqui':
         'Luego agrégalo a tu archivo .env: JWT_SECRET=<valor_generado>'
     )
 JWT_ALGORITHM = 'HS256'
+
+# SEGURIDAD MEDIA CORREGIDA: Tiempos de expiración reducidos para mayor seguridad
+# Access Token: 15 minutos (antes 24 horas) - token de corto plazo para operaciones
+# Refresh Token: 7 días - token de largo plazo para renovar access tokens
+JWT_ACCESS_TOKEN_EXPIRATION_MINUTES = 15  # 15 minutos
+JWT_REFRESH_TOKEN_EXPIRATION_DAYS = 7     # 7 días
+
+# DEPRECATED: JWT_EXPIRATION_HOURS - Usar JWT_ACCESS_TOKEN_EXPIRATION_MINUTES
+# Mantener por compatibilidad temporal pero no se usa
 JWT_EXPIRATION_HOURS = 24
 
 # ===========================
 # SECURITY HEADERS (PRODUCCIÓN)
 # ===========================
-# Headers de seguridad HTTP - solo aplican cuando DEBUG=False (producción)
+# SEGURIDAD MEDIA CORREGIDA: Headers de seguridad HTTP mejorados y modernos
+# Solo aplican cuando DEBUG=False (producción)
 if not DEBUG:
+    # === Headers BÁSICOS (ya existían) ===
+
     # Previene ataques XSS mediante el navegador
     SECURE_BROWSER_XSS_FILTER = True
 
@@ -263,6 +280,40 @@ if not DEBUG:
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
+
+    # === Headers ADICIONALES (nuevos para seguridad media) ===
+
+    # Referrer Policy: No enviar información del referrer a otros sitios
+    # 'strict-origin-when-cross-origin' es el balance entre seguridad y funcionalidad
+    SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+
+    # Proxy Header: Validar que X-Forwarded-Proto sea HTTPS
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# === Headers que aplican SIEMPRE (desarrollo y producción) ===
+
+# Content Security Policy (CSP) - Previene XSS y data injection
+# Para API REST, política más permisiva (frontend maneja el CSP visual)
+CSP_DEFAULT_SRC = ["'self'"]
+CSP_SCRIPT_SRC = ["'self'"]
+CSP_STYLE_SRC = ["'self'", "'unsafe-inline'"]  # unsafe-inline necesario para algunos admin panels
+CSP_IMG_SRC = ["'self'", "data:", "https:"]
+CSP_FONT_SRC = ["'self'"]
+CSP_CONNECT_SRC = ["'self'"]
+CSP_FRAME_ANCESTORS = ["'none'"]  # Equivalente a X-Frame-Options: DENY
+
+# Permissions Policy (antes Feature Policy)
+# Deshabilita APIs peligrosas del navegador que no necesitamos
+PERMISSIONS_POLICY = {
+    'geolocation': [],         # No usar geolocalización
+    'microphone': [],          # No usar micrófono
+    'camera': [],              # No usar cámara
+    'payment': [],             # No usar Payment Request API
+    'usb': [],                 # No usar USB
+    'magnetometer': [],        # No usar magnetómetro
+    'gyroscope': [],           # No usar giroscopio
+    'accelerometer': [],       # No usar acelerómetro
+}
 
 # ===========================
 # LOGGING Y SEGURIDAD

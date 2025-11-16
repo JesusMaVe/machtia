@@ -16,13 +16,17 @@ import { SunIcon, MoonIcon } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
 import { progresoApi, type Racha } from "@/features/progreso";
 import { useTheme } from "@/shared/context";
+import { CompraVidasModal, useVidasModal, vidasApi, type EstadoVidas } from "@/features/vidas";
 
 export default function AppLayout() {
-  const { user, isAuthenticated, logout, isLoading } = useAuth();
+  const { user, isAuthenticated, logout, isLoading, refreshUser } = useAuth();
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
+  const { isOpen, closeModal } = useVidasModal();
   const [racha, setRacha] = useState<Racha | null>(null);
+  const [estadoVidas, setEstadoVidas] = useState<EstadoVidas | null>(null);
 
+  // Cargar racha
   useEffect(() => {
     const cargarRacha = async () => {
       try {
@@ -37,6 +41,29 @@ export default function AppLayout() {
       cargarRacha();
     }
   }, [isAuthenticated]);
+
+  // Cargar estado de vidas
+  useEffect(() => {
+    const cargarEstadoVidas = async () => {
+      try {
+        const estado = await vidasApi.getEstado();
+        setEstadoVidas(estado);
+      } catch (err) {
+        console.error("Error al cargar estado de vidas:", err);
+      }
+    };
+
+    if (isAuthenticated) {
+      cargarEstadoVidas();
+    }
+  }, [isAuthenticated]);
+
+  const handleCompraExitosa = async () => {
+    // Refrescar usuario y estado de vidas
+    await refreshUser();
+    const nuevoEstado = await vidasApi.getEstado();
+    setEstadoVidas(nuevoEstado);
+  };
 
   if (isLoading) {
     return (
@@ -158,6 +185,17 @@ export default function AppLayout() {
       {/* Sidebar flotante con gamificación */}
       {user && (
         <FloatingSidebar vidas={user.vidas} tomins={user.tomin} racha={racha?.diasActuales || 0} />
+      )}
+
+      {/* Modal de vidas - Controlado por URL params */}
+      {user && (
+        <CompraVidasModal
+          open={isOpen}
+          onOpenChange={closeModal}
+          vidasActuales={user.vidas}
+          tominsDisponibles={user.tomin}
+          onCompraExitosa={handleCompraExitosa}
+        />
       )}
 
       {/* Contenido principal */}

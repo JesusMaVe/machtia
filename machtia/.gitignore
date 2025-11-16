@@ -76,6 +76,7 @@ staticfiles/
 media/
 local_settings.py
 CORRECCIONES_VULNERABILIDADES_ALTAS.md
+CORRECCIONES_VULNERABILIDADES_MEDIAS.md
 # Flask / Pyramid
 instance/
 .webassets-cache
