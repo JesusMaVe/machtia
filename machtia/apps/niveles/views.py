@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from mongoengine.connection import get_db
 from bson import ObjectId
-from apps.autenticacion.utils import require_auth
+from apps.autenticacion.utils import require_auth, require_role
 from .models import Nivel
 from .serializers import serializar_nivel_frontend
 
@@ -129,7 +129,7 @@ def obtener_nivel(request, nivel_id):
 
 
 @api_view(['POST'])
-@require_auth
+@require_role(['admin', 'profesor'])  # SEGURIDAD: Solo admin y profesor pueden crear niveles
 def crear_nivel(request):
     """
     POST /api/niveles/
@@ -142,7 +142,7 @@ def crear_nivel(request):
         - dificultad: principiante, intermedio o avanzado
         - contenido: Descripción del contenido
 
-    Requiere autenticación.
+    SEGURIDAD: Requiere rol 'admin' o 'profesor'.
     """
     try:
         data = request.data
@@ -196,7 +196,7 @@ def crear_nivel(request):
 
 
 @api_view(['PUT', 'PATCH'])
-@require_auth
+@require_role(['admin', 'profesor'])  # SEGURIDAD: Solo admin y profesor pueden actualizar niveles
 def actualizar_nivel(request, nivel_id):
     """
     PUT/PATCH /api/niveles/:id/
@@ -209,7 +209,7 @@ def actualizar_nivel(request, nivel_id):
         - dificultad
         - contenido
 
-    Requiere autenticación.
+    SEGURIDAD: Requiere rol 'admin' o 'profesor'.
     """
     try:
         db = get_db()
@@ -276,7 +276,7 @@ def actualizar_nivel(request, nivel_id):
 
 
 @api_view(['DELETE'])
-@require_auth
+@require_role(['admin'])  # SEGURIDAD: Solo admin puede eliminar niveles
 def eliminar_nivel(request, nivel_id):
     """
     DELETE /api/niveles/:id/
@@ -286,7 +286,7 @@ def eliminar_nivel(request, nivel_id):
     ADVERTENCIA: Esto puede causar problemas si usuarios tienen este nivel
     en su progreso. Usar con precaución.
 
-    Requiere autenticación.
+    SEGURIDAD: Requiere rol 'admin' únicamente.
     """
     try:
         db = get_db()

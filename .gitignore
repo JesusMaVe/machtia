@@ -18,6 +18,9 @@ INTEGRACION_NIVELES.md
 CAMBIOS_INTEGRACION.md
 RESUMEN_CAMBIOS.md
 .playwright-mcp/
+.serena
+ANALISIS_APIS_BACKEND_FRONTEND.md
+AUDITORIA_SEGURIDAD_BACKEND.md
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

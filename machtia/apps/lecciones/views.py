@@ -6,7 +6,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from mongoengine.connection import get_db
 from bson import ObjectId
-from apps.autenticacion.utils import require_auth
+from apps.autenticacion.utils import require_auth, require_role
+from apps.autenticacion.security_utils import sanitizar_input_mongo
 from apps.progreso.models import Racha
 from .models import Leccion, Palabra
 from .serializers import serializar_leccion_frontend, serializar_resultado_completar, serializar_resultado_fallar
@@ -30,27 +31,49 @@ def listar_lecciones(request):
     try:
         db = get_db()
 
-        # Construir filtro
+        # Construir filtro con validación de seguridad
         filtro = {}
 
+        # SEGURIDAD: Validar dificultad con whitelist
         dificultad = request.GET.get('dificultad')
-        if dificultad and dificultad in ['principiante', 'intermedio', 'avanzado']:
-            filtro['dificultad'] = dificultad
+        if dificultad:
+            dificultades_permitidas = ['principiante', 'intermedio', 'avanzado']
+            try:
+                dificultad_sanitizada = sanitizar_input_mongo(
+                    dificultad, tipo_esperado=str, max_length=20, campo_nombre='dificultad'
+                )
+                if dificultad_sanitizada not in dificultades_permitidas:
+                    return Response({
+                        'error': f'Dificultad debe ser: {", ".join(dificultades_permitidas)}'
+                    }, status=status.HTTP_400_BAD_REQUEST)
+                filtro['dificultad'] = dificultad_sanitizada
+            except ValueError as e:
+                return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+        # SEGURIDAD: Sanitizar tema
         tema = request.GET.get('tema')
         if tema:
-            filtro['tema'] = tema
+            try:
+                filtro['tema'] = sanitizar_input_mongo(
+                    tema, tipo_esperado=str, max_length=50, campo_nombre='tema'
+                )
+            except ValueError as e:
+                return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+        # SEGURIDAD: Validar nivel_id como entero
         nivel_id = request.GET.get('nivel_id')
         if nivel_id:
             try:
-                filtro['nivel_id'] = int(nivel_id)
-            except ValueError:
+                nivel_id_int = int(nivel_id)
+                filtro['nivel_id'] = sanitizar_input_mongo(
+                    nivel_id_int, tipo_esperado=int, campo_nombre='nivel_id'
+                )
+            except (ValueError, TypeError) as e:
                 return Response({
-                    'error': 'nivel_id debe ser un número entero'
+                    'error': 'nivel_id debe ser un número entero válido'
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-        # Buscar lecciones
+        # Buscar lecciones con filtros sanitizados
         lecciones_cursor = db.lecciones.find(filtro).sort('_id', 1)
 
         # Obtener usuario si está autenticado (sin requerir auth)
@@ -97,15 +120,18 @@ def obtener_leccion(request, leccion_id):
     try:
         db = get_db()
 
-        # Convertir leccion_id a int (nuestro _id es IntField)
+        # SEGURIDAD: Convertir y validar leccion_id
         try:
             leccion_id = int(leccion_id)
-        except ValueError:
+            leccion_id = sanitizar_input_mongo(
+                leccion_id, tipo_esperado=int, campo_nombre='leccion_id'
+            )
+        except (ValueError, TypeError) as e:
             return Response({
                 'error': 'ID de lección inválido'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        # Buscar lección
+        # Buscar lección con ID sanitizado
         leccion_data = db.lecciones.find_one({'_id': leccion_id})
 
         if not leccion_data:
@@ -289,7 +315,7 @@ def completar_leccion(request, leccion_id):
 
 
 @api_view(['POST'])
-@require_auth
+@require_role(['admin', 'profesor'])  # SEGURIDAD: Solo admin y profesor pueden crear lecciones
 def crear_leccion(request):
     """
     POST /api/lecciones/
@@ -304,7 +330,7 @@ def crear_leccion(request):
         - tominsAlCompletar: Tomins de recompensa (default: 5)
         - palabras: Array de {palabra_nahuatl, español, audio (opcional)}
 
-    Requiere autenticación.
+    SEGURIDAD: Requiere rol 'admin' o 'profesor'.
     """
     try:
         data = request.data
@@ -371,7 +397,7 @@ def crear_leccion(request):
 
 
 @api_view(['PUT', 'PATCH'])
-@require_auth
+@require_role(['admin', 'profesor'])  # SEGURIDAD: Solo admin y profesor pueden actualizar lecciones
 def actualizar_leccion(request, leccion_id):
     """
     PUT/PATCH /api/lecciones/:id/
@@ -386,7 +412,7 @@ def actualizar_leccion(request, leccion_id):
         - tominsAlCompletar
         - palabras
 
-    Requiere autenticación.
+    SEGURIDAD: Requiere rol 'admin' o 'profesor'.
     """
     try:
         db = get_db()
@@ -528,7 +554,7 @@ def fallar_leccion(request, leccion_id):
 
 
 @api_view(['DELETE'])
-@require_auth
+@require_role(['admin'])  # SEGURIDAD: Solo admin puede eliminar lecciones
 def eliminar_leccion(request, leccion_id):
     """
     DELETE /api/lecciones/:id/
@@ -538,7 +564,7 @@ def eliminar_leccion(request, leccion_id):
     ADVERTENCIA: Esto puede causar problemas si usuarios tienen esta lección
     en su progreso. Usar con precaución.
 
-    Requiere autenticación.
+    SEGURIDAD: Requiere rol 'admin' únicamente.
     """
     try:
         db = get_db()

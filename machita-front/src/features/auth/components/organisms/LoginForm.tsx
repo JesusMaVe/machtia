@@ -113,14 +113,6 @@ export function LoginForm({ onSuccess, showCard = true }: LoginFormProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>{formContent}</CardContent>
-      <CardFooter className="flex flex-col space-y-4">
-        <div className="text-sm text-muted-foreground text-center">
-          ¿No tienes una cuenta?{" "}
-          <Link to="/register" className="text-primary hover:underline font-medium">
-            Regístrate aquí
-          </Link>
-        </div>
-      </CardFooter>
     </Card>
   );
 }

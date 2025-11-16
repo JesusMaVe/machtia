@@ -153,7 +153,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # ===========================
 # MONGODB CONFIGURATION
 # ===========================
-MONGODB_URI = os.getenv('MONGODB_URI', 'mongodb://nahuatl_user:nahuatl_pass@localhost:27017/nahuatl_db')
+# SEGURIDAD: Requiere que MONGODB_URI esté configurado, sin fallback inseguro
+MONGODB_URI = os.getenv('MONGODB_URI')
+if not MONGODB_URI:
+    raise ValueError(
+        'MONGODB_URI no está configurado en el archivo .env.\n'
+        'Genera credenciales seguras con: python generate_credentials.py\n'
+        'Luego configura MONGODB_URI en el archivo .env'
+    )
 
 # Configurar conexión a MongoDB usando mongoengine
 mongoengine.connect(
@@ -174,6 +181,32 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
+
+# Permitir todos los headers comunes para preflight
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+# Permitir todos los métodos HTTP
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+# Cachear respuestas preflight por 24 horas
+CORS_PREFLIGHT_MAX_AGE = 86400
 
 # ===========================
 # REST FRAMEWORK CONFIGURATION

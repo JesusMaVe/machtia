@@ -27,6 +27,16 @@ class Usuario(Document):
     nombre = StringField(required=True, max_length=100)
     password = StringField(required=True)
 
+    # SEGURIDAD: Sistema de roles para control de acceso (RBAC)
+    # - estudiante: Usuario normal, solo puede ver y completar lecciones
+    # - profesor: Puede crear y editar lecciones/niveles
+    # - admin: Acceso total (crear, editar, eliminar)
+    rol = StringField(
+        required=True,
+        default='estudiante',
+        choices=['estudiante', 'profesor', 'admin']
+    )
+
     # Campos de progreso
     tomin = IntField(default=0, min_value=0)
     vidas = IntField(default=3, min_value=0, max_value=5)

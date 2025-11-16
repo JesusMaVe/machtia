@@ -2,27 +2,40 @@
 Utilidades para autenticación JWT
 """
 import jwt
+import uuid
 from datetime import datetime, timedelta
 from django.conf import settings
 from functools import wraps
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Usuario
+from .security_utils import sanitizar_user_id
+from .blacklist_models import TokenBlacklist
 
 
 def generar_token(usuario_id: str) -> dict:
     """
-    Genera un token JWT para el usuario.
+    Genera un token JWT para el usuario con JWT ID único (jti).
+
+    SEGURIDAD: El campo 'jti' permite rastrear y revocar tokens específicos
+    mediante el sistema de blacklist.
 
     Args:
         usuario_id (str): ID del usuario en MongoDB
 
     Returns:
-        dict: Diccionario con 'access_token' y 'expires_in'
+        dict: Diccionario con 'access_token', 'expires_in' y 'jti'
     """
+    # Generar JWT ID único (jti) para este token
+    jti = str(uuid.uuid4())
+
+    # Calcular expiración
+    exp = datetime.utcnow() + timedelta(hours=settings.JWT_EXPIRATION_HOURS)
+
     payload = {
         'user_id': str(usuario_id),
-        'exp': datetime.utcnow() + timedelta(hours=settings.JWT_EXPIRATION_HOURS),
+        'jti': jti,  # SEGURIDAD: JWT ID único para blacklist
+        'exp': exp,
         'iat': datetime.utcnow()
     }
 
@@ -35,34 +48,49 @@ def generar_token(usuario_id: str) -> dict:
     return {
         'access_token': token,
         'token_type': 'Bearer',
-        'expires_in': settings.JWT_EXPIRATION_HOURS * 3600  # En segundos
+        'expires_in': settings.JWT_EXPIRATION_HOURS * 3600,  # En segundos
+        'jti': jti  # Retornar jti para posible uso futuro
     }
 
 
 def verificar_token(token: str) -> dict:
     """
-    Verifica y decodifica un token JWT.
+    Verifica y decodifica un token JWT, validando contra blacklist.
+
+    SEGURIDAD: Valida que el token no haya sido revocado mediante el sistema
+    de blacklist, previniendo el uso de tokens después de logout.
 
     Args:
         token (str): Token JWT a verificar
 
     Returns:
-        dict: Payload del token si es válido
+        dict: Payload del token si es válido y no está revocado
 
     Raises:
         jwt.ExpiredSignatureError: Si el token expiró
-        jwt.InvalidTokenError: Si el token es inválido
+        jwt.InvalidTokenError: Si el token es inválido o está revocado
     """
     try:
+        # Decodificar token
         payload = jwt.decode(
             token,
             settings.JWT_SECRET,
             algorithms=[settings.JWT_ALGORITHM]
         )
+
+        # SEGURIDAD: Verificar si el token está en la blacklist
+        jti = payload.get('jti')
+        if jti and TokenBlacklist.esta_revocado(jti):
+            raise jwt.InvalidTokenError('Token revocado')
+
         return payload
+
     except jwt.ExpiredSignatureError:
         raise jwt.ExpiredSignatureError('El token ha expirado')
-    except jwt.InvalidTokenError:
+    except jwt.InvalidTokenError as e:
+        # Preservar mensaje específico si es token revocado
+        if 'revocado' in str(e):
+            raise jwt.InvalidTokenError('Token revocado')
         raise jwt.InvalidTokenError('Token inválido')
 
 
@@ -91,6 +119,12 @@ def obtener_usuario_desde_token(token: str):
     if not user_id:
         return None
 
+    # SEGURIDAD: Validar user_id antes de usarlo en query
+    try:
+        user_id = sanitizar_user_id(user_id)
+    except ValueError:
+        return None
+
     # Usar PyMongo directamente para evitar threading issues
     from mongoengine.connection import get_db
     from bson import ObjectId
@@ -98,7 +132,7 @@ def obtener_usuario_desde_token(token: str):
     db = get_db()
     try:
         usuario_data = db.usuarios.find_one({'_id': ObjectId(user_id)})
-    except:
+    except Exception:
         return None
 
     if not usuario_data:
@@ -182,6 +216,90 @@ def require_auth(view_func):
     return wrapper
 
 
+def require_role(allowed_roles: list):
+    """
+    Decorador para validar que el usuario tenga uno de los roles permitidos.
+
+    SEGURIDAD CRÍTICA: Implementa control de acceso basado en roles (RBAC)
+    para prevenir escalación de privilegios y acceso no autorizado.
+
+    Uso:
+        @api_view(['POST'])
+        @require_role(['admin'])
+        def eliminar_leccion(request, leccion_id):
+            # Solo usuarios con rol 'admin' pueden ejecutar esto
+            pass
+
+        @api_view(['POST'])
+        @require_role(['admin', 'profesor'])
+        def crear_leccion(request):
+            # Usuarios con rol 'admin' o 'profesor' pueden ejecutar esto
+            pass
+
+    Args:
+        allowed_roles (list): Lista de roles permitidos ['estudiante', 'profesor', 'admin']
+
+    Returns:
+        decorator: Decorador que valida el rol antes de ejecutar la vista
+
+    Raises:
+        HTTP 401: Si el usuario no está autenticado
+        HTTP 403: Si el usuario no tiene el rol requerido
+    """
+    def decorator(view_func):
+        @wraps(view_func)
+        def wrapper(request, *args, **kwargs):
+            # Primero verificar autenticación (extrae y valida token)
+            token = extraer_token_de_header(request)
+
+            if not token:
+                return Response({
+                    'status': 'error',
+                    'message': 'Token no proporcionado'
+                }, status=status.HTTP_401_UNAUTHORIZED)
+
+            try:
+                usuario = obtener_usuario_desde_token(token)
+
+                if not usuario:
+                    return Response({
+                        'status': 'error',
+                        'message': 'Usuario no encontrado'
+                    }, status=status.HTTP_401_UNAUTHORIZED)
+
+                # Agregar usuario al request
+                request.user = usuario
+
+                # CONTROL DE ACCESO: Validar rol del usuario
+                usuario_rol = getattr(usuario, 'rol', 'estudiante')
+
+                if usuario_rol not in allowed_roles:
+                    return Response({
+                        'status': 'error',
+                        'message': 'No tienes permisos para realizar esta acción',
+                        'rol_actual': usuario_rol,
+                        'roles_requeridos': allowed_roles
+                    }, status=status.HTTP_403_FORBIDDEN)
+
+                # Usuario autenticado y con rol correcto, ejecutar vista
+                return view_func(request, *args, **kwargs)
+
+            except jwt.ExpiredSignatureError:
+                return Response({
+                    'status': 'error',
+                    'message': 'El token ha expirado'
+                }, status=status.HTTP_401_UNAUTHORIZED)
+
+            except jwt.InvalidTokenError:
+                return Response({
+                    'status': 'error',
+                    'message': 'Token inválido'
+                }, status=status.HTTP_401_UNAUTHORIZED)
+
+        return wrapper
+    return decorator
+
+
 def serializar_usuario(usuario) -> dict:
     """
     Serializa un objeto Usuario a diccionario.
@@ -196,6 +314,7 @@ def serializar_usuario(usuario) -> dict:
         'id': str(usuario.id),
         'email': usuario.email,
         'nombre': usuario.nombre,
+        'rol': getattr(usuario, 'rol', 'estudiante'),  # Default a estudiante si no existe
         'tomin': usuario.tomin,
         'vidas': usuario.vidas,
         'leccionActual': usuario.leccionActual,

@@ -2,6 +2,7 @@ export interface User {
   id: string;
   email: string;
   nombre: string;
+  rol: "estudiante" | "profesor" | "admin";
   tomin: number;
   vidas: number;
   leccionActual: number;
@@ -14,6 +15,7 @@ export interface TokenData {
   access_token: string;
   token_type: string;
   expires_in: number;
+  jti?: string;
 }
 
 export interface AuthResponse {

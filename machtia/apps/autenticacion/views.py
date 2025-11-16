@@ -8,6 +8,7 @@ from mongoengine import connect
 from mongoengine.connection import get_db
 from .models import Usuario
 from .utils import generar_token, require_auth, serializar_usuario, validar_password_segura
+from .security_utils import sanitizar_email, validar_password_input
 import re
 
 
@@ -133,12 +134,22 @@ def register(request):
                 'message': 'Email, nombre y password son requeridos'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        # Validar formato de email
-        email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        if not re.match(email_regex, email):
+        # SEGURIDAD: Sanitizar email para prevenir inyección NoSQL
+        try:
+            email = sanitizar_email(email)
+        except ValueError as e:
             return Response({
                 'status': 'error',
-                'message': 'Formato de email inválido'
+                'message': str(e)
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # SEGURIDAD: Validar que password sea string (no objeto para injection)
+        try:
+            password = validar_password_input(password)
+        except ValueError as e:
+            return Response({
+                'status': 'error',
+                'message': str(e)
             }, status=status.HTTP_400_BAD_REQUEST)
 
         # Validar contraseña segura (8+ chars, mayúscula, minúscula, número)
@@ -152,16 +163,17 @@ def register(request):
         # Verificar si el usuario ya existe (usando PyMongo para evitar threading issues)
         from mongoengine.connection import get_db
         db = get_db()
-        existing_user_data = db.usuarios.find_one({'email': email.lower()})
+        # Email ya está sanitizado, seguro para query
+        existing_user_data = db.usuarios.find_one({'email': email})
         if existing_user_data:
             return Response({
                 'status': 'error',
                 'message': 'El email ya está registrado'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        # Crear usuario
+        # Crear usuario (email ya está normalizado por sanitizar_email)
         usuario = Usuario(
-            email=email.lower(),
+            email=email,
             nombre=nombre
         )
         usuario.set_password(password)
@@ -209,10 +221,29 @@ def login(request):
                 'message': 'Email y password son requeridos'
             }, status=status.HTTP_400_BAD_REQUEST)
 
+        # SEGURIDAD: Sanitizar email para prevenir inyección NoSQL
+        try:
+            email = sanitizar_email(email)
+        except ValueError as e:
+            return Response({
+                'status': 'error',
+                'message': 'Credenciales inválidas'  # No revelar detalles específicos
+            }, status=status.HTTP_401_UNAUTHORIZED)
+
+        # SEGURIDAD: Validar que password sea string (no objeto para injection)
+        try:
+            password = validar_password_input(password)
+        except ValueError as e:
+            return Response({
+                'status': 'error',
+                'message': 'Credenciales inválidas'  # No revelar detalles específicos
+            }, status=status.HTTP_401_UNAUTHORIZED)
+
         # Buscar usuario por email (usando PyMongo para evitar threading issues)
         from mongoengine.connection import get_db
         db = get_db()
-        usuario_data = db.usuarios.find_one({'email': email.lower()})
+        # Email ya está sanitizado, seguro para query
+        usuario_data = db.usuarios.find_one({'email': email})
 
         if not usuario_data:
             return Response({
@@ -254,7 +285,10 @@ def login(request):
 @require_auth
 def logout(request):
     """
-    Cierra sesión del usuario.
+    Cierra sesión del usuario y revoca el token JWT.
+
+    SEGURIDAD: Agrega el token a la blacklist para prevenir su reutilización
+    después del logout, incluso si el token aún no ha expirado.
 
     Headers:
         Authorization: Bearer <token>
@@ -262,13 +296,49 @@ def logout(request):
     Returns:
         JSON confirmando el logout
     """
-    # En JWT, el logout se maneja del lado del cliente eliminando el token
-    # Aquí podríamos agregar el token a una blacklist si fuera necesario
+    try:
+        # Obtener el token del header
+        from .utils import extraer_token_de_header, decodificar_token
+        from .blacklist_models import TokenBlacklist
+        from datetime import datetime
 
-    return Response({
-        'status': 'success',
-        'message': 'Logout exitoso'
-    }, status=status.HTTP_200_OK)
+        token = extraer_token_de_header(request)
+
+        if token:
+            try:
+                # Decodificar token para obtener jti y exp
+                payload = decodificar_token(token)
+                jti = payload.get('jti')
+                user_id = payload.get('user_id')
+                exp_timestamp = payload.get('exp')
+
+                # Convertir timestamp a datetime
+                expira_en = datetime.utcfromtimestamp(exp_timestamp)
+
+                # SEGURIDAD: Agregar token a la blacklist
+                if jti:
+                    TokenBlacklist.agregar_token(
+                        jti=jti,
+                        usuario_id=user_id,
+                        expira_en=expira_en,
+                        razon='logout'
+                    )
+            except Exception:
+                # Si hay error al procesar el token, continuar con logout
+                # (no queremos bloquear logout por error en blacklist)
+                pass
+
+        return Response({
+            'status': 'success',
+            'message': 'Logout exitoso. Token revocado.'
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        # Incluso si hay error, retornar success (logout del lado del cliente)
+        return Response({
+            'status': 'success',
+            'message': 'Logout exitoso'
+        }, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
