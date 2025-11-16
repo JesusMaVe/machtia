@@ -8,12 +8,15 @@ from mongoengine.connection import get_db
 from bson import ObjectId
 from apps.autenticacion.utils import require_auth, require_role
 from apps.autenticacion.security_utils import sanitizar_input_mongo
+from apps.autenticacion.error_handler import manejar_error_seguro, log_security_event, obtener_ip_cliente
+from apps.autenticacion.rate_limit_decorators import rate_limit_api, rate_limit_leccion, rate_limit_admin
 from apps.progreso.models import Racha
 from .models import Leccion, Palabra
 from .serializers import serializar_leccion_frontend, serializar_resultado_completar, serializar_resultado_fallar
 
 
 @api_view(['GET'])
+@rate_limit_api  # SEGURIDAD: 100 peticiones por minuto por IP
 def listar_lecciones(request):
     """
     GET /api/lecciones/
@@ -201,6 +204,7 @@ def obtener_siguiente_leccion(request):
 
 @api_view(['POST'])
 @require_auth
+@rate_limit_leccion  # SEGURIDAD: 20 lecciones por hora por usuario (prevenir farming de tomins)
 def completar_leccion(request, leccion_id):
     """
     POST /api/lecciones/:id/completar/
@@ -232,6 +236,37 @@ def completar_leccion(request, leccion_id):
             return Response({
                 'error': 'Lección no encontrada'
             }, status=status.HTTP_404_NOT_FOUND)
+
+        # SEGURIDAD: Verificar acceso al nivel (prevenir IDOR)
+        nivel_id = leccion_data.get('nivel_id', 1)
+        if not usuario.puede_acceder_nivel(nivel_id):
+            return Response({
+                'error': f'No tienes acceso al nivel {nivel_id}. Completa el nivel anterior primero.',
+                'nivel_actual': usuario.nivelActual,
+                'nivel_requerido': nivel_id
+            }, status=status.HTTP_403_FORBIDDEN)
+
+        # SEGURIDAD: Verificar lecciones previas completadas (prevenir skip/IDOR)
+        if leccion_id > 1:
+            # Obtener todas las lecciones anteriores a esta
+            lecciones_previas = list(db.lecciones.find(
+                {'_id': {'$lt': leccion_id}, 'nivel_id': {'$lte': nivel_id}},
+                {'_id': 1}
+            ))
+            ids_previos = [l['_id'] for l in lecciones_previas]
+
+            # Verificar que todas las lecciones previas del mismo nivel y anteriores estén completadas
+            lecciones_faltantes = [
+                lid for lid in ids_previos
+                if lid not in usuario.leccionesCompletadas
+            ]
+
+            if lecciones_faltantes:
+                return Response({
+                    'error': 'Debes completar las lecciones anteriores primero',
+                    'lecciones_faltantes': lecciones_faltantes,
+                    'leccion_actual_recomendada': usuario.leccionActual
+                }, status=status.HTTP_403_FORBIDDEN)
 
         # Verificar que sea la lección actual del usuario
         if usuario.leccionActual != leccion_id:
@@ -299,6 +334,29 @@ def completar_leccion(request, leccion_id):
         # Verificar logros automáticos
         logros_nuevos = racha.verificar_logros_automaticos()
 
+        # === COMPLETAR NIVEL AUTOMÁTICAMENTE ===
+        # Verificar si el usuario completó todas las lecciones del nivel actual
+        nivel_id = leccion_data.get('nivel_id', 1)
+
+        # Obtener todas las lecciones del nivel actual
+        lecciones_del_nivel = list(db.lecciones.find(
+            {'nivel_id': nivel_id},
+            {'_id': 1}
+        ))
+        ids_lecciones_nivel = [l['_id'] for l in lecciones_del_nivel]
+
+        # Verificar si todas las lecciones del nivel están completadas
+        todas_completadas = all(
+            lid in usuario.leccionesCompletadas
+            for lid in ids_lecciones_nivel
+        )
+
+        nivel_completado = False
+        if todas_completadas and nivel_id not in usuario.nivelesCompletados:
+            # Completar el nivel automáticamente
+            usuario.completar_nivel(nivel_id)
+            nivel_completado = True
+
         # Serializar resultado
         return Response(serializar_resultado_completar(
             usuario=usuario,
@@ -308,14 +366,25 @@ def completar_leccion(request, leccion_id):
             tomins_ganados=tomins_recompensa
         ))
 
-    except Exception as e:
+    except ValueError as e:
+        # Errores de validación - seguros de mostrar
         return Response({
-            'error': f'Error al completar lección: {str(e)}'
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            'status': 'error',
+            'message': str(e)
+        }, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        # Errores inesperados - NO exponer detalles
+        return manejar_error_seguro(
+            e,
+            'Error al completar lección. Por favor intenta nuevamente.',
+            contexto=f'Error en completar_leccion() - Leccion ID: {leccion_id}'
+        )
 
 
 @api_view(['POST'])
+@require_auth
 @require_role(['admin', 'profesor'])  # SEGURIDAD: Solo admin y profesor pueden crear lecciones
+@rate_limit_admin  # SEGURIDAD: 30 operaciones por minuto
 def crear_leccion(request):
     """
     POST /api/lecciones/
@@ -498,6 +567,7 @@ def actualizar_leccion(request, leccion_id):
 
 @api_view(['POST'])
 @require_auth
+@rate_limit_leccion  # SEGURIDAD: 20 intentos por hora por usuario
 def fallar_leccion(request, leccion_id):
     """
     POST /api/lecciones/:id/fallar/
@@ -534,6 +604,37 @@ def fallar_leccion(request, leccion_id):
                 'error': 'Lección no encontrada'
             }, status=status.HTTP_404_NOT_FOUND)
 
+        # SEGURIDAD: Verificar acceso al nivel (prevenir IDOR)
+        nivel_id = leccion_data.get('nivel_id', 1)
+        if not usuario.puede_acceder_nivel(nivel_id):
+            return Response({
+                'error': f'No tienes acceso al nivel {nivel_id}. Completa el nivel anterior primero.',
+                'nivel_actual': usuario.nivelActual,
+                'nivel_requerido': nivel_id
+            }, status=status.HTTP_403_FORBIDDEN)
+
+        # SEGURIDAD: Verificar lecciones previas completadas (prevenir skip/IDOR)
+        if leccion_id > 1:
+            # Obtener todas las lecciones anteriores a esta
+            lecciones_previas = list(db.lecciones.find(
+                {'_id': {'$lt': leccion_id}, 'nivel_id': {'$lte': nivel_id}},
+                {'_id': 1}
+            ))
+            ids_previos = [l['_id'] for l in lecciones_previas]
+
+            # Verificar que todas las lecciones previas del mismo nivel y anteriores estén completadas
+            lecciones_faltantes = [
+                lid for lid in ids_previos
+                if lid not in usuario.leccionesCompletadas
+            ]
+
+            if lecciones_faltantes:
+                return Response({
+                    'error': 'Debes completar las lecciones anteriores primero',
+                    'lecciones_faltantes': lecciones_faltantes,
+                    'leccion_actual_recomendada': usuario.leccionActual
+                }, status=status.HTTP_403_FORBIDDEN)
+
         # Verificar si tiene vidas disponibles (esto regenera automáticamente)
         if not usuario.tiene_vidas_disponibles():
             return Response({
@@ -547,14 +648,25 @@ def fallar_leccion(request, leccion_id):
         # Serializar resultado
         return Response(serializar_resultado_fallar(usuario.vidas))
 
-    except Exception as e:
+    except ValueError as e:
+        # Errores de validación - seguros de mostrar
         return Response({
-            'error': f'Error al registrar fallo: {str(e)}'
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            'status': 'error',
+            'message': str(e)
+        }, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        # Errores inesperados - NO exponer detalles
+        return manejar_error_seguro(
+            e,
+            'Error al registrar fallo de lección. Por favor intenta nuevamente.',
+            contexto=f'Error en fallar_leccion() - Leccion ID: {leccion_id}'
+        )
 
 
 @api_view(['DELETE'])
+@require_auth
 @require_role(['admin'])  # SEGURIDAD: Solo admin puede eliminar lecciones
+@rate_limit_admin  # SEGURIDAD: 30 operaciones por minuto
 def eliminar_leccion(request, leccion_id):
     """
     DELETE /api/lecciones/:id/

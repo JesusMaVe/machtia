@@ -9,6 +9,8 @@ from mongoengine.connection import get_db
 from .models import Usuario
 from .utils import generar_token, require_auth, serializar_usuario, validar_password_segura
 from .security_utils import sanitizar_email, validar_password_input
+from .error_handler import manejar_error_seguro, log_security_event, obtener_ip_cliente
+from .rate_limit_decorators import rate_limit_login, rate_limit_api
 import re
 
 
@@ -108,6 +110,7 @@ def create_test_user(request):
 
 
 @api_view(['POST'])
+@rate_limit_login  # SEGURIDAD: 5 intentos por minuto por IP
 def register(request):
     """
     Registra un nuevo usuario en el sistema.
@@ -182,6 +185,16 @@ def register(request):
         # Generar token JWT
         token_data = generar_token(usuario.id)
 
+        # Log de evento de seguridad exitoso
+        ip_cliente = obtener_ip_cliente(request)
+        log_security_event(
+            'USER_REGISTERED',
+            user_id=str(usuario.id),
+            ip_address=ip_cliente,
+            details=f'Nuevo usuario: {email}',
+            severity='INFO'
+        )
+
         return Response({
             'status': 'success',
             'message': 'Usuario registrado exitosamente',
@@ -189,14 +202,23 @@ def register(request):
             'token': token_data
         }, status=status.HTTP_201_CREATED)
 
-    except Exception as e:
+    except ValueError as e:
+        # Errores de validación - seguros de mostrar
         return Response({
             'status': 'error',
-            'message': f'Error al registrar usuario: {str(e)}'
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            'message': str(e)
+        }, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        # Errores inesperados - NO exponer detalles
+        return manejar_error_seguro(
+            e,
+            'Error al registrar usuario. Por favor intenta nuevamente.',
+            contexto='Error en register()'
+        )
 
 
 @api_view(['POST'])
+@rate_limit_login  # SEGURIDAD: 5 intentos por minuto por IP (prevenir brute force)
 def login(request):
     """
     Inicia sesión de un usuario.
@@ -246,6 +268,14 @@ def login(request):
         usuario_data = db.usuarios.find_one({'email': email})
 
         if not usuario_data:
+            # Log de evento de seguridad: usuario no encontrado
+            ip_cliente = obtener_ip_cliente(request)
+            log_security_event(
+                'LOGIN_FAILED_USER_NOT_FOUND',
+                ip_address=ip_cliente,
+                details=f'Intento de login con email inexistente: {email}',
+                severity='WARNING'
+            )
             return Response({
                 'status': 'error',
                 'message': 'Credenciales inválidas'
@@ -259,6 +289,15 @@ def login(request):
 
         # Verificar contraseña
         if not usuario.check_password(password):
+            # Log de evento de seguridad: password incorrecta
+            ip_cliente = obtener_ip_cliente(request)
+            log_security_event(
+                'LOGIN_FAILED_WRONG_PASSWORD',
+                user_id=str(usuario.id),
+                ip_address=ip_cliente,
+                details=f'Contraseña incorrecta para: {email}',
+                severity='WARNING'
+            )
             return Response({
                 'status': 'error',
                 'message': 'Credenciales inválidas'
@@ -267,6 +306,16 @@ def login(request):
         # Generar token JWT
         token_data = generar_token(usuario.id)
 
+        # Log de evento de seguridad exitoso
+        ip_cliente = obtener_ip_cliente(request)
+        log_security_event(
+            'LOGIN_SUCCESS',
+            user_id=str(usuario.id),
+            ip_address=ip_cliente,
+            details=f'Login exitoso: {email}',
+            severity='INFO'
+        )
+
         return Response({
             'status': 'success',
             'message': 'Login exitoso',
@@ -274,11 +323,27 @@ def login(request):
             'token': token_data
         }, status=status.HTTP_200_OK)
 
-    except Exception as e:
+    except ValueError as e:
+        # Errores de validación - seguros de mostrar
         return Response({
             'status': 'error',
-            'message': f'Error al iniciar sesión: {str(e)}'
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            'message': str(e)
+        }, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        # Errores inesperados - NO exponer detalles
+        # Log de fallo de login para detección de ataques
+        ip_cliente = obtener_ip_cliente(request)
+        log_security_event(
+            'LOGIN_ERROR',
+            ip_address=ip_cliente,
+            details=f'Error durante login',
+            severity='WARNING'
+        )
+        return manejar_error_seguro(
+            e,
+            'Error al iniciar sesión. Por favor intenta nuevamente.',
+            contexto='Error en login()'
+        )
 
 
 @api_view(['POST'])
@@ -343,6 +408,7 @@ def logout(request):
 
 @api_view(['GET'])
 @require_auth
+@rate_limit_api  # SEGURIDAD: 100 peticiones por minuto por IP
 def me(request):
     """
     Obtiene los datos del usuario autenticado.

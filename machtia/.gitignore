@@ -75,7 +75,7 @@ db.sqlite3-journal
 staticfiles/
 media/
 local_settings.py
-
+CORRECCIONES_VULNERABILIDADES_ALTAS.md
 # Flask / Pyramid
 instance/
 .webassets-cache

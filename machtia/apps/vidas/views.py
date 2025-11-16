@@ -7,11 +7,13 @@ from rest_framework import status
 from mongoengine.connection import get_db
 from bson import ObjectId
 from apps.autenticacion.utils import require_auth
+from apps.autenticacion.rate_limit_decorators import rate_limit_api, rate_limit_compra
 from .serializers import serializar_estado_vidas_frontend, serializar_compra_vida_frontend
 
 
 @api_view(['GET'])
 @require_auth
+@rate_limit_api  # SEGURIDAD: 100 peticiones por minuto por IP
 def obtener_vidas(request):
     """
     GET /api/vidas/estado/
@@ -36,6 +38,7 @@ def obtener_vidas(request):
 
 @api_view(['POST'])
 @require_auth
+@rate_limit_compra  # SEGURIDAD: 10 compras por minuto (prevenir exploits)
 def comprar_vida(request):
     """
     POST /api/vidas/comprar/una/
@@ -86,6 +89,7 @@ def comprar_vida(request):
 
 @api_view(['POST'])
 @require_auth
+@rate_limit_compra  # SEGURIDAD: 10 compras por minuto (prevenir exploits)
 def restaurar_vidas(request):
     """
     POST /api/vidas/comprar/restaurar/
