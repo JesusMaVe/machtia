@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useAuth } from "@/features/auth";
-import { leccionesApi, LeccionDetalle, type Leccion } from "@/features/lecciones";
+import { leccionesApi, DynamicaRouter, type Leccion } from "@/features/lecciones";
 import { useVidasModal } from "@/features/vidas";
 import { LoadingButton } from "@/shared/components/atoms";
 import { Button } from "@/components/ui/button";
@@ -178,7 +178,7 @@ export default function LeccionDetallePage() {
           Volver al Inicio
         </Button>
 
-        <LeccionDetalle leccion={leccion} onComplete={handleComplete} onFail={handleFail} />
+        <DynamicaRouter leccion={leccion} onComplete={handleComplete} onFail={handleFail} />
       </div>
     </div>
   );

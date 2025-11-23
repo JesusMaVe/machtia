@@ -2,6 +2,23 @@ import type { Dificultad } from "@/shared/constants";
 
 export type Tema = string;
 
+// Tipos de dinámicas de aprendizaje
+export type TipoDinamica = 'traduccion' | 'seleccion_multiple' | 'emparejamiento';
+
+// Para selección múltiple
+export interface OpcionMultiple {
+  id: string;
+  texto: string;
+  esCorrecta: boolean;
+}
+
+// Para emparejamiento
+export interface ParEmparejamiento {
+  id: string;
+  nahuatl: string;
+  espanol: string;
+}
+
 export interface Palabra {
   id: string;
   nahuatl: string;
@@ -45,6 +62,8 @@ export interface EstadoPractica {
   totalPalabras: number;
   respuestasCorrectas: number;
   respuestasIncorrectas: number;
+  dinamicaActual?: TipoDinamica;
+  indexEnCiclo?: number; // Para controlar el ciclo de dinámicas
 }
 
 export interface FiltrosLecciones {
