@@ -32,9 +32,7 @@ export default function AppLayout() {
       try {
         const rachaData = await progresoApi.getRacha().catch(() => null);
         setRacha(rachaData);
-      } catch (err) {
-
-      }
+      } catch (err) {}
     };
 
     if (isAuthenticated) {
@@ -48,9 +46,7 @@ export default function AppLayout() {
       try {
         const estado = await vidasApi.getEstado();
         setEstadoVidas(estado);
-      } catch (err) {
-
-      }
+      } catch (err) {}
     };
 
     if (isAuthenticated) {

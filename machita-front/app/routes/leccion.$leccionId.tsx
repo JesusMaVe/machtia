@@ -72,9 +72,7 @@ export default function LeccionDetallePage() {
       });
 
       await refreshUser();
-    } catch (err) {
-
-    }
+    } catch (err) {}
   };
 
   const handleFail = async () => {
@@ -92,9 +90,7 @@ export default function LeccionDetallePage() {
       if (resultado.vidasRestantes === 0) {
         openModal();
       }
-    } catch (err) {
-
-    }
+    } catch (err) {}
   };
 
   if (isLoading) {

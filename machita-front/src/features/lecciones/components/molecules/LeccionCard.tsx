@@ -30,12 +30,20 @@ export function LeccionCard({ leccion }: LeccionCardProps) {
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0">
-              <CardTitle className={`text-base flex items-center gap-2 ${bloqueada ? "text-gray-400 dark:text-gray-500" : "text-obsidiana dark:text-white"}`}>
+              <CardTitle
+                className={`text-base flex items-center gap-2 ${bloqueada ? "text-gray-400 dark:text-gray-500" : "text-obsidiana dark:text-white"}`}
+              >
                 <span>Lección {numero}</span>
-                {completada && <CheckCircledIcon className="h-4 w-4 text-[#76b57b] dark:text-purple-400 shrink-0" />}
-                {bloqueada && <LockClosedIcon className="h-4 w-4 text-gray-400 dark:text-gray-500 shrink-0" />}
+                {completada && (
+                  <CheckCircledIcon className="h-4 w-4 text-[#76b57b] dark:text-purple-400 shrink-0" />
+                )}
+                {bloqueada && (
+                  <LockClosedIcon className="h-4 w-4 text-gray-400 dark:text-gray-500 shrink-0" />
+                )}
               </CardTitle>
-              <CardDescription className={`mt-1 line-clamp-1 ${bloqueada ? "text-gray-400 dark:text-gray-500" : "dark:text-gray-300"}`}>
+              <CardDescription
+                className={`mt-1 line-clamp-1 ${bloqueada ? "text-gray-400 dark:text-gray-500" : "dark:text-gray-300"}`}
+              >
                 {titulo}
               </CardDescription>
             </div>
@@ -44,13 +52,21 @@ export function LeccionCard({ leccion }: LeccionCardProps) {
         </CardHeader>
 
         <CardContent className="pb-4 flex-1 flex flex-col justify-between">
-          <p className={`text-sm mb-3 line-clamp-2 ${bloqueada ? "text-gray-400 dark:text-gray-500" : "text-muted-foreground dark:text-gray-300"}`}>
+          <p
+            className={`text-sm mb-3 line-clamp-2 ${bloqueada ? "text-gray-400 dark:text-gray-500" : "text-muted-foreground dark:text-gray-300"}`}
+          >
             {descripcion}
           </p>
 
           <div className="flex items-center justify-between text-xs">
             <div className="flex items-center gap-3">
-              <span className={bloqueada ? "text-gray-400 dark:text-gray-500" : "text-muted-foreground dark:text-gray-400"}>
+              <span
+                className={
+                  bloqueada
+                    ? "text-gray-400 dark:text-gray-500"
+                    : "text-muted-foreground dark:text-gray-400"
+                }
+              >
                 {palabras.length} palabras
               </span>
               <Badge

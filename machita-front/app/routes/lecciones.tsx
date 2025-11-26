@@ -55,7 +55,8 @@ export default function LeccionesPage() {
   // Filtrar lecciones LOCALMENTE (sin llamadas al backend)
   const leccionesFiltradas = useMemo(() => {
     return todasLecciones.filter((leccion) => {
-      const cumpleDificultad = dificultadFiltro === "todas" || leccion.dificultad === dificultadFiltro;
+      const cumpleDificultad =
+        dificultadFiltro === "todas" || leccion.dificultad === dificultadFiltro;
       const cumpleTema = temaFiltro === "todos" || leccion.tema === temaFiltro;
       return cumpleDificultad && cumpleTema;
     });

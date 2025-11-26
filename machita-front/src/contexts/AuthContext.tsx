@@ -82,7 +82,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       await authAPI.logout();
     } catch (error) {
-
     } finally {
       removeToken();
       setUser(null);

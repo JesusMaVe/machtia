@@ -20,13 +20,13 @@ export function Emparejamiento({ pares, onComplete }: EmparejamientoProps) {
   const [ultimoAcierto, setUltimoAcierto] = useState<string | null>(null);
 
   // Mezclar opciones al montar el componente
-  const opcionesNahuatl = useMemo(() => shuffle(pares.map(p => p.nahuatl)), [pares]);
-  const opcionesEspanol = useMemo(() => shuffle(pares.map(p => p.espanol)), [pares]);
+  const opcionesNahuatl = useMemo(() => shuffle(pares.map((p) => p.nahuatl)), [pares]);
+  const opcionesEspanol = useMemo(() => shuffle(pares.map((p) => p.espanol)), [pares]);
 
   // Crear un mapa para buscar la traducción correcta
   const traducciones = useMemo(() => {
     const map = new Map<string, string>();
-    pares.forEach(par => {
+    pares.forEach((par) => {
       map.set(par.nahuatl, par.espanol);
     });
     return map;
@@ -44,7 +44,7 @@ export function Emparejamiento({ pares, onComplete }: EmparejamientoProps) {
     if (!seleccionNahuatl) return;
 
     // Verificar si el español ya está emparejado
-    const nahuatlCorrecto = pares.find(p => p.espanol === espanol)?.nahuatl;
+    const nahuatlCorrecto = pares.find((p) => p.espanol === espanol)?.nahuatl;
     if (nahuatlCorrecto && paresCompletados.includes(nahuatlCorrecto)) return;
 
     const traduccionCorrecta = traducciones.get(seleccionNahuatl);
@@ -134,7 +134,9 @@ export function Emparejamiento({ pares, onComplete }: EmparejamientoProps) {
 
   const getEspanolClasses = (espanol: string) => {
     // Encontrar si este español está emparejado
-    const parCompletado = pares.find(p => p.espanol === espanol && paresCompletados.includes(p.nahuatl));
+    const parCompletado = pares.find(
+      (p) => p.espanol === espanol && paresCompletados.includes(p.nahuatl)
+    );
     const esError = ultimoError?.espanol === espanol;
 
     if (parCompletado) {
@@ -195,9 +197,7 @@ export function Emparejamiento({ pares, onComplete }: EmparejamientoProps) {
                 disabled={paresCompletados.includes(nahuatl)}
                 className={getNahuatlClasses(nahuatl)}
               >
-                {paresCompletados.includes(nahuatl) && (
-                  <CheckIcon className="h-4 w-4 mr-2" />
-                )}
+                {paresCompletados.includes(nahuatl) && <CheckIcon className="h-4 w-4 mr-2" />}
                 {nahuatl}
               </Button>
             ))}
@@ -209,7 +209,9 @@ export function Emparejamiento({ pares, onComplete }: EmparejamientoProps) {
               Español
             </p>
             {opcionesEspanol.map((espanol) => {
-              const parCompletado = pares.find(p => p.espanol === espanol && paresCompletados.includes(p.nahuatl));
+              const parCompletado = pares.find(
+                (p) => p.espanol === espanol && paresCompletados.includes(p.nahuatl)
+              );
               return (
                 <Button
                   key={espanol}
@@ -218,9 +220,7 @@ export function Emparejamiento({ pares, onComplete }: EmparejamientoProps) {
                   disabled={!!parCompletado || !seleccionNahuatl}
                   className={getEspanolClasses(espanol)}
                 >
-                  {parCompletado && (
-                    <CheckIcon className="h-4 w-4 mr-2" />
-                  )}
+                  {parCompletado && <CheckIcon className="h-4 w-4 mr-2" />}
                   {espanol}
                 </Button>
               );

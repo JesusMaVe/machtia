@@ -6,6 +6,13 @@
 /.react-router/
 /build/
 
+# Testing
+/coverage/
+/playwright-report/
+/test-results/
+*.log
+TESTING.md
+
 DESIGN_SYSTEM_COLORS.md
 GRADIENT_DESIGN_SYSTEM.md
 DARK_MODE_IMPLEMENTATION.md

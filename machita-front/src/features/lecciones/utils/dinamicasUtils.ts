@@ -28,8 +28,8 @@ export function generarOpcionesMultiple(
 
   // Filtrar distractores (traducciones de otras palabras)
   const distractores = todasLasPalabras
-    .filter(p => p.id !== palabraCorrecta.id && p.espanol !== palabraCorrecta.espanol)
-    .map(p => p.espanol);
+    .filter((p) => p.id !== palabraCorrecta.id && p.espanol !== palabraCorrecta.espanol)
+    .map((p) => p.espanol);
 
   // Seleccionar distractores aleatorios
   const distractoresMezclados = shuffle(distractores);
@@ -50,7 +50,7 @@ export function generarOpcionesMultiple(
  * @returns Array de pares para emparejamiento
  */
 export function generarParesEmparejamiento(palabras: Palabra[]): ParEmparejamiento[] {
-  return palabras.map(palabra => ({
+  return palabras.map((palabra) => ({
     id: palabra.id,
     nahuatl: palabra.nahuatl,
     espanol: palabra.espanol,
@@ -62,7 +62,7 @@ export function generarParesEmparejamiento(palabras: Palabra[]): ParEmparejamien
  * Ciclo: traduccion → seleccion_multiple → emparejamiento → traduccion...
  */
 export function obtenerSiguienteDinamica(dinamicaActual: TipoDinamica): TipoDinamica {
-  const ciclo: TipoDinamica[] = ['traduccion', 'seleccion_multiple', 'emparejamiento'];
+  const ciclo: TipoDinamica[] = ["traduccion", "seleccion_multiple", "emparejamiento"];
   const indexActual = ciclo.indexOf(dinamicaActual);
   return ciclo[(indexActual + 1) % ciclo.length];
 }
@@ -73,7 +73,7 @@ export function obtenerSiguienteDinamica(dinamicaActual: TipoDinamica): TipoDina
  * @returns Tipo de dinámica a usar
  */
 export function obtenerDinamicaPorIndice(index: number): TipoDinamica {
-  const ciclo: TipoDinamica[] = ['traduccion', 'seleccion_multiple', 'emparejamiento'];
+  const ciclo: TipoDinamica[] = ["traduccion", "seleccion_multiple", "emparejamiento"];
   return ciclo[index % ciclo.length];
 }
 

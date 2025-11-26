@@ -70,12 +70,8 @@ export function SeleccionMultiple({ palabra, opciones, onRespuesta }: SeleccionM
       <CardContent className="p-8 space-y-8">
         {/* Pregunta */}
         <div className="text-center space-y-4">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            ¿Cuál es la traducción de:
-          </p>
-          <h2 className="text-4xl font-bold text-obsidiana dark:text-white">
-            {palabra.nahuatl}
-          </h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">¿Cuál es la traducción de:</p>
+          <h2 className="text-4xl font-bold text-obsidiana dark:text-white">{palabra.nahuatl}</h2>
           {palabra.audio && (
             <div className="flex justify-center">
               <AudioPlayer audioUrl={palabra.audio} size="md" variant="outline" />

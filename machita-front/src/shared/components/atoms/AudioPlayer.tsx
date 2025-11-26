@@ -24,9 +24,7 @@ export function AudioPlayer({ audioUrl, size = "md", variant = "outline" }: Audi
         await audioRef.current.play();
         setIsPlaying(true);
       }
-    } catch (error) {
-
-    }
+    } catch (error) {}
   };
 
   const handleEnded = () => {

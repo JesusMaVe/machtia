@@ -38,8 +38,12 @@ export function LeccionesGrid({ lecciones }: LeccionesGridProps) {
       <section className="mb-10">
         <div className="flex items-center gap-2 mb-5">
           <Circle className="h-5 w-5 text-[#d4a574] dark:text-orange-500" fill="currentColor" />
-          <h2 className="text-xl font-bold text-obsidiana dark:text-white">NIVEL: {titulo.toUpperCase()}</h2>
-          <span className="text-sm text-muted-foreground dark:text-gray-400">({lecciones.length} lecciones)</span>
+          <h2 className="text-xl font-bold text-obsidiana dark:text-white">
+            NIVEL: {titulo.toUpperCase()}
+          </h2>
+          <span className="text-sm text-muted-foreground dark:text-gray-400">
+            ({lecciones.length} lecciones)
+          </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">

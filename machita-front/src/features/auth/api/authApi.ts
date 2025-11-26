@@ -52,6 +52,7 @@ async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise
   try {
     const response = await fetch(url, config);
 
+    // Handle 401 only when it's not the login endpoint
     if (response.status === 401) {
       removeToken();
       throw new APIError(401, "Sesión expirada o no autorizado");

@@ -79,7 +79,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       await authApi.logout();
     } catch (error) {
-
     } finally {
       removeToken();
       setUser(null);
@@ -100,9 +99,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const response = await authApi.me();
       setUser(response.user);
-    } catch (error) {
-
-    }
+    } catch (error) {}
   };
 
   const value: AuthContextType = {

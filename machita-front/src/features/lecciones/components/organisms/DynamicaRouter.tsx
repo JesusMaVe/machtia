@@ -29,7 +29,7 @@ export function DynamicaRouter({ leccion, onComplete, onFail }: DynamicaRouterPr
     totalPalabras: leccion.palabras.length,
     respuestasCorrectas: 0,
     respuestasIncorrectas: 0,
-    dinamicaActual: 'traduccion',
+    dinamicaActual: "traduccion",
     indexEnCiclo: 0,
   });
 
@@ -43,72 +43,80 @@ export function DynamicaRouter({ leccion, onComplete, onFail }: DynamicaRouterPr
   const dinamicaActual = obtenerDinamicaPorIndice(estado.indexEnCiclo || 0);
 
   // Manejar la respuesta y avanzar a la siguiente palabra/dinámica
-  const handleRespuesta = useCallback((esCorrecta: boolean) => {
-    const nuevoEstado = {
-      ...estado,
-      respuestasCorrectas: esCorrecta ? estado.respuestasCorrectas + 1 : estado.respuestasCorrectas,
-      respuestasIncorrectas: !esCorrecta
-        ? estado.respuestasIncorrectas + 1
-        : estado.respuestasIncorrectas,
-    };
+  const handleRespuesta = useCallback(
+    (esCorrecta: boolean) => {
+      const nuevoEstado = {
+        ...estado,
+        respuestasCorrectas: esCorrecta
+          ? estado.respuestasCorrectas + 1
+          : estado.respuestasCorrectas,
+        respuestasIncorrectas: !esCorrecta
+          ? estado.respuestasIncorrectas + 1
+          : estado.respuestasIncorrectas,
+      };
 
-    if (esFinal) {
-      const porcentajeAciertos = (nuevoEstado.respuestasCorrectas / estado.totalPalabras) * 100;
+      if (esFinal) {
+        const porcentajeAciertos = (nuevoEstado.respuestasCorrectas / estado.totalPalabras) * 100;
 
-      setEstado(nuevoEstado);
-      setMostrarResultado(true);
+        setEstado(nuevoEstado);
+        setMostrarResultado(true);
 
-      if (porcentajeAciertos >= 70) {
-        onComplete();
+        if (porcentajeAciertos >= 70) {
+          onComplete();
+        } else {
+          onFail();
+        }
       } else {
-        onFail();
+        setEstado({
+          ...nuevoEstado,
+          palabraActual: estado.palabraActual + 1,
+          indexEnCiclo: (estado.indexEnCiclo || 0) + 1,
+        });
       }
-    } else {
-      setEstado({
-        ...nuevoEstado,
-        palabraActual: estado.palabraActual + 1,
-        indexEnCiclo: (estado.indexEnCiclo || 0) + 1,
-      });
-    }
-  }, [estado, esFinal, onComplete, onFail]);
+    },
+    [estado, esFinal, onComplete, onFail]
+  );
 
   // Manejar el resultado del emparejamiento (puede tener múltiples palabras)
-  const handleEmparejamientoComplete = useCallback((correctos: number, total: number) => {
-    // Para emparejamiento, contamos cada par como una respuesta
-    // El emparejamiento usa 3 palabras, así que avanzamos 3 posiciones
-    const palabrasEnEmparejamiento = 3;
-    const nuevaPosicion = Math.min(
-      estado.palabraActual + palabrasEnEmparejamiento,
-      estado.totalPalabras
-    );
+  const handleEmparejamientoComplete = useCallback(
+    (correctos: number, total: number) => {
+      // Para emparejamiento, contamos cada par como una respuesta
+      // El emparejamiento usa 3 palabras, así que avanzamos 3 posiciones
+      const palabrasEnEmparejamiento = 3;
+      const nuevaPosicion = Math.min(
+        estado.palabraActual + palabrasEnEmparejamiento,
+        estado.totalPalabras
+      );
 
-    // Calcular cuántas respuestas fueron correctas basándose en el ratio
-    const respuestasCorrectas = Math.round((correctos / total) * palabrasEnEmparejamiento);
-    const respuestasIncorrectas = palabrasEnEmparejamiento - respuestasCorrectas;
+      // Calcular cuántas respuestas fueron correctas basándose en el ratio
+      const respuestasCorrectas = Math.round((correctos / total) * palabrasEnEmparejamiento);
+      const respuestasIncorrectas = palabrasEnEmparejamiento - respuestasCorrectas;
 
-    const nuevoEstado = {
-      ...estado,
-      palabraActual: nuevaPosicion,
-      respuestasCorrectas: estado.respuestasCorrectas + respuestasCorrectas,
-      respuestasIncorrectas: estado.respuestasIncorrectas + respuestasIncorrectas,
-      indexEnCiclo: (estado.indexEnCiclo || 0) + 1,
-    };
+      const nuevoEstado = {
+        ...estado,
+        palabraActual: nuevaPosicion,
+        respuestasCorrectas: estado.respuestasCorrectas + respuestasCorrectas,
+        respuestasIncorrectas: estado.respuestasIncorrectas + respuestasIncorrectas,
+        indexEnCiclo: (estado.indexEnCiclo || 0) + 1,
+      };
 
-    if (nuevaPosicion >= estado.totalPalabras) {
-      const porcentajeAciertos = (nuevoEstado.respuestasCorrectas / estado.totalPalabras) * 100;
+      if (nuevaPosicion >= estado.totalPalabras) {
+        const porcentajeAciertos = (nuevoEstado.respuestasCorrectas / estado.totalPalabras) * 100;
 
-      setEstado(nuevoEstado);
-      setMostrarResultado(true);
+        setEstado(nuevoEstado);
+        setMostrarResultado(true);
 
-      if (porcentajeAciertos >= 70) {
-        onComplete();
+        if (porcentajeAciertos >= 70) {
+          onComplete();
+        } else {
+          onFail();
+        }
       } else {
-        onFail();
+        setEstado(nuevoEstado);
       }
-    } else {
-      setEstado(nuevoEstado);
-    }
-  }, [estado, onComplete, onFail]);
+    },
+    [estado, onComplete, onFail]
+  );
 
   // Obtener las palabras para el emparejamiento (3 palabras desde la posición actual)
   const getPalabrasParaEmparejamiento = () => {
@@ -125,7 +133,7 @@ export function DynamicaRouter({ leccion, onComplete, onFail }: DynamicaRouterPr
       totalPalabras: leccion.palabras.length,
       respuestasCorrectas: 0,
       respuestasIncorrectas: 0,
-      dinamicaActual: 'traduccion',
+      dinamicaActual: "traduccion",
       indexEnCiclo: 0,
     });
     setMostrarResultado(false);
@@ -272,15 +280,10 @@ export function DynamicaRouter({ leccion, onComplete, onFail }: DynamicaRouterPr
   // Renderizar la dinámica actual
   const renderDinamica = () => {
     switch (dinamicaActual) {
-      case 'traduccion':
-        return (
-          <DinamicaTraduccion
-            palabra={palabraActual}
-            onRespuesta={handleRespuesta}
-          />
-        );
+      case "traduccion":
+        return <DinamicaTraduccion palabra={palabraActual} onRespuesta={handleRespuesta} />;
 
-      case 'seleccion_multiple':
+      case "seleccion_multiple":
         const opciones = generarOpcionesMultiple(palabraActual, leccion.palabras, 4);
         return (
           <SeleccionMultiple
@@ -290,37 +293,27 @@ export function DynamicaRouter({ leccion, onComplete, onFail }: DynamicaRouterPr
           />
         );
 
-      case 'emparejamiento':
+      case "emparejamiento":
         const palabrasParaEmparejamiento = getPalabrasParaEmparejamiento();
         const pares = generarParesEmparejamiento(palabrasParaEmparejamiento);
-        return (
-          <Emparejamiento
-            pares={pares}
-            onComplete={handleEmparejamientoComplete}
-          />
-        );
+        return <Emparejamiento pares={pares} onComplete={handleEmparejamientoComplete} />;
 
       default:
-        return (
-          <DinamicaTraduccion
-            palabra={palabraActual}
-            onRespuesta={handleRespuesta}
-          />
-        );
+        return <DinamicaTraduccion palabra={palabraActual} onRespuesta={handleRespuesta} />;
     }
   };
 
   // Obtener nombre amigable de la dinámica
   const getNombreDinamica = (tipo: TipoDinamica): string => {
     switch (tipo) {
-      case 'traduccion':
-        return 'Traducción';
-      case 'seleccion_multiple':
-        return 'Selección Múltiple';
-      case 'emparejamiento':
-        return 'Emparejamiento';
+      case "traduccion":
+        return "Traducción";
+      case "seleccion_multiple":
+        return "Selección Múltiple";
+      case "emparejamiento":
+        return "Emparejamiento";
       default:
-        return 'Ejercicio';
+        return "Ejercicio";
     }
   };
 
@@ -375,12 +368,10 @@ export function DynamicaRouter({ leccion, onComplete, onFail }: DynamicaRouterPr
       </div>
 
       {/* Dinámica actual */}
-      <div className="py-4">
-        {renderDinamica()}
-      </div>
+      <div className="py-4">{renderDinamica()}</div>
 
       {/* Contadores (solo para traducción y selección múltiple) */}
-      {dinamicaActual !== 'emparejamiento' && (
+      {dinamicaActual !== "emparejamiento" && (
         <div className="flex justify-center gap-6 text-sm text-muted-foreground">
           <span className="flex items-center gap-1">
             <CheckIcon className="h-4 w-4 text-[#76b57b] dark:text-purple-400" />

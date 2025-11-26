@@ -49,9 +49,7 @@ export default function LeccionDetallePage() {
       const resultado = await leccionesApi.complete(leccion.id);
 
       await refreshUser();
-    } catch (err) {
-
-    }
+    } catch (err) {}
   };
 
   const handleFail = async () => {
@@ -63,11 +61,8 @@ export default function LeccionDetallePage() {
       await refreshUser();
 
       if (resultado.vidasRestantes === 0) {
-
       }
-    } catch (err) {
-
-    }
+    } catch (err) {}
   };
 
   if (isLoading) {

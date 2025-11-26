@@ -3,7 +3,7 @@ import type { Dificultad } from "@/shared/constants";
 export type Tema = string;
 
 // Tipos de dinámicas de aprendizaje
-export type TipoDinamica = 'traduccion' | 'seleccion_multiple' | 'emparejamiento';
+export type TipoDinamica = "traduccion" | "seleccion_multiple" | "emparejamiento";
 
 // Para selección múltiple
 export interface OpcionMultiple {
