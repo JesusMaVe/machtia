@@ -3,6 +3,7 @@ import { type RouteConfig, index, route, layout } from "@react-router/dev/routes
 export default [
   // Rutas públicas
   index("routes/home.tsx"),
+  route("login", "routes/login.tsx"),
 
   // Layout para usuarios autenticados (con navegación persistente)
   layout("routes/app-layout.tsx", [

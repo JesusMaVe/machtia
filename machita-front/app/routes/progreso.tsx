@@ -1,72 +1,43 @@
-import { useEffect, useState } from "react";
+import { useLoaderData } from "react-router";
 import {
   progresoApi,
   LogrosGrid,
-  type Racha,
-  type Estadisticas,
-  type Logro,
 } from "@/features/progreso";
 import { PageHeader } from "@/shared/components/molecules";
 import { LoadingButton } from "@/shared/components/atoms";
 import { Card, CardContent } from "@/components/ui/card";
+import type { Route } from "./+types/progreso";
+
+export async function clientLoader() {
+  try {
+    const [rachaData, estadisticasData, logrosData] = await Promise.all([
+      progresoApi.getRacha(),
+      progresoApi.getEstadisticas(),
+      progresoApi.getLogros(),
+    ]);
+
+    return {
+      racha: rachaData,
+      estadisticas: estadisticasData,
+      logros: logrosData,
+    };
+  } catch (err) {
+    throw new Response("Error al cargar progreso", { status: 500 });
+  }
+}
+
+export function HydrateFallback() {
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <LoadingButton isLoading={true} disabled>
+        Cargando progreso...
+      </LoadingButton>
+    </div>
+  );
+}
 
 export default function ProgresoPage() {
-  const [racha, setRacha] = useState<Racha | null>(null);
-  const [estadisticas, setEstadisticas] = useState<Estadisticas | null>(null);
-  const [logros, setLogros] = useState<Logro[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const cargarProgreso = async () => {
-      try {
-        setIsLoading(true);
-
-        const [rachaData, estadisticasData, logrosData] = await Promise.all([
-          progresoApi.getRacha(),
-          progresoApi.getEstadisticas(),
-          progresoApi.getLogros(),
-        ]);
-
-        setRacha(rachaData);
-        setEstadisticas(estadisticasData);
-        setLogros(logrosData);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Error al cargar progreso");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    cargarProgreso();
-  }, []);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <LoadingButton isLoading={true} disabled>
-          Cargando progreso...
-        </LoadingButton>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="max-w-md mx-auto p-6 bg-card rounded-lg shadow-md">
-          <h2 className="text-xl font-bold text-red-600 mb-4">Error</h2>
-          <p className="text-muted-foreground mb-4">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="w-full bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90"
-          >
-            Reintentar
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const { racha, estadisticas, logros } = useLoaderData<typeof clientLoader>();
 
   return (
     <div className="min-h-screen bg-background">

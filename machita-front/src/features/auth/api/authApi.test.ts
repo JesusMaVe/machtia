@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { authApi, APIError, saveToken, removeToken } from "./authApi";
+import { authApi } from "./authApi";
+import { saveToken, removeToken, APIError } from "@/lib/api";
 import { mockLoginResponse, mockRegisterResponse, mockUser } from "@/test/mocks/data";
 
 describe("authApi", () => {

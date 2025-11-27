@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { leccionesApi } from "./leccionesApi";
-import { saveToken } from "@/features/auth/api/authApi";
+import { saveToken } from "@/lib/api";
 import { mockLecciones, mockLeccion } from "@/test/mocks/data";
 
 describe("leccionesApi", () => {

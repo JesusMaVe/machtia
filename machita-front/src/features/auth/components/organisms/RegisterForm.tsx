@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate, Link } from "react-router";
@@ -33,14 +32,13 @@ interface RegisterFormProps {
 export function RegisterForm({ onSuccess, showCard = true }: RegisterFormProps) {
   const navigate = useNavigate();
   const { register: registerUser } = useAuth();
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     register,
     handleSubmit,
     watch,
-    formState: { errors },
+    setError,
+    formState: { errors, isSubmitting },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -54,9 +52,6 @@ export function RegisterForm({ onSuccess, showCard = true }: RegisterFormProps) 
   const password = watch("password");
 
   const onSubmit = async (data: RegisterFormData) => {
-    setError(null);
-    setIsSubmitting(true);
-
     try {
       const { confirmPassword, ...credentials } = data;
       await registerUser(credentials);
@@ -66,18 +61,18 @@ export function RegisterForm({ onSuccess, showCard = true }: RegisterFormProps) 
         navigate("/aprende");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al registrar usuario");
-    } finally {
-      setIsSubmitting(false);
+      setError("root", {
+        message: err instanceof Error ? err.message : "Error al registrar usuario",
+      });
     }
   };
 
   const formContent = (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {error && (
+      {errors.root && (
         <Alert variant="destructive" className="mb-4">
           <ExclamationTriangleIcon className="h-4 w-4" />
-          <div className="ml-2">{error}</div>
+          <div className="ml-2">{errors.root.message}</div>
         </Alert>
       )}
 

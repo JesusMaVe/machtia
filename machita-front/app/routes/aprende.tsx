@@ -1,4 +1,5 @@
-import { useEffect, useState, useMemo } from "react";
+import { useMemo } from "react";
+import { useLoaderData } from "react-router";
 import { useAuth } from "@/features/auth";
 import { leccionesApi, type Leccion } from "@/features/lecciones";
 import { nivelesApi } from "@/features/niveles/api/nivelesApi";
@@ -17,46 +18,40 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
+export async function clientLoader() {
+  try {
+    const [leccionesData, nivelesData] = await Promise.all([
+      leccionesApi.list().catch(() => []),
+      nivelesApi.list().catch(() => []),
+    ]);
+
+    // Calcular próxima lección basada en las lecciones obtenidas
+    const primeraIncompleta = leccionesData.find((l) => !l.completada && !l.bloqueada);
+    const proximaLeccion = primeraIncompleta || null;
+
+    return {
+      todasLecciones: leccionesData,
+      niveles: nivelesData,
+      proximaLeccion,
+    };
+  } catch (err) {
+    throw new Response("Error al cargar las lecciones", { status: 500 });
+  }
+}
+
+export function HydrateFallback() {
+  return (
+    <div className="min-h-screen bg-cream flex items-center justify-center">
+      <LoadingButton isLoading={true} disabled>
+        Cargando...
+      </LoadingButton>
+    </div>
+  );
+}
+
 export default function AprendePage() {
   const { user } = useAuth();
-
-  // Estado para próxima lección
-  const [proximaLeccion, setProximaLeccion] = useState<Leccion | null>(null);
-
-  // Estado para lecciones y niveles
-  const [todasLecciones, setTodasLecciones] = useState<Leccion[]>([]);
-  const [niveles, setNiveles] = useState<Nivel[]>([]);
-
-  // Estado de carga
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Cargar datos iniciales
-  useEffect(() => {
-    const cargarDatosIniciales = async () => {
-      try {
-        setIsLoading(true);
-
-        const [leccionesData, nivelesData] = await Promise.all([
-          leccionesApi.list().catch(() => []),
-          nivelesApi.list().catch(() => []),
-        ]);
-
-        setTodasLecciones(leccionesData);
-        setNiveles(nivelesData);
-
-        // Calcular próxima lección basada en las lecciones obtenidas
-        const primeraIncompleta = leccionesData.find((l) => !l.completada && !l.bloqueada);
-        setProximaLeccion(primeraIncompleta || null);
-      } catch (err) {
-        setError("Error al cargar las lecciones");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    cargarDatosIniciales();
-  }, []);
+  const { todasLecciones, niveles, proximaLeccion } = useLoaderData<typeof clientLoader>();
 
   // Mapeo de dificultad a número de nivel
   const dificultadToNivel: Record<string, number> = {
@@ -135,34 +130,6 @@ export default function AprendePage() {
   };
 
   if (!user) return null;
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-cream flex items-center justify-center">
-        <LoadingButton isLoading={true} disabled>
-          Cargando...
-        </LoadingButton>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-cream flex items-center justify-center">
-        <div className="text-center py-12">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
-            <p className="text-red-600 font-medium">{error}</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="mt-4 text-sm text-red-700 underline"
-            >
-              Intentar de nuevo
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-cream">

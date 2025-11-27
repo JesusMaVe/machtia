@@ -2,7 +2,8 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { renderHook, act } from "@testing-library/react";
 import { AuthProvider, useAuth } from "./AuthContext";
-import { saveToken, removeToken } from "../api/authApi";
+import { authApi } from "../api/authApi";
+import { saveToken, removeToken } from "@/lib/api";
 import { mockUser, mockLoginResponse } from "@/test/mocks/data";
 
 describe("AuthContext", () => {

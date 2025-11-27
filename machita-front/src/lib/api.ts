@@ -30,7 +30,7 @@ export const removeToken = (): void => {
   }
 };
 
-async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+export async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = getToken();
 
   const headers: Record<string, string> = {
@@ -54,6 +54,10 @@ async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise
 
     if (response.status === 401) {
       removeToken();
+      // Opcional: Redirigir al login o lanzar un evento global
+      if (typeof window !== "undefined" && window.location.pathname !== "/login" && window.location.pathname !== "/") {
+         window.location.href = "/";
+      }
       throw new APIError(401, "Sesión expirada o no autorizado");
     }
 
@@ -77,97 +81,4 @@ async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise
   }
 }
 
-export const authAPI = {
-  register: async (credentials: RegisterCredentials): Promise<AuthResponse> => {
-    return fetchAPI<AuthResponse>("/auth/register/", {
-      method: "POST",
-      body: JSON.stringify(credentials),
-    });
-  },
 
-  login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
-    return fetchAPI<AuthResponse>("/auth/login/", {
-      method: "POST",
-      body: JSON.stringify(credentials),
-    });
-  },
-
-  me: async (): Promise<{ status: string; user: User }> => {
-    return fetchAPI<{ status: string; user: User }>("/auth/me/");
-  },
-
-  logout: async (): Promise<{ status: string; message: string }> => {
-    return fetchAPI<{ status: string; message: string }>("/auth/logout/", {
-      method: "POST",
-    });
-  },
-
-  updateProfile: async (data: { nombre?: string }): Promise<{ status: string; user: User }> => {
-    return fetchAPI<{ status: string; user: User }>("/auth/me/update/", {
-      method: "PUT",
-      body: JSON.stringify(data),
-    });
-  },
-};
-
-export const leccionesAPI = {
-  list: async (): Promise<any> => {
-    return fetchAPI<any>("/lecciones/");
-  },
-
-  get: async (id: number): Promise<any> => {
-    return fetchAPI<any>(`/lecciones/${id}/`);
-  },
-
-  getNext: async (): Promise<any> => {
-    return fetchAPI<any>("/lecciones/siguiente/");
-  },
-
-  complete: async (id: number): Promise<any> => {
-    return fetchAPI<any>(`/lecciones/${id}/completar/`, {
-      method: "POST",
-    });
-  },
-
-  fail: async (id: number): Promise<any> => {
-    return fetchAPI<any>(`/lecciones/${id}/fallar/`, {
-      method: "POST",
-    });
-  },
-};
-
-export const progresoAPI = {
-  statistics: async (): Promise<any> => {
-    return fetchAPI<any>("/progreso/estadisticas/");
-  },
-
-  streak: async (): Promise<any> => {
-    return fetchAPI<any>("/progreso/racha/");
-  },
-
-  achievements: async (): Promise<any> => {
-    return fetchAPI<any>("/progreso/logros/");
-  },
-
-  activity: async (): Promise<any> => {
-    return fetchAPI<any>("/progreso/actividad/");
-  },
-};
-
-export const vidasAPI = {
-  status: async (): Promise<any> => {
-    return fetchAPI<any>("/vidas/");
-  },
-
-  buy: async (): Promise<any> => {
-    return fetchAPI<any>("/vidas/comprar/", {
-      method: "POST",
-    });
-  },
-
-  restore: async (): Promise<any> => {
-    return fetchAPI<any>("/vidas/restaurar/", {
-      method: "POST",
-    });
-  },
-};

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { nivelesApi } from "./nivelesApi";
-import { saveToken } from "@/features/auth/api/authApi";
+import { saveToken } from "@/lib/api";
 import { mockNiveles, mockNivel } from "@/test/mocks/data";
 
 describe("nivelesApi", () => {

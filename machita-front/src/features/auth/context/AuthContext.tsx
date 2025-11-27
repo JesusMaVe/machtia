@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import type { User, LoginCredentials, RegisterCredentials } from "../types";
-import { authApi, saveToken, removeToken, APIError } from "../api/authApi";
+import { authApi } from "../api/authApi";
+import { saveToken, removeToken, APIError } from "@/lib/api";
 
 interface AuthContextType {
   user: User | null;

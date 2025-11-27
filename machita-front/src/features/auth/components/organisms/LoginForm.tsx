@@ -1,14 +1,12 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate, Link } from "react-router";
+import { useNavigate } from "react-router";
 import { loginSchema, type LoginFormData } from "../../utils/validations";
 import { useAuth } from "../../context/AuthContext";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -25,13 +23,12 @@ interface LoginFormProps {
 export function LoginForm({ onSuccess, showCard = true }: LoginFormProps) {
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    setError,
+    formState: { errors, isSubmitting },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -41,9 +38,6 @@ export function LoginForm({ onSuccess, showCard = true }: LoginFormProps) {
   });
 
   const onSubmit = async (data: LoginFormData) => {
-    setError(null);
-    setIsSubmitting(true);
-
     try {
       await login(data);
       if (onSuccess) {
@@ -52,18 +46,18 @@ export function LoginForm({ onSuccess, showCard = true }: LoginFormProps) {
         navigate("/aprende");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al iniciar sesión");
-    } finally {
-      setIsSubmitting(false);
+      setError("root", {
+        message: err instanceof Error ? err.message : "Error al iniciar sesión",
+      });
     }
   };
 
   const formContent = (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {error && (
+      {errors.root && (
         <Alert variant="destructive" className="mb-4">
           <ExclamationTriangleIcon className="h-4 w-4" />
-          <div className="ml-2">{error}</div>
+          <div className="ml-2">{errors.root.message}</div>
         </Alert>
       )}
 
