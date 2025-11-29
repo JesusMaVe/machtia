@@ -205,7 +205,7 @@ class Usuario(Document):
         """
         Calcula cuántas vidas se han regenerado desde la última regeneración.
 
-        Regla: 1 vida cada 30 minutos (máximo 5 vidas)
+        Regla: 1 vida cada 5 minutos (máximo 5 vidas)
 
         Returns:
             int: Número de vidas regeneradas
@@ -217,8 +217,8 @@ class Usuario(Document):
         tiempo_transcurrido = ahora - self.ultimaRegeneracionVida
         minutos_transcurridos = tiempo_transcurrido.total_seconds() / 60
 
-        # 1 vida cada 30 minutos
-        vidas_regeneradas = int(minutos_transcurridos // 30)
+        # 1 vida cada 5 minutos
+        vidas_regeneradas = int(minutos_transcurridos // 5)
 
         return vidas_regeneradas
 
@@ -238,7 +238,7 @@ class Usuario(Document):
 
             # Actualizar timestamp de última regeneración
             # Ajustar al tiempo exacto de las vidas regeneradas (no "ahora")
-            minutos_regenerados = vidas_regeneradas * 30
+            minutos_regenerados = vidas_regeneradas * 5
             self.ultimaRegeneracionVida = self.ultimaRegeneracionVida + timedelta(minutes=minutos_regenerados)
 
             self.save()
@@ -351,9 +351,9 @@ class Usuario(Document):
         tiempo_transcurrido = ahora - self.ultimaRegeneracionVida
         minutos_transcurridos = tiempo_transcurrido.total_seconds() / 60
 
-        # Minutos hasta la próxima vida (30 minutos por vida)
-        minutos_en_ciclo_actual = minutos_transcurridos % 30
-        minutos_restantes = 30 - minutos_en_ciclo_actual
+        # Minutos hasta la próxima vida (5 minutos por vida)
+        minutos_en_ciclo_actual = minutos_transcurridos % 5
+        minutos_restantes = 5 - minutos_en_ciclo_actual
         segundos_restantes = int(minutos_restantes * 60)
 
         return {

@@ -9,9 +9,15 @@ interface FloatingSidebarProps {
   vidas: number;
   tomins: number;
   racha?: number;
+  tiempoRestante?: string | null;
 }
 
-export function FloatingSidebar({ vidas, tomins, racha = 0 }: FloatingSidebarProps) {
+export function FloatingSidebar({
+  vidas,
+  tomins,
+  racha = 0,
+  tiempoRestante,
+}: FloatingSidebarProps) {
   const { openModal } = useVidasModal();
   return (
     <aside className="fixed right-4 top-20 z-40 hidden lg:block">
@@ -37,7 +43,11 @@ export function FloatingSidebar({ vidas, tomins, racha = 0 }: FloatingSidebarPro
             </TooltipTrigger>
             <TooltipContent side="left">
               <p className="text-sm font-medium">Vidas disponibles</p>
-              <p className="text-xs text-muted-foreground">Se regeneran cada 30 minutos</p>
+              <p className="text-xs text-muted-foreground">
+                {tiempoRestante
+                  ? `Próxima vida en: ${tiempoRestante}`
+                  : "Se regeneran cada 5 minutos"}
+              </p>
               <p className="text-xs text-[#2db3b6] mt-1">Click para comprar vidas</p>
             </TooltipContent>
           </Tooltip>

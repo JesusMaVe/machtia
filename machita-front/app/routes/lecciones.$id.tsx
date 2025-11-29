@@ -3,11 +3,12 @@ import { useParams, useNavigate } from "react-router";
 import { ProtectedRoute, useAuth } from "@/features/auth";
 import { leccionesApi, LeccionDetalle, type Leccion } from "@/features/lecciones";
 import { LoadingButton } from "@/shared/components/atoms";
+import { Button } from "@/components/ui/button";
 
 export default function LeccionDetallePage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, updateUser } = useAuth();
 
   const [leccion, setLeccion] = useState<Leccion | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -42,13 +43,24 @@ export default function LeccionDetallePage() {
     cargarLeccion();
   }, [id]);
 
+  const handleBack = () => {
+    navigate("/aprende");
+  };
+
   const handleComplete = async () => {
     if (!leccion) return;
 
     try {
       const resultado = await leccionesApi.complete(leccion.id);
 
-      await refreshUser();
+      // Actualizar usuario local con vidas y tomins del resultado sin hacer fetch adicional
+      if (user && resultado) {
+        updateUser((prevUser) => ({
+          ...prevUser,
+          vidas: resultado.vidasRestantes,
+          tomin: prevUser.tomin + resultado.tomins,
+        }));
+      }
     } catch (err) {}
   };
 
@@ -58,9 +70,12 @@ export default function LeccionDetallePage() {
     try {
       const resultado = await leccionesApi.fail(leccion.id);
 
-      await refreshUser();
-
-      if (resultado.vidasRestantes === 0) {
+      // Actualizar vidas del usuario local sin hacer fetch adicional
+      if (user && resultado && typeof resultado.vidasRestantes === "number") {
+        updateUser((prevUser) => ({
+          ...prevUser,
+          vidas: resultado.vidasRestantes,
+        }));
       }
     } catch (err) {}
   };
@@ -84,12 +99,9 @@ export default function LeccionDetallePage() {
           <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
             <h2 className="text-xl font-bold text-red-600 mb-4">Error</h2>
             <p className="text-gray-700 mb-4">{error || "Lección no encontrada"}</p>
-            <button
-              onClick={() => navigate("/aprende")}
-              className="w-full bg-gradient-brown hover:shadow-brown text-white px-4 py-2 rounded-lg transition-smooth"
-            >
-              Volver a Lecciones
-            </button>
+            <Button onClick={handleBack} variant="ghost" className="flex-1">
+              Volver a Aprende
+            </Button>
           </div>
         </div>
       </ProtectedRoute>

@@ -22,7 +22,7 @@ export function useLeccionPractica({ leccion, onComplete, onFail }: UseLeccionPr
   const progreso = ((estado.palabraActual + 1) / estado.totalPalabras) * 100;
   const esFinal = estado.palabraActual === estado.totalPalabras - 1;
 
-  const handleRespuesta = (esCorrecta: boolean) => {
+  const handleRespuesta = async (esCorrecta: boolean) => {
     const nuevoEstado = {
       ...estado,
       respuestasCorrectas: esCorrecta ? estado.respuestasCorrectas + 1 : estado.respuestasCorrectas,
@@ -35,13 +35,13 @@ export function useLeccionPractica({ leccion, onComplete, onFail }: UseLeccionPr
       const porcentajeAciertos = (nuevoEstado.respuestasCorrectas / estado.totalPalabras) * 100;
 
       setEstado(nuevoEstado);
-      setMostrarResultado(true);
 
       if (porcentajeAciertos >= 70) {
         onComplete();
       } else {
-        onFail();
+        await onFail();
       }
+      setMostrarResultado(true);
     } else {
       setEstado({
         ...nuevoEstado,

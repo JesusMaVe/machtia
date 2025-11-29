@@ -3,13 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router";
 import { loginSchema, type LoginFormData } from "../../utils/validations";
 import { useAuth } from "../../context/AuthContext";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert } from "@/components/ui/alert";
 import { FormField } from "@/shared/components/molecules/FormField";
 import { LoadingButton } from "@/shared/components/atoms/LoadingButton";

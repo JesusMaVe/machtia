@@ -35,6 +35,7 @@ def serializar_estado_vidas_frontend(usuario) -> dict:
         'vidasActuales': usuario.vidas,
         'vidasMaximas': 5,
         'proximaVidaEn': tiempo_proxima['minutos_restantes'] if regeneracion_activa else None,
+        'proximaVidaEnSegundos': tiempo_proxima['segundos_restantes'] if regeneracion_activa else None,
         'regeneracionActiva': regeneracion_activa
     }
 

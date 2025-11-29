@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import type { User, LoginCredentials, RegisterCredentials } from "../types";
 import { authApi } from "../api/authApi";
 import { saveToken, removeToken, APIError } from "@/lib/api";
@@ -10,7 +10,7 @@ interface AuthContextType {
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<void>;
   logout: () => Promise<void>;
-  updateUser: (user: User) => void;
+  updateUser: (userOrUpdater: User | ((user: User) => User)) => void;
   checkAuth: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -27,11 +27,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const isAuthenticated = user !== null;
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     const token = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
 
     if (!token) {
@@ -43,12 +39,32 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await authApi.me();
       setUser(response.user);
     } catch (error) {
-      removeToken();
-      setUser(null);
+      // Solo borrar token si es error 401 (no autorizado)
+      // No borrar por errores de red o CORS temporales
+      if (error instanceof APIError && error.status === 401) {
+        removeToken();
+        setUser(null);
+      }
+      // Para otros errores, mantener el token y reintentar luego
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const init = async () => {
+      if (!mounted) return;
+      await checkAuth();
+    };
+
+    init();
+
+    return () => {
+      mounted = false;
+    };
+  }, [checkAuth]);
 
   const login = async (credentials: LoginCredentials) => {
     try {
@@ -86,9 +102,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const updateUser = (updatedUser: User) => {
-    setUser(updatedUser);
-  };
+  const updateUser = useCallback((userOrUpdater: User | ((user: User) => User)) => {
+    if (typeof userOrUpdater === "function") {
+      setUser((prevUser) => (prevUser ? userOrUpdater(prevUser) : null));
+    } else {
+      setUser(userOrUpdater);
+    }
+  }, []);
 
   const refreshUser = async () => {
     const token = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;

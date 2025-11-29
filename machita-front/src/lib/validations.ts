@@ -57,8 +57,6 @@ export const validateEmail = (email: string): boolean => {
   return emailRegex.test(email);
 };
 
-
-
 export const getPasswordStrength = (
   password: string
 ): {

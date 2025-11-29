@@ -1,4 +1,4 @@
-import { useSearchParams, useNavigate } from "react-router";
+import { useSearchParams, useNavigate, useLocation } from "react-router";
 
 /**
  * Hook para controlar el modal de vidas usando URL search params
@@ -16,6 +16,7 @@ import { useSearchParams, useNavigate } from "react-router";
 export function useVidasModal() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const isOpen = searchParams.get("modal") === "vidas";
 
@@ -29,7 +30,7 @@ export function useVidasModal() {
     const newParams = new URLSearchParams(searchParams);
     newParams.delete("modal");
     const query = newParams.toString();
-    navigate(query ? `?${query}` : ".", { replace: true });
+    navigate(query ? `?${query}` : location.pathname, { replace: true });
   };
 
   return {

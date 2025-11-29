@@ -1,8 +1,5 @@
 import { useLoaderData } from "react-router";
-import {
-  progresoApi,
-  LogrosGrid,
-} from "@/features/progreso";
+import { progresoApi, LogrosGrid } from "@/features/progreso";
 import { PageHeader } from "@/shared/components/molecules";
 import { LoadingButton } from "@/shared/components/atoms";
 import { Card, CardContent } from "@/components/ui/card";

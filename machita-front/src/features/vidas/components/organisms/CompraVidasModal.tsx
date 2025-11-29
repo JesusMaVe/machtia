@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { vidasApi } from "../../api/vidasApi";
 import type { OpcionCompra } from "../../types";
+import type { User } from "@/features/auth";
 import {
   Dialog,
   DialogContent,
@@ -21,7 +22,8 @@ interface CompraVidasModalProps {
   onOpenChange: (open: boolean) => void;
   tominsDisponibles: number;
   vidasActuales: number;
-  onCompraExitosa: () => void;
+  onCompraExitosa?: () => void;
+  updateUser?: (updater: (user: User) => User) => void;
 }
 
 export function CompraVidasModal({
@@ -30,6 +32,7 @@ export function CompraVidasModal({
   tominsDisponibles,
   vidasActuales,
   onCompraExitosa,
+  updateUser,
 }: CompraVidasModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,7 +61,20 @@ export function CompraVidasModal({
         tipo === "una_vida" ? await vidasApi.comprarUna() : await vidasApi.restaurarTodas();
 
       if (resultado.exito) {
-        onCompraExitosa();
+        // Actualizar el usuario local con las vidas y tomins nuevos sin hacer fetch adicional
+        if (updateUser) {
+          updateUser((user) => ({
+            ...user,
+            vidas: resultado.vidasNuevas,
+            tomin: resultado.tominsRestantes,
+          }));
+        }
+
+        // Llamar callback adicional si existe (para recargar estado de vidas en el hook)
+        if (onCompraExitosa) {
+          onCompraExitosa();
+        }
+
         onOpenChange(false);
       } else {
         setError(resultado.mensaje);

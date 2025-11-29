@@ -16,14 +16,8 @@ interface LeccionDetalleProps {
 }
 
 export function LeccionDetalle({ leccion, onComplete, onFail }: LeccionDetalleProps) {
-  const {
-    estado,
-    mostrarResultado,
-    palabraActual,
-    progreso,
-    handleRespuesta,
-    reiniciar,
-  } = useLeccionPractica({ leccion, onComplete, onFail });
+  const { estado, mostrarResultado, palabraActual, progreso, handleRespuesta, reiniciar } =
+    useLeccionPractica({ leccion, onComplete, onFail });
 
   if (mostrarResultado) {
     const porcentajeAciertos = (estado.respuestasCorrectas / estado.totalPalabras) * 100;
@@ -114,11 +108,7 @@ export function LeccionDetalle({ leccion, onComplete, onFail }: LeccionDetallePr
               {aprobado ? (
                 <>
                   <div className="flex gap-3">
-                    <Button
-                      asChild
-                      variant="outline"
-                      className="flex-1"
-                    >
+                    <Button asChild variant="outline" className="flex-1">
                       <Link to="/aprende">
                         <ArrowLeftIcon className="mr-2 h-4 w-4" />
                         Volver a Aprende
@@ -137,11 +127,7 @@ export function LeccionDetalle({ leccion, onComplete, onFail }: LeccionDetallePr
                 </>
               ) : (
                 <div className="flex gap-3">
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="flex-1"
-                  >
+                  <Button asChild variant="outline" className="flex-1">
                     <Link to="/aprende">
                       <ArrowLeftIcon className="mr-2 h-4 w-4" />
                       Volver a Aprende

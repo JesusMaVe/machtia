@@ -16,15 +16,17 @@ import { SunIcon, MoonIcon } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
 import { progresoApi, type Racha } from "@/features/progreso";
 import { useTheme } from "@/shared/context";
-import { CompraVidasModal, useVidasModal, vidasApi, type EstadoVidas } from "@/features/vidas";
+import { CompraVidasModal, useVidasModal, useVidas } from "@/features/vidas";
+import { toast } from "sonner";
 
 export default function AppLayout() {
-  const { user, isAuthenticated, logout, isLoading, refreshUser } = useAuth();
+  const { user, isAuthenticated, logout, isLoading, updateUser } = useAuth();
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const { isOpen, closeModal } = useVidasModal();
   const [racha, setRacha] = useState<Racha | null>(null);
-  const [estadoVidas, setEstadoVidas] = useState<EstadoVidas | null>(null);
+  const { estadoVidas, tiempoRestante, cargarEstadoVidas, vidaLista, reclamarVida } =
+    useVidas(updateUser);
 
   // Cargar racha
   useEffect(() => {
@@ -42,23 +44,28 @@ export default function AppLayout() {
 
   // Cargar estado de vidas
   useEffect(() => {
-    const cargarEstadoVidas = async () => {
-      try {
-        const estado = await vidasApi.getEstado();
-        setEstadoVidas(estado);
-      } catch (err) {}
-    };
-
     if (isAuthenticated) {
       cargarEstadoVidas();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, cargarEstadoVidas]);
+
+  // Notificación para reclamar vida
+  useEffect(() => {
+    if (vidaLista) {
+      toast("¡Tienes una vida regenerada!", {
+        description: "Haz click para reclamarla y seguir aprendiendo.",
+        action: {
+          label: "Reclamar",
+          onClick: () => reclamarVida(),
+        },
+        duration: Infinity, // Mantener hasta que el usuario interactúe
+      });
+    }
+  }, [vidaLista, reclamarVida]);
 
   const handleCompraExitosa = async () => {
-    // Refrescar usuario y estado de vidas
-    await refreshUser();
-    const nuevoEstado = await vidasApi.getEstado();
-    setEstadoVidas(nuevoEstado);
+    // Recargar el estado de vidas que automáticamente actualizará el usuario local
+    await cargarEstadoVidas();
   };
 
   if (isLoading) {
@@ -190,7 +197,12 @@ export default function AppLayout() {
 
       {/* Sidebar flotante con gamificación */}
       {user && (
-        <FloatingSidebar vidas={user.vidas} tomins={user.tomin} racha={racha?.diasActuales || 0} />
+        <FloatingSidebar
+          vidas={user.vidas}
+          tomins={user.tomin}
+          racha={racha?.diasActuales || 0}
+          tiempoRestante={tiempoRestante}
+        />
       )}
 
       {/* Modal de vidas - Controlado por URL params */}
@@ -201,6 +213,7 @@ export default function AppLayout() {
           vidasActuales={user.vidas}
           tominsDisponibles={user.tomin}
           onCompraExitosa={handleCompraExitosa}
+          updateUser={updateUser}
         />
       )}
 

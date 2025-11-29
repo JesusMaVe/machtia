@@ -55,8 +55,12 @@ export async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): 
     if (response.status === 401) {
       removeToken();
       // Opcional: Redirigir al login o lanzar un evento global
-      if (typeof window !== "undefined" && window.location.pathname !== "/login" && window.location.pathname !== "/") {
-         window.location.href = "/";
+      if (
+        typeof window !== "undefined" &&
+        window.location.pathname !== "/login" &&
+        window.location.pathname !== "/"
+      ) {
+        window.location.href = "/";
       }
       throw new APIError(401, "Sesión expirada o no autorizado");
     }
@@ -80,5 +84,3 @@ export async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): 
     throw new APIError(0, "Error desconocido");
   }
 }
-
-

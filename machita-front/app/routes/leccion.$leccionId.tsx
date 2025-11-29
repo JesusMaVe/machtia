@@ -127,7 +127,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let message = "Error desconocido";
 
   if (isRouteErrorResponse(error)) {
-    message = error.data as string || error.statusText;
+    message = (error.data as string) || error.statusText;
   } else if (error instanceof Error) {
     message = error.message;
   }

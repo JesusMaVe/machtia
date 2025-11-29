@@ -338,6 +338,10 @@ def serializar_usuario(usuario) -> dict:
     Returns:
         dict: Usuario serializado (sin contraseña)
     """
+    # Asegurar que las vidas estén actualizadas antes de serializar
+    if hasattr(usuario, 'regenerar_vidas'):
+        usuario.regenerar_vidas()
+
     return {
         'id': str(usuario.id),
         'email': usuario.email,

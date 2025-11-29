@@ -2,6 +2,7 @@ export interface EstadoVidas {
   vidasActuales: number;
   vidasMaximas: number;
   proximaVidaEn?: number; // Minutos hasta la próxima vida
+  proximaVidaEnSegundos?: number; // Segundos hasta la próxima vida
   regeneracionActiva: boolean;
 }
 
