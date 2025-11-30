@@ -7,9 +7,7 @@ export async function clientAction({ request }: { request: Request }) {
 
   try {
     const resultado =
-      tipo === "una_vida"
-        ? await vidasApi.comprarUna()
-        : await vidasApi.restaurarTodas();
+      tipo === "una_vida" ? await vidasApi.comprarUna() : await vidasApi.restaurarTodas();
 
     return {
       success: resultado.exito,

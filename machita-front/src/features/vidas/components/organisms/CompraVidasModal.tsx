@@ -65,7 +65,11 @@ export function CompraVidasModal({
   // Manejar respuesta del action
   useEffect(() => {
     if (fetcher.data) {
-      if (fetcher.data.success && fetcher.data.vidasNuevas !== undefined && fetcher.data.tominsRestantes !== undefined) {
+      if (
+        fetcher.data.success &&
+        fetcher.data.vidasNuevas !== undefined &&
+        fetcher.data.tominsRestantes !== undefined
+      ) {
         // Actualizar el usuario local con las vidas y tomins nuevos
         if (updateUser) {
           updateUser((user) => ({
@@ -92,10 +96,7 @@ export function CompraVidasModal({
   const handleCompra = (tipo: "una_vida" | "restaurar_todas") => {
     setError(null);
 
-    fetcher.submit(
-      { tipo },
-      { method: "post", action: "/vidas/comprar" }
-    );
+    fetcher.submit({ tipo }, { method: "post", action: "/vidas/comprar" });
   };
 
   return (

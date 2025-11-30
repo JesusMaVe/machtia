@@ -46,18 +46,18 @@ export default function ProgresoPage() {
           />
         </div>
 
-        {/* Sección de estadísticas rápidas - Minimalist white cards */}
+        {/* Sección de estadísticas rápidas - Minimalist cards with dark mode */}
         {estadisticas && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <Card className="bg-white border-gray-200 shadow-sm">
+            <Card className="bg-white dark:bg-[#1a1a1a] border-gray-200 dark:border-gray-700 shadow-sm">
               <CardContent className="pt-6 text-center">
-                <div className="text-3xl font-bold text-[#2db3b6]">
+                <div className="text-3xl font-bold text-[#2db3b6] dark:text-orange-400">
                   {estadisticas.leccionesCompletadas}
                 </div>
                 <p className="text-sm text-muted-foreground mt-1">Lecciones completadas</p>
               </CardContent>
             </Card>
-            <Card className="bg-white border-gray-200 shadow-sm">
+            <Card className="bg-white dark:bg-[#1a1a1a] border-gray-200 dark:border-gray-700 shadow-sm">
               <CardContent className="pt-6 text-center">
                 <div className="text-3xl font-bold text-[#f3b62a]">
                   {estadisticas.tominsAcumulados}
@@ -65,17 +65,19 @@ export default function ProgresoPage() {
                 <p className="text-sm text-muted-foreground mt-1">Tomins acumulados</p>
               </CardContent>
             </Card>
-            <Card className="bg-white border-gray-200 shadow-sm">
+            <Card className="bg-white dark:bg-[#1a1a1a] border-gray-200 dark:border-gray-700 shadow-sm">
               <CardContent className="pt-6 text-center">
-                <div className="text-3xl font-bold text-[#2db3b6]">
+                <div className="text-3xl font-bold text-[#2db3b6] dark:text-orange-400">
                   {estadisticas.palabrasAprendidas}
                 </div>
                 <p className="text-sm text-muted-foreground mt-1">Palabras aprendidas</p>
               </CardContent>
             </Card>
-            <Card className="bg-white border-gray-200 shadow-sm">
+            <Card className="bg-white dark:bg-[#1a1a1a] border-gray-200 dark:border-gray-700 shadow-sm">
               <CardContent className="pt-6 text-center">
-                <div className="text-3xl font-bold text-[#2db3b6]">{racha?.diasActuales || 0}</div>
+                <div className="text-3xl font-bold text-[#2db3b6] dark:text-orange-400">
+                  {racha?.diasActuales || 0}
+                </div>
                 <p className="text-sm text-muted-foreground mt-1">
                   {racha && racha.diasActuales === 1 ? "Día" : "Días"} de racha
                 </p>

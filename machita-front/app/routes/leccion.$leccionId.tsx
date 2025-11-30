@@ -159,19 +159,13 @@ export default function LeccionDetallePage() {
   const handleComplete = () => {
     if (leccion.completada) return;
 
-    fetcher.submit(
-      { intent: "complete" },
-      { method: "post" }
-    );
+    fetcher.submit({ intent: "complete" }, { method: "post" });
   };
 
   const handleFail = () => {
     if (leccion.completada) return;
 
-    fetcher.submit(
-      { intent: "fail" },
-      { method: "post" }
-    );
+    fetcher.submit({ intent: "fail" }, { method: "post" });
   };
 
   return (

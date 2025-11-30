@@ -12,9 +12,9 @@ export function LogrosGrid({ logros }: LogrosGridProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-obsidiana">Logros</h2>
-        <div className="text-sm text-gray-600">
-          <span className="font-semibold text-jade">{desbloqueados}</span>
+        <h2 className="text-2xl font-bold text-obsidiana dark:text-white">Logros</h2>
+        <div className="text-sm text-gray-600 dark:text-gray-300">
+          <span className="font-semibold text-jade dark:text-purple-400">{desbloqueados}</span>
           <span> de </span>
           <span className="font-semibold">{total}</span>
           <span> desbloqueados</span>
@@ -29,7 +29,7 @@ export function LogrosGrid({ logros }: LogrosGridProps) {
 
       {logros.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-gray-500">No hay logros disponibles.</p>
+          <p className="text-gray-500 dark:text-gray-400">No hay logros disponibles.</p>
         </div>
       )}
     </div>
