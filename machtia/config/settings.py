@@ -38,13 +38,8 @@ if not SECRET_KEY or SECRET_KEY == 'django-insecure-k#at8^gnm@h96kpeozb==f0&a@5f
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 # Hosts permitidos (previene Host Header Injection)
-ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    # TODO: Agregar dominios de producción aquí:
-    # 'machtia.com',
-    # 'api.machtia.com',
-]
+# Usar variable de entorno, con fallback para desarrollo
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 
 # Application definition
@@ -178,12 +173,11 @@ mongoengine.connect(
 # ===========================
 # CORS CONFIGURATION
 # ===========================
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # Frontend React (create-react-app)
-    "http://127.0.0.1:3000",
-    "http://localhost:5173",  # Frontend Vite
-    "http://127.0.0.1:5173",
-]
+# Usar variable de entorno, con fallback para desarrollo
+CORS_ALLOWED_ORIGINS = os.getenv(
+    'CORS_ALLOWED_ORIGINS',
+    'http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173'
+).split(',')
 
 # CRÍTICO: Permitir credenciales (cookies) en requests cross-origin
 CORS_ALLOW_CREDENTIALS = True
@@ -306,7 +300,8 @@ CSP_SCRIPT_SRC = ["'self'"]
 CSP_STYLE_SRC = ["'self'", "'unsafe-inline'"]  # unsafe-inline necesario para algunos admin panels
 CSP_IMG_SRC = ["'self'", "data:", "https:"]
 CSP_FONT_SRC = ["'self'"]
-CSP_CONNECT_SRC = ["'self'", "http://localhost:8000", "http://127.0.0.1:8000"]
+# CSP - Content Security Policy (usar CORS_ALLOWED_ORIGINS + self)
+CSP_CONNECT_SRC = ["'self'"] + CORS_ALLOWED_ORIGINS
 CSP_FRAME_ANCESTORS = ["'none'"]  # Equivalente a X-Frame-Options: DENY
 
 # Permissions Policy (antes Feature Policy)
