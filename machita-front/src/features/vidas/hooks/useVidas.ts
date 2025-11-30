@@ -23,7 +23,8 @@ export function useVidas(updateUser?: (updater: (user: User) => User) => void) {
     } catch (err) {
       console.error("Error al cargar estado de vidas:", err);
     }
-  }, [updateUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Sin dependencias - siempre usa la última versión de updateUser del closure
 
   // Efecto para el temporizador
   useEffect(() => {
@@ -77,7 +78,8 @@ export function useVidas(updateUser?: (updater: (user: User) => User) => void) {
       console.error("Error al reclamar vida:", error);
       return false;
     }
-  }, [updateUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Sin dependencias - siempre usa la última versión de updateUser del closure
 
   return {
     estadoVidas,

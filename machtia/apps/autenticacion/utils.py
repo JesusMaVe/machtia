@@ -193,9 +193,34 @@ def extraer_token_de_header(request) -> str:
     return None
 
 
+def extraer_token_de_request(request) -> str:
+    """
+    Extrae el token JWT de cookies httpOnly (prioridad) o header Authorization (fallback).
+
+    SEGURIDAD: Cookies httpOnly previenen XSS attacks. El fallback al header
+    Authorization se mantiene temporalmente para compatibilidad durante migración.
+
+    Args:
+        request: Request de Django
+
+    Returns:
+        str: Token JWT
+        None: Si no hay token en cookies ni header
+    """
+    # PRIORIDAD 1: Leer desde cookie httpOnly (más seguro)
+    token = request.COOKIES.get('access_token')
+    if token:
+        return token
+
+    # FALLBACK: Leer desde header Authorization (compatibilidad temporal)
+    return extraer_token_de_header(request)
+
+
 def require_auth(view_func):
     """
     Decorador para requerir autenticación en una vista.
+
+    SEGURIDAD: Lee token desde cookies httpOnly (prioridad) o header Authorization (fallback).
 
     Uso:
         @api_view(['GET'])
@@ -206,7 +231,8 @@ def require_auth(view_func):
     """
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
-        token = extraer_token_de_header(request)
+        # SEGURIDAD: Intentar leer desde cookies httpOnly primero
+        token = extraer_token_de_request(request)
 
         if not token:
             return Response({
@@ -277,8 +303,8 @@ def require_role(allowed_roles: list):
     def decorator(view_func):
         @wraps(view_func)
         def wrapper(request, *args, **kwargs):
-            # Primero verificar autenticación (extrae y valida token)
-            token = extraer_token_de_header(request)
+            # SEGURIDAD: Verificar autenticación leyendo desde cookies httpOnly primero
+            token = extraer_token_de_request(request)
 
             if not token:
                 return Response({

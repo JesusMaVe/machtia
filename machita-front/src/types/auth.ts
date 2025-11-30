@@ -22,7 +22,7 @@ export interface AuthResponse {
   status: "success" | "error";
   message: string;
   user: User;
-  token: TokenData;
+  token?: TokenData; // Opcional - solo para compatibilidad legacy (ahora viene en cookies httpOnly)
 }
 
 export interface LoginCredentials {

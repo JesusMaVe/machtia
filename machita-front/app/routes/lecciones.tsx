@@ -1,6 +1,6 @@
-import { useEffect, useState, useMemo } from "react";
+import { useMemo } from "react";
 import { useAuth } from "@/features/auth";
-import { useSearchParams } from "react-router";
+import { useSearchParams, useLoaderData } from "react-router";
 import { leccionesApi, LeccionesGrid, type Leccion, type Tema } from "@/features/lecciones";
 import { LeccionesFilter } from "@/features/lecciones/components/molecules/LeccionesFilter";
 import { PageHeader } from "@/shared/components/molecules";
@@ -14,43 +14,54 @@ export function meta() {
   ];
 }
 
+export async function clientLoader() {
+  try {
+    const lecciones = await leccionesApi.list();
+    return { lecciones };
+  } catch (error) {
+    throw new Response("Error al cargar lecciones", { status: 500 });
+  }
+}
+
+export function HydrateFallback() {
+  return (
+    <div className="min-h-screen bg-cream dark:bg-[#0a0a0a] flex items-center justify-center">
+      <LoadingButton isLoading={true} disabled>
+        Cargando lecciones...
+      </LoadingButton>
+    </div>
+  );
+}
+
 export default function LeccionesPage() {
   const { user } = useAuth();
-  const [searchParams] = useSearchParams();
-  const [todasLecciones, setTodasLecciones] = useState<Leccion[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { lecciones: todasLecciones } = useLoaderData<typeof clientLoader>();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // Leer dificultad desde query params o usar "todas"
   const dificultadFromURL = searchParams.get("dificultad") as Dificultad | null;
-  const [dificultadFiltro, setDificultadFiltro] = useState<Dificultad | "todas">(
-    dificultadFromURL || "todas"
-  );
-  const [temaFiltro, setTemaFiltro] = useState<Tema | "todos">("todos");
+  const dificultadFiltro = (dificultadFromURL || "todas") as Dificultad | "todas";
+  const temaFiltro = (searchParams.get("tema") || "todos") as Tema | "todos";
 
-  // Actualizar filtro si cambia el query param
-  useEffect(() => {
-    if (dificultadFromURL && dificultadFromURL !== dificultadFiltro) {
-      setDificultadFiltro(dificultadFromURL);
+  const setDificultadFiltro = (dificultad: Dificultad | "todas") => {
+    const newParams = new URLSearchParams(searchParams);
+    if (dificultad === "todas") {
+      newParams.delete("dificultad");
+    } else {
+      newParams.set("dificultad", dificultad);
     }
-  }, [dificultadFromURL]);
+    setSearchParams(newParams, { replace: true });
+  };
 
-  // Cargar todas las lecciones UNA SOLA VEZ
-  useEffect(() => {
-    const cargarTodasLecciones = async () => {
-      try {
-        setIsLoading(true);
-        const data = await leccionesApi.list();
-        setTodasLecciones(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Error al cargar lecciones");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    cargarTodasLecciones();
-  }, []);
+  const setTemaFiltro = (tema: Tema | "todos") => {
+    const newParams = new URLSearchParams(searchParams);
+    if (tema === "todos") {
+      newParams.delete("tema");
+    } else {
+      newParams.set("tema", tema);
+    }
+    setSearchParams(newParams, { replace: true });
+  };
 
   // Filtrar lecciones LOCALMENTE (sin llamadas al backend)
   const leccionesFiltradas = useMemo(() => {
@@ -74,8 +85,7 @@ export default function LeccionesPage() {
   }, [todasLecciones]);
 
   const limpiarFiltros = () => {
-    setDificultadFiltro("todas");
-    setTemaFiltro("todos");
+    setSearchParams(new URLSearchParams(), { replace: true });
   };
 
   if (!user) return null;
@@ -117,44 +127,22 @@ export default function LeccionesPage() {
           />
         </div>
 
-        {isLoading ? (
-          <div className="flex justify-center items-center py-20">
-            <LoadingButton isLoading={true} disabled>
-              Cargando lecciones...
-            </LoadingButton>
-          </div>
-        ) : error ? (
+        {leccionesFiltradas.length === 0 ? (
           <div className="text-center py-12">
-            <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg p-6 max-w-md mx-auto">
-              <p className="text-red-600 dark:text-red-400 font-medium">{error}</p>
+            <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 max-w-md mx-auto">
+              <p className="text-blue-700 dark:text-blue-300 font-medium">
+                No se encontraron lecciones con los filtros seleccionados
+              </p>
               <button
-                onClick={() => window.location.reload()}
-                className="mt-4 text-sm text-red-700 dark:text-red-300 underline"
+                onClick={limpiarFiltros}
+                className="mt-4 text-sm text-blue-700 dark:text-blue-300 underline"
               >
-                Intentar de nuevo
+                Limpiar filtros
               </button>
             </div>
           </div>
         ) : (
-          <>
-            {leccionesFiltradas.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 max-w-md mx-auto">
-                  <p className="text-blue-700 dark:text-blue-300 font-medium">
-                    No se encontraron lecciones con los filtros seleccionados
-                  </p>
-                  <button
-                    onClick={limpiarFiltros}
-                    className="mt-4 text-sm text-blue-700 dark:text-blue-300 underline"
-                  >
-                    Limpiar filtros
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <LeccionesGrid lecciones={leccionesFiltradas} />
-            )}
-          </>
+          <LeccionesGrid lecciones={leccionesFiltradas} />
         )}
       </div>
     </div>

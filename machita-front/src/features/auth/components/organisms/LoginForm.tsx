@@ -1,6 +1,7 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "react-router";
+import { useNavigate, useFetcher } from "react-router";
 import { loginSchema, type LoginFormData } from "../../utils/validations";
 import { useAuth } from "../../context/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,15 +15,22 @@ interface LoginFormProps {
   showCard?: boolean;
 }
 
+type LoginActionData = {
+  success: boolean;
+  user?: any;
+  error?: string;
+};
+
 export function LoginForm({ onSuccess, showCard = true }: LoginFormProps) {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { checkAuth } = useAuth();
+  const fetcher = useFetcher<LoginActionData>();
 
   const {
     register,
     handleSubmit,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -31,19 +39,38 @@ export function LoginForm({ onSuccess, showCard = true }: LoginFormProps) {
     },
   });
 
-  const onSubmit = async (data: LoginFormData) => {
-    try {
-      await login(data);
-      if (onSuccess) {
-        onSuccess();
-      } else {
-        navigate("/aprende");
+  const isSubmitting = fetcher.state === "submitting" || fetcher.state === "loading";
+
+  // Manejar respuesta del action
+  useEffect(() => {
+    if (fetcher.data) {
+      if (fetcher.data.success) {
+        // Re-verificar auth para actualizar el contexto
+        checkAuth().then(() => {
+          if (onSuccess) {
+            onSuccess();
+          } else {
+            navigate("/aprende");
+          }
+        });
+      } else if (fetcher.data.error) {
+        setError("root", {
+          message: fetcher.data.error,
+        });
       }
-    } catch (err) {
-      setError("root", {
-        message: err instanceof Error ? err.message : "Error al iniciar sesión",
-      });
     }
+  }, [fetcher.data, onSuccess, navigate, checkAuth, setError]);
+
+  const onSubmit = (data: LoginFormData) => {
+    // Usar fetcher en vez de llamada manual
+    const formData = new FormData();
+    formData.append("email", data.email);
+    formData.append("password", data.password);
+
+    fetcher.submit(formData, {
+      method: "post",
+      action: "/auth/login",
+    });
   };
 
   const formContent = (

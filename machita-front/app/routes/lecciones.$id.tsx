@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router";
 import { ProtectedRoute, useAuth } from "@/features/auth";
 import { leccionesApi, LeccionDetalle, type Leccion } from "@/features/lecciones";
@@ -47,7 +47,7 @@ export default function LeccionDetallePage() {
     navigate("/aprende");
   };
 
-  const handleComplete = async () => {
+  const handleComplete = useCallback(async () => {
     if (!leccion) return;
 
     try {
@@ -62,9 +62,9 @@ export default function LeccionDetallePage() {
         }));
       }
     } catch (err) {}
-  };
+  }, [leccion, user, updateUser]);
 
-  const handleFail = async () => {
+  const handleFail = useCallback(async () => {
     if (!leccion) return;
 
     try {
@@ -78,7 +78,7 @@ export default function LeccionDetallePage() {
         }));
       }
     } catch (err) {}
-  };
+  }, [leccion, user, updateUser]);
 
   if (isLoading) {
     return (

@@ -281,12 +281,19 @@ export function DynamicaRouter({ leccion, onComplete, onFail }: DynamicaRouterPr
   const renderDinamica = () => {
     switch (dinamicaActual) {
       case "traduccion":
-        return <DinamicaTraduccion palabra={palabraActual} onRespuesta={handleRespuesta} />;
+        return (
+          <DinamicaTraduccion
+            key={estado.palabraActual}
+            palabra={palabraActual}
+            onRespuesta={handleRespuesta}
+          />
+        );
 
       case "seleccion_multiple":
         const opciones = generarOpcionesMultiple(palabraActual, leccion.palabras, 4);
         return (
           <SeleccionMultiple
+            key={estado.palabraActual}
             palabra={palabraActual}
             opciones={opciones}
             onRespuesta={handleRespuesta}
@@ -296,10 +303,22 @@ export function DynamicaRouter({ leccion, onComplete, onFail }: DynamicaRouterPr
       case "emparejamiento":
         const palabrasParaEmparejamiento = getPalabrasParaEmparejamiento();
         const pares = generarParesEmparejamiento(palabrasParaEmparejamiento);
-        return <Emparejamiento pares={pares} onComplete={handleEmparejamientoComplete} />;
+        return (
+          <Emparejamiento
+            key={estado.palabraActual}
+            pares={pares}
+            onComplete={handleEmparejamientoComplete}
+          />
+        );
 
       default:
-        return <DinamicaTraduccion palabra={palabraActual} onRespuesta={handleRespuesta} />;
+        return (
+          <DinamicaTraduccion
+            key={estado.palabraActual}
+            palabra={palabraActual}
+            onRespuesta={handleRespuesta}
+          />
+        );
     }
   };
 

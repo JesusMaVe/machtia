@@ -67,8 +67,21 @@ def serializar_leccion_frontend(leccion_data: dict, usuario=None) -> dict:
 
     if usuario:
         completada = leccion_id in usuario.leccionesCompletadas
-        # Una lección está bloqueada si su ID es mayor que leccionActual del usuario
-        bloqueada = leccion_id > usuario.leccionActual
+
+        # PROGRESIÓN SECUENCIAL: Una lección está bloqueada si:
+        # 1. Cualquier lección anterior (ID menor) NO está completada
+        # 2. Es la primera lección no completada (leccionActual), entonces NO está bloqueada
+
+        if not completada:  # Solo calcular bloqueo si no está completada
+            # Verificar que todas las lecciones anteriores estén completadas
+            lecciones_anteriores_ids = range(1, leccion_id)  # IDs de 1 hasta leccion_id-1
+            todas_anteriores_completadas = all(
+                lid in usuario.leccionesCompletadas
+                for lid in lecciones_anteriores_ids
+            )
+
+            # Bloqueada si hay lecciones anteriores sin completar
+            bloqueada = not todas_anteriores_completadas
 
     # Serializar palabras
     palabras_serializadas = []

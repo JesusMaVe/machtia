@@ -185,6 +185,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
 ]
 
+# CRÍTICO: Permitir credenciales (cookies) en requests cross-origin
 CORS_ALLOW_CREDENTIALS = True
 
 # Permitir todos los headers comunes para preflight
@@ -198,6 +199,12 @@ CORS_ALLOW_HEADERS = [
     'user-agent',
     'x-csrftoken',
     'x-requested-with',
+]
+
+# CRÍTICO: Exponer headers para que el navegador pueda leerlos
+CORS_EXPOSE_HEADERS = [
+    'content-type',
+    'set-cookie',
 ]
 
 # Permitir todos los métodos HTTP
@@ -299,7 +306,7 @@ CSP_SCRIPT_SRC = ["'self'"]
 CSP_STYLE_SRC = ["'self'", "'unsafe-inline'"]  # unsafe-inline necesario para algunos admin panels
 CSP_IMG_SRC = ["'self'", "data:", "https:"]
 CSP_FONT_SRC = ["'self'"]
-CSP_CONNECT_SRC = ["'self'"]
+CSP_CONNECT_SRC = ["'self'", "http://localhost:8000", "http://127.0.0.1:8000"]
 CSP_FRAME_ANCESTORS = ["'none'"]  # Equivalente a X-Frame-Options: DENY
 
 # Permissions Policy (antes Feature Policy)

@@ -80,10 +80,21 @@ def listar_lecciones(request):
         lecciones_cursor = db.lecciones.find(filtro).sort('_id', 1)
 
         # Obtener usuario si está autenticado (sin requerir auth)
+        # Intenta desde cookies httpOnly primero, luego desde Authorization header (legacy)
         usuario = None
-        auth_header = request.headers.get('Authorization')
-        if auth_header and auth_header.startswith('Bearer '):
-            token = auth_header.split(' ')[1]
+        token = None
+
+        # PRIORIDAD 1: Cookies httpOnly (moderno y seguro)
+        token = request.COOKIES.get('access_token')
+
+        # FALLBACK: Authorization header (legacy, para compatibilidad)
+        if not token:
+            auth_header = request.headers.get('Authorization')
+            if auth_header and auth_header.startswith('Bearer '):
+                token = auth_header.split(' ')[1]
+
+        # Decodificar token y obtener usuario si se encontró
+        if token:
             try:
                 from apps.autenticacion.utils import decodificar_token
                 payload = decodificar_token(token)
@@ -142,11 +153,22 @@ def obtener_leccion(request, leccion_id):
                 'error': 'Lección no encontrada'
             }, status=status.HTTP_404_NOT_FOUND)
 
-        # Obtener usuario si está autenticado
+        # Obtener usuario si está autenticado (sin requerir auth)
+        # Intenta desde cookies httpOnly primero, luego desde Authorization header (legacy)
         usuario = None
-        auth_header = request.headers.get('Authorization')
-        if auth_header and auth_header.startswith('Bearer '):
-            token = auth_header.split(' ')[1]
+        token = None
+
+        # PRIORIDAD 1: Cookies httpOnly (moderno y seguro)
+        token = request.COOKIES.get('access_token')
+
+        # FALLBACK: Authorization header (legacy, para compatibilidad)
+        if not token:
+            auth_header = request.headers.get('Authorization')
+            if auth_header and auth_header.startswith('Bearer '):
+                token = auth_header.split(' ')[1]
+
+        # Decodificar token y obtener usuario si se encontró
+        if token:
             try:
                 from apps.autenticacion.utils import decodificar_token
                 payload = decodificar_token(token)
@@ -237,42 +259,25 @@ def completar_leccion(request, leccion_id):
                 'error': 'Lección no encontrada'
             }, status=status.HTTP_404_NOT_FOUND)
 
-        # SEGURIDAD: Verificar acceso al nivel (prevenir IDOR)
-        nivel_id = leccion_data.get('nivel_id', 1)
-        if not usuario.puede_acceder_nivel(nivel_id):
-            return Response({
-                'error': f'No tienes acceso al nivel {nivel_id}. Completa el nivel anterior primero.',
-                'nivel_actual': usuario.nivelActual,
-                'nivel_requerido': nivel_id
-            }, status=status.HTTP_403_FORBIDDEN)
-
-        # SEGURIDAD: Verificar lecciones previas completadas (prevenir skip/IDOR)
+        # PROGRESIÓN SECUENCIAL: Verificar que todas las lecciones anteriores estén completadas
+        # Esta validación asegura que el usuario no pueda saltar lecciones
         if leccion_id > 1:
-            # Obtener todas las lecciones anteriores a esta
-            lecciones_previas = list(db.lecciones.find(
-                {'_id': {'$lt': leccion_id}, 'nivel_id': {'$lte': nivel_id}},
-                {'_id': 1}
-            ))
-            ids_previos = [l['_id'] for l in lecciones_previas]
-
-            # Verificar que todas las lecciones previas del mismo nivel y anteriores estén completadas
+            # Verificar TODAS las lecciones anteriores (1, 2, 3, ..., leccion_id-1)
+            lecciones_anteriores = range(1, leccion_id)
             lecciones_faltantes = [
-                lid for lid in ids_previos
+                lid for lid in lecciones_anteriores
                 if lid not in usuario.leccionesCompletadas
             ]
 
             if lecciones_faltantes:
+                # Calcular cuál es la primera lección sin completar
+                primera_faltante = min(lecciones_faltantes)
                 return Response({
-                    'error': 'Debes completar las lecciones anteriores primero',
-                    'lecciones_faltantes': lecciones_faltantes,
-                    'leccion_actual_recomendada': usuario.leccionActual
+                    'error': f'Debes completar la lección {primera_faltante} primero',
+                    'leccionBloqueada': leccion_id,
+                    'proximaLeccion': primera_faltante,
+                    'leccionesFaltantes': lecciones_faltantes
                 }, status=status.HTTP_403_FORBIDDEN)
-
-        # Verificar que sea la lección actual del usuario
-        if usuario.leccionActual != leccion_id:
-            return Response({
-                'error': f'Debes completar primero la lección {usuario.leccionActual}'
-            }, status=status.HTTP_400_BAD_REQUEST)
 
         # Verificar si ya completó esta lección
         if leccion_id in usuario.leccionesCompletadas:
@@ -604,35 +609,24 @@ def fallar_leccion(request, leccion_id):
                 'error': 'Lección no encontrada'
             }, status=status.HTTP_404_NOT_FOUND)
 
-        # SEGURIDAD: Verificar acceso al nivel (prevenir IDOR)
-        nivel_id = leccion_data.get('nivel_id', 1)
-        if not usuario.puede_acceder_nivel(nivel_id):
-            return Response({
-                'error': f'No tienes acceso al nivel {nivel_id}. Completa el nivel anterior primero.',
-                'nivel_actual': usuario.nivelActual,
-                'nivel_requerido': nivel_id
-            }, status=status.HTTP_403_FORBIDDEN)
-
-        # SEGURIDAD: Verificar lecciones previas completadas (prevenir skip/IDOR)
+        # PROGRESIÓN SECUENCIAL: Verificar que todas las lecciones anteriores estén completadas
+        # Esta validación asegura que el usuario no pueda intentar lecciones bloqueadas
         if leccion_id > 1:
-            # Obtener todas las lecciones anteriores a esta
-            lecciones_previas = list(db.lecciones.find(
-                {'_id': {'$lt': leccion_id}, 'nivel_id': {'$lte': nivel_id}},
-                {'_id': 1}
-            ))
-            ids_previos = [l['_id'] for l in lecciones_previas]
-
-            # Verificar que todas las lecciones previas del mismo nivel y anteriores estén completadas
+            # Verificar TODAS las lecciones anteriores (1, 2, 3, ..., leccion_id-1)
+            lecciones_anteriores = range(1, leccion_id)
             lecciones_faltantes = [
-                lid for lid in ids_previos
+                lid for lid in lecciones_anteriores
                 if lid not in usuario.leccionesCompletadas
             ]
 
             if lecciones_faltantes:
+                # Calcular cuál es la primera lección sin completar
+                primera_faltante = min(lecciones_faltantes)
                 return Response({
-                    'error': 'Debes completar las lecciones anteriores primero',
-                    'lecciones_faltantes': lecciones_faltantes,
-                    'leccion_actual_recomendada': usuario.leccionActual
+                    'error': f'Debes completar la lección {primera_faltante} primero',
+                    'leccionBloqueada': leccion_id,
+                    'proximaLeccion': primera_faltante,
+                    'leccionesFaltantes': lecciones_faltantes
                 }, status=status.HTTP_403_FORBIDDEN)
 
         # Verificar si tiene vidas disponibles (esto regenera automáticamente)

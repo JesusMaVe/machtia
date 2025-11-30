@@ -1,6 +1,7 @@
 import { Outlet, NavLink, useNavigate, Navigate } from "react-router";
 import { useAuth } from "@/features/auth";
 import { FloatingSidebar } from "@/shared/components/organisms";
+import { NavigationProgressBar } from "@/shared/components/atoms";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -47,7 +48,8 @@ export default function AppLayout() {
     if (isAuthenticated) {
       cargarEstadoVidas();
     }
-  }, [isAuthenticated, cargarEstadoVidas]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]); // Solo cargar cuando cambia autenticación
 
   // Notificación para reclamar vida
   useEffect(() => {
@@ -61,11 +63,12 @@ export default function AppLayout() {
         duration: Infinity, // Mantener hasta que el usuario interactúe
       });
     }
-  }, [vidaLista, reclamarVida]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vidaLista]); // Solo mostrar toast cuando vidaLista cambia
 
   const handleCompraExitosa = async () => {
-    // Recargar el estado de vidas que automáticamente actualizará el usuario local
-    await cargarEstadoVidas();
+    // CompraVidasModal ya actualizó el usuario con updateUser
+    // No necesitamos hacer nada más aquí para evitar doble actualización
   };
 
   if (isLoading) {
@@ -99,6 +102,9 @@ export default function AppLayout() {
 
   return (
     <div className="min-h-screen bg-gradient-nahuatl">
+      {/* Barra de progreso global durante navegación */}
+      <NavigationProgressBar />
+
       {/* Header persistente - Premium glassmorphism */}
       <header className="sticky top-0 z-50 border-b border-[rgba(45,179,182,0.1)] glass-white shadow-jade-sm">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

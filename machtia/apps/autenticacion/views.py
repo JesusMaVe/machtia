@@ -195,12 +195,38 @@ def register(request):
             severity='INFO'
         )
 
-        return Response({
+        # SEGURIDAD: Establecer tokens en cookies httpOnly (no en JSON)
+        from django.conf import settings
+        response = Response({
             'status': 'success',
             'message': 'Usuario registrado exitosamente',
-            'user': serializar_usuario(usuario),
-            'token': token_data
+            'user': serializar_usuario(usuario)
+            # NO incluir 'token' en el body
         }, status=status.HTTP_201_CREATED)
+
+        # Cookie httpOnly para access token (15 minutos)
+        response.set_cookie(
+            key='access_token',
+            value=token_data['access_token'],
+            httponly=True,
+            secure=not settings.DEBUG,  # HTTPS solo en producción
+            samesite='Lax',
+            max_age=900,  # 15 minutos (900 segundos)
+            path='/',
+        )
+
+        # Cookie httpOnly para refresh token (7 días)
+        response.set_cookie(
+            key='refresh_token',
+            value=token_data['refresh_token'],
+            httponly=True,
+            secure=not settings.DEBUG,
+            samesite='Lax',
+            max_age=604800,  # 7 días
+            path='/',
+        )
+
+        return response
 
     except ValueError as e:
         # Errores de validación - seguros de mostrar
@@ -316,12 +342,38 @@ def login(request):
             severity='INFO'
         )
 
-        return Response({
+        # SEGURIDAD: Establecer tokens en cookies httpOnly (no en JSON)
+        from django.conf import settings
+        response = Response({
             'status': 'success',
             'message': 'Login exitoso',
-            'user': serializar_usuario(usuario),
-            'token': token_data
+            'user': serializar_usuario(usuario)
+            # NO incluir 'token' en el body
         }, status=status.HTTP_200_OK)
+
+        # Cookie httpOnly para access token (15 minutos)
+        response.set_cookie(
+            key='access_token',
+            value=token_data['access_token'],
+            httponly=True,
+            secure=not settings.DEBUG,  # HTTPS solo en producción
+            samesite='Lax',
+            max_age=900,  # 15 minutos (900 segundos)
+            path='/',
+        )
+
+        # Cookie httpOnly para refresh token (7 días)
+        response.set_cookie(
+            key='refresh_token',
+            value=token_data['refresh_token'],
+            httponly=True,
+            secure=not settings.DEBUG,
+            samesite='Lax',
+            max_age=604800,  # 7 días
+            path='/',
+        )
+
+        return response
 
     except ValueError as e:
         # Errores de validación - seguros de mostrar
@@ -393,10 +445,16 @@ def logout(request):
                 # (no queremos bloquear logout por error en blacklist)
                 pass
 
-        return Response({
+        # SEGURIDAD: Eliminar cookies httpOnly
+        response = Response({
             'status': 'success',
             'message': 'Logout exitoso. Token revocado.'
         }, status=status.HTTP_200_OK)
+
+        response.delete_cookie('access_token', path='/')
+        response.delete_cookie('refresh_token', path='/')
+
+        return response
 
     except Exception as e:
         # Incluso si hay error, retornar success (logout del lado del cliente)

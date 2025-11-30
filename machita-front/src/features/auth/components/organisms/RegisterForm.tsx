@@ -1,6 +1,7 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate, Link } from "react-router";
+import { useNavigate, useFetcher, Link } from "react-router";
 import { registerSchema, type RegisterFormData } from "../../utils/validations";
 import { useAuth } from "../../context/AuthContext";
 import {
@@ -29,16 +30,23 @@ interface RegisterFormProps {
   showCard?: boolean;
 }
 
+type RegisterActionData = {
+  success: boolean;
+  user?: any;
+  error?: string;
+};
+
 export function RegisterForm({ onSuccess, showCard = true }: RegisterFormProps) {
   const navigate = useNavigate();
-  const { register: registerUser } = useAuth();
+  const { checkAuth } = useAuth();
+  const fetcher = useFetcher<RegisterActionData>();
 
   const {
     register,
     handleSubmit,
     watch,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -50,21 +58,39 @@ export function RegisterForm({ onSuccess, showCard = true }: RegisterFormProps) 
   });
 
   const password = watch("password");
+  const isSubmitting = fetcher.state === "submitting" || fetcher.state === "loading";
 
-  const onSubmit = async (data: RegisterFormData) => {
-    try {
-      const { confirmPassword, ...credentials } = data;
-      await registerUser(credentials);
-      if (onSuccess) {
-        onSuccess();
-      } else {
-        navigate("/aprende");
+  // Manejar respuesta del action
+  useEffect(() => {
+    if (fetcher.data) {
+      if (fetcher.data.success) {
+        // Re-verificar auth para actualizar el contexto
+        checkAuth().then(() => {
+          if (onSuccess) {
+            onSuccess();
+          } else {
+            navigate("/aprende");
+          }
+        });
+      } else if (fetcher.data.error) {
+        setError("root", {
+          message: fetcher.data.error,
+        });
       }
-    } catch (err) {
-      setError("root", {
-        message: err instanceof Error ? err.message : "Error al registrar usuario",
-      });
     }
+  }, [fetcher.data, onSuccess, navigate, checkAuth, setError]);
+
+  const onSubmit = (data: RegisterFormData) => {
+    // Usar fetcher en vez de llamada manual
+    const formData = new FormData();
+    formData.append("email", data.email);
+    formData.append("nombre", data.nombre);
+    formData.append("password", data.password);
+
+    fetcher.submit(formData, {
+      method: "post",
+      action: "/auth/register",
+    });
   };
 
   const formContent = (

@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import type { User, LoginCredentials, RegisterCredentials } from "../types";
 import { authApi } from "../api/authApi";
-import { saveToken, removeToken, APIError } from "@/lib/api";
+import { APIError } from "@/lib/api";
 
 interface AuthContextType {
   user: User | null;
@@ -28,24 +28,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const isAuthenticated = user !== null;
 
   const checkAuth = useCallback(async () => {
-    const token = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
-
-    if (!token) {
-      setIsLoading(false);
-      return;
-    }
-
+    // SEGURIDAD: Con cookies httpOnly, no necesitamos verificar sessionStorage
+    // El token se envía automáticamente con credentials: 'include'
     try {
       const response = await authApi.me();
       setUser(response.user);
     } catch (error) {
-      // Solo borrar token si es error 401 (no autorizado)
-      // No borrar por errores de red o CORS temporales
+      // Si error 401, el usuario no está autenticado (cookie expirada/inválida)
       if (error instanceof APIError && error.status === 401) {
-        removeToken();
         setUser(null);
       }
-      // Para otros errores, mantener el token y reintentar luego
+      // Para otros errores (red, servidor), no limpiar estado
     } finally {
       setIsLoading(false);
     }
@@ -69,7 +62,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const login = async (credentials: LoginCredentials) => {
     try {
       const response = await authApi.login(credentials);
-      saveToken(response.token.access_token);
+      // SEGURIDAD: El token ahora viene en cookie httpOnly, no en response.token
+      // Solo necesitamos establecer el user state
       setUser(response.user);
     } catch (error) {
       if (error instanceof APIError) {
@@ -82,7 +76,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const register = async (credentials: RegisterCredentials) => {
     try {
       const response = await authApi.register(credentials);
-      saveToken(response.token.access_token);
+      // SEGURIDAD: El token ahora viene en cookie httpOnly, no en response.token
+      // Solo necesitamos establecer el user state
       setUser(response.user);
     } catch (error) {
       if (error instanceof APIError) {
@@ -94,10 +89,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = async () => {
     try {
+      // SEGURIDAD: El backend eliminará las cookies httpOnly automáticamente
       await authApi.logout();
     } catch (error) {
+      // Continuar con logout local incluso si falla la llamada al backend
     } finally {
-      removeToken();
       setUser(null);
     }
   };
@@ -111,16 +107,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const refreshUser = async () => {
-    const token = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
-
-    if (!token) {
-      return;
-    }
-
+    // SEGURIDAD: Con cookies httpOnly, no necesitamos verificar sessionStorage
+    // El token se envía automáticamente con credentials: 'include'
     try {
       const response = await authApi.me();
       setUser(response.user);
-    } catch (error) {}
+    } catch (error) {
+      // Silencioso - si falla, mantener estado actual
+    }
   };
 
   const value: AuthContextType = {

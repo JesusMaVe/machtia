@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { vidasApi } from "../../api/vidasApi";
+import { useState, useEffect } from "react";
+import { useFetcher } from "react-router";
 import type { OpcionCompra } from "../../types";
 import type { User } from "@/features/auth";
 import {
@@ -26,6 +26,14 @@ interface CompraVidasModalProps {
   updateUser?: (updater: (user: User) => User) => void;
 }
 
+type CompraVidasActionData = {
+  success: boolean;
+  vidasNuevas?: number;
+  tominsRestantes?: number;
+  mensaje?: string;
+  error?: string;
+};
+
 export function CompraVidasModal({
   open,
   onOpenChange,
@@ -34,8 +42,10 @@ export function CompraVidasModal({
   onCompraExitosa,
   updateUser,
 }: CompraVidasModalProps) {
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const fetcher = useFetcher<CompraVidasActionData>();
+
+  const isLoading = fetcher.state === "submitting" || fetcher.state === "loading";
 
   const opciones: OpcionCompra[] = [
     {
@@ -52,38 +62,40 @@ export function CompraVidasModal({
     },
   ];
 
-  const handleCompra = async (tipo: "una_vida" | "restaurar_todas") => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const resultado =
-        tipo === "una_vida" ? await vidasApi.comprarUna() : await vidasApi.restaurarTodas();
-
-      if (resultado.exito) {
-        // Actualizar el usuario local con las vidas y tomins nuevos sin hacer fetch adicional
+  // Manejar respuesta del action
+  useEffect(() => {
+    if (fetcher.data) {
+      if (fetcher.data.success && fetcher.data.vidasNuevas !== undefined && fetcher.data.tominsRestantes !== undefined) {
+        // Actualizar el usuario local con las vidas y tomins nuevos
         if (updateUser) {
           updateUser((user) => ({
             ...user,
-            vidas: resultado.vidasNuevas,
-            tomin: resultado.tominsRestantes,
+            vidas: fetcher.data!.vidasNuevas!,
+            tomin: fetcher.data!.tominsRestantes!,
           }));
         }
 
-        // Llamar callback adicional si existe (para recargar estado de vidas en el hook)
+        // Llamar callback adicional si existe
         if (onCompraExitosa) {
           onCompraExitosa();
         }
 
+        // Cerrar modal
         onOpenChange(false);
-      } else {
-        setError(resultado.mensaje);
+        setError(null);
+      } else if (fetcher.data.error || fetcher.data.mensaje) {
+        setError(fetcher.data.error || fetcher.data.mensaje || "Error al comprar vidas");
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al comprar vidas");
-    } finally {
-      setIsLoading(false);
     }
+  }, [fetcher.data, updateUser, onCompraExitosa, onOpenChange]);
+
+  const handleCompra = (tipo: "una_vida" | "restaurar_todas") => {
+    setError(null);
+
+    fetcher.submit(
+      { tipo },
+      { method: "post", action: "/vidas/comprar" }
+    );
   };
 
   return (

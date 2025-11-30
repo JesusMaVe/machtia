@@ -1,4 +1,4 @@
-import { useLoaderData, useNavigate } from "react-router";
+import { useLoaderData, useNavigate, useFetcher } from "react-router";
 import { useAuth } from "@/features/auth";
 import { leccionesApi, DynamicaRouter, type Leccion } from "@/features/lecciones";
 import { useVidasModal } from "@/features/vidas";
@@ -7,6 +7,7 @@ import { ArrowLeft, Heart } from "lucide-react";
 import { LoadingButton } from "@/shared/components/atoms";
 import type { Route } from "./+types/leccion.$leccionId";
 import { isRouteErrorResponse } from "react-router";
+import { useEffect } from "react";
 
 // Usamos clientLoader porque necesitamos acceder a sessionStorage para el token de autenticación
 // y sessionStorage no está disponible en el servidor (SSR).
@@ -29,6 +30,43 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   }
 }
 
+// Action para manejar completar/fallar lección
+export async function clientAction({ params, request }: Route.ClientActionArgs) {
+  const formData = await request.formData();
+  const intent = formData.get("intent") as string;
+
+  if (!params.leccionId) {
+    return { success: false, error: "ID de lección no válido" };
+  }
+
+  try {
+    if (intent === "complete") {
+      const resultado = await leccionesApi.complete(params.leccionId);
+      return {
+        success: true,
+        intent: "complete",
+        resultado,
+      };
+    }
+
+    if (intent === "fail") {
+      const resultado = await leccionesApi.fail(params.leccionId);
+      return {
+        success: true,
+        intent: "fail",
+        resultado,
+      };
+    }
+
+    return { success: false, error: "Intent no válido" };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Error al procesar la lección",
+    };
+  }
+}
+
 export function HydrateFallback() {
   return (
     <div className="min-h-screen bg-cream flex items-center justify-center">
@@ -39,11 +77,47 @@ export function HydrateFallback() {
   );
 }
 
+type LeccionActionData = {
+  success: boolean;
+  intent?: string;
+  resultado?: any;
+  error?: string;
+};
+
 export default function LeccionDetallePage() {
   const { leccion } = useLoaderData<typeof clientLoader>();
   const navigate = useNavigate();
-  const { user, refreshUser } = useAuth();
+  const { user, updateUser } = useAuth();
   const { openModal } = useVidasModal();
+  const fetcher = useFetcher<LeccionActionData>();
+
+  // Manejar respuesta del action
+  useEffect(() => {
+    if (fetcher.data?.success && fetcher.data.resultado) {
+      const { resultado, intent } = fetcher.data;
+
+      // Actualizar usuario local según el resultado
+      // NOTA: No incluimos 'user' en las dependencias para evitar un bucle infinito
+      // ya que updateUser actualiza el usuario, lo que dispararía el efecto de nuevo.
+      if (intent === "complete") {
+        updateUser((prevUser) => ({
+          ...prevUser,
+          vidas: resultado.vidasRestantes,
+          tomin: prevUser.tomin + (resultado.tomins || 0),
+        }));
+      } else if (intent === "fail") {
+        updateUser((prevUser) => ({
+          ...prevUser,
+          vidas: resultado.vidasRestantes,
+        }));
+
+        // Abrir modal si se quedó sin vidas
+        if (resultado.vidasRestantes === 0) {
+          openModal();
+        }
+      }
+    }
+  }, [fetcher.data, updateUser, openModal]);
 
   // Validación de vidas en el cliente
   if (user && user.vidas === 0 && !leccion.completada) {
@@ -82,26 +156,22 @@ export default function LeccionDetallePage() {
     );
   }
 
-  const handleComplete = async () => {
+  const handleComplete = () => {
     if (leccion.completada) return;
 
-    try {
-      await leccionesApi.complete(leccion.id);
-      await refreshUser();
-    } catch (err) {}
+    fetcher.submit(
+      { intent: "complete" },
+      { method: "post" }
+    );
   };
 
-  const handleFail = async () => {
+  const handleFail = () => {
     if (leccion.completada) return;
 
-    try {
-      const resultado = await leccionesApi.fail(leccion.id);
-      await refreshUser();
-
-      if (resultado.vidasRestantes === 0) {
-        openModal();
-      }
-    } catch (err) {}
+    fetcher.submit(
+      { intent: "fail" },
+      { method: "post" }
+    );
   };
 
   return (
