@@ -74,39 +74,41 @@ export function LoginForm({ onSuccess, showCard = true }: LoginFormProps) {
   };
 
   const formContent = (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col min-h-[340px]">
       {errors.root && (
-        <Alert variant="destructive" className="mb-4">
+        <Alert variant="destructive" className="mb-3">
           <ExclamationTriangleIcon className="h-4 w-4" />
           <div className="ml-2">{errors.root.message}</div>
         </Alert>
       )}
 
-      <FormField
-        id="email"
-        label="Email"
-        type="email"
-        placeholder="tu@email.com"
-        icon={<EnvelopeClosedIcon className="h-4 w-4" />}
-        error={errors.email?.message}
-        disabled={isSubmitting}
-        {...register("email")}
-      />
+      <div className="space-y-3 flex-1">
+        <FormField
+          id="email"
+          label="Email"
+          type="email"
+          placeholder="tu@email.com"
+          icon={<EnvelopeClosedIcon className="h-4 w-4" />}
+          error={errors.email?.message}
+          disabled={isSubmitting}
+          {...register("email")}
+        />
 
-      <FormField
-        id="password"
-        label="Contraseña"
-        type="password"
-        placeholder="••••••••"
-        icon={<LockClosedIcon className="h-4 w-4" />}
-        error={errors.password?.message}
-        disabled={isSubmitting}
-        {...register("password")}
-      />
+        <FormField
+          id="password"
+          label="Contraseña"
+          type="password"
+          placeholder="••••••••"
+          icon={<LockClosedIcon className="h-4 w-4" />}
+          error={errors.password?.message}
+          disabled={isSubmitting}
+          {...register("password")}
+        />
+      </div>
 
       <LoadingButton
         type="submit"
-        className="w-full"
+        className="w-full mt-6"
         isLoading={isSubmitting}
         loadingText="Iniciando sesión..."
       >

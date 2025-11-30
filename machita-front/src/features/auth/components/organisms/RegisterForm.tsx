@@ -94,9 +94,9 @@ export function RegisterForm({ onSuccess, showCard = true }: RegisterFormProps) 
   };
 
   const formContent = (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
       {errors.root && (
-        <Alert variant="destructive" className="mb-4">
+        <Alert variant="destructive" className="mb-3">
           <ExclamationTriangleIcon className="h-4 w-4" />
           <div className="ml-2">{errors.root.message}</div>
         </Alert>
@@ -124,7 +124,7 @@ export function RegisterForm({ onSuccess, showCard = true }: RegisterFormProps) 
         {...register("email")}
       />
 
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <FormField
           id="password"
           label="Contraseña"

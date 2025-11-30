@@ -21,7 +21,7 @@ export function AuthModal({ open, onOpenChange, defaultTab = "login" }: AuthModa
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px]">
+      <DialogContent className="sm:max-w-[480px] sm:min-h-[520px]">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center text-tierra">Machtia</DialogTitle>
           <DialogDescription className="text-center">
@@ -35,11 +35,11 @@ export function AuthModal({ open, onOpenChange, defaultTab = "login" }: AuthModa
             <TabsTrigger value="register">Registrarse</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="login" className="mt-6">
+          <TabsContent value="login" className="mt-4">
             <LoginForm onSuccess={() => onOpenChange(false)} />
           </TabsContent>
 
-          <TabsContent value="register" className="mt-6">
+          <TabsContent value="register" className="mt-4">
             <RegisterForm onSuccess={() => onOpenChange(false)} />
           </TabsContent>
         </Tabs>
