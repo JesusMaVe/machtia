@@ -16,7 +16,7 @@ secrets.json
 *.key
 *.crt
 *.p12
-
+TROUBLESHOOTING.md
 # ============ PYTHON ============
 # Byte-compiled / optimized / DLL files
 __pycache__/
