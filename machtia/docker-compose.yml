@@ -14,6 +14,24 @@ services:
     networks:
       - nahuatl-network
 
+  backend:
+    build: .
+    container_name: nahuatl_backend
+    ports:
+      - "${DJANGO_PORT:-8000}:8000"
+    environment:
+      - DEBUG=${DEBUG:-True}
+      - SECRET_KEY=${SECRET_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - MONGODB_URI=mongodb://nahuatl_user:nahuatl_pass@mongodb:27017/nahuatl_db
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS}
+    depends_on:
+      - mongodb
+    networks:
+      - nahuatl-network
+    command: python manage.py runserver 0.0.0.0:8000
+
   mongo-express:
     image: mongo-express:latest
     container_name: nahuatl_mongo_express

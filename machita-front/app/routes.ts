@@ -5,6 +5,7 @@ export default [
   index("routes/home.tsx"),
   route("login", "routes/login.tsx"),
   route("auth/login", "routes/auth.login.tsx"),
+  route("auth/register", "routes/auth.register.tsx"),
 
   // Layout para usuarios autenticados (con navegación persistente)
   layout("routes/app-layout.tsx", [
