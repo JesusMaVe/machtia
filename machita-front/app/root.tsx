@@ -31,7 +31,24 @@ export function Layout({ children }: { children: React.ReactNode }) {
     <html lang="es">
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {/* Mobile-optimized viewport with safe-area support */}
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover"
+        />
+
+        {/* PWA Support - iOS */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Machtia" />
+
+        {/* Theme colors */}
+        <meta name="theme-color" content="#2db3b6" />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0a0a" />
+
+        {/* Prevent automatic detection of phone numbers and addresses */}
+        <meta name="format-detection" content="telephone=no, address=no" />
+
         <Meta />
         <Links />
       </head>

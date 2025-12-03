@@ -12,7 +12,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { User, LogOut } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetDescription,
+} from "@/components/ui/sheet";
+import { User, LogOut, Menu, X } from "lucide-react";
 import { SunIcon, MoonIcon } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
 import { progresoApi, type Racha } from "@/features/progreso";
@@ -26,6 +34,7 @@ export default function AppLayout() {
   const { theme, toggleTheme } = useTheme();
   const { isOpen, closeModal } = useVidasModal();
   const [racha, setRacha] = useState<Racha | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { estadoVidas, tiempoRestante, cargarEstadoVidas, vidaLista, reclamarVida } =
     useVidas(updateUser);
 
@@ -105,26 +114,26 @@ export default function AppLayout() {
       {/* Barra de progreso global durante navegación */}
       <NavigationProgressBar />
 
-      {/* Header persistente - Premium glassmorphism */}
+      {/* Header persistente - Premium glassmorphism - Mobile First Responsive */}
       <header className="sticky top-0 z-50 border-b border-[rgba(45,179,182,0.1)] glass-white shadow-jade-sm">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            {/* Logo with gradient text */}
+          <div className="flex h-16 items-center justify-between gap-3">
+            {/* Logo with gradient text - Responsive sizing */}
             <NavLink
               to="/aprende"
-              className="flex items-center gap-3 text-2xl font-bold text-gradient-jade hover-scale transition-smooth"
+              className="flex items-center gap-2 sm:gap-3 text-xl sm:text-2xl font-bold text-gradient-jade hover-scale transition-smooth flex-shrink-0"
             >
               Machtia
               <Badge
                 variant="outline"
-                className="hidden sm:inline-flex border-[#2db3b6] text-[#2db3b6]"
+                className="hidden sm:inline-flex border-[#2db3b6] text-[#2db3b6] text-xs"
               >
                 Aprende Náhuatl
               </Badge>
             </NavLink>
 
-            {/* Navigation Links with jade accent */}
-            <div className="flex items-center gap-6">
+            {/* Desktop Navigation - Hidden on mobile/tablet */}
+            <div className="hidden md:flex items-center gap-4 lg:gap-6">
               <NavLink
                 to="/aprende"
                 className={({ isActive }) =>
@@ -156,13 +165,13 @@ export default function AppLayout() {
                 Mi Progreso
               </NavLink>
 
-              {/* Theme Toggle Button */}
+              {/* Theme Toggle Button - Desktop */}
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={toggleTheme}
                 className="h-9 w-9 rounded-full transition-smooth hover:bg-[#2db3b6]/10"
-                aria-label="Toggle theme"
+                aria-label="Cambiar tema"
               >
                 {theme === "dark" ? (
                   <SunIcon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
@@ -170,33 +179,151 @@ export default function AppLayout() {
                   <MoonIcon className="h-5 w-5 text-gray-600" />
                 )}
               </Button>
+
+              {/* User Menu - Desktop */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full hover-scale">
+                    <Avatar className="h-10 w-10 border-2 border-[#2db3b6]">
+                      <AvatarFallback className="bg-gradient-jade text-white font-semibold">
+                        {user ? getInitials(user.nombre) : "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <div className="flex items-center justify-start gap-2 p-2">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{user?.nombre}</p>
+                      <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+                    </div>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Cerrar Sesión</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
-            {/* User Menu with jade gradient */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full hover-scale">
-                  <Avatar className="h-10 w-10 border-2 border-[#2db3b6]">
-                    <AvatarFallback className="bg-gradient-jade text-white font-semibold">
-                      {user ? getInitials(user.nombre) : "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <div className="flex items-center justify-start gap-2 p-2">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{user?.nombre}</p>
-                    <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+            {/* Mobile & Tablet Navigation - Sheet with hamburger menu */}
+            <div className="flex md:hidden items-center gap-2">
+              {/* Theme Toggle - Mobile (visible always) */}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleTheme}
+                className="h-11 w-11 rounded-full transition-smooth hover:bg-[#2db3b6]/10 touch-manipulation active:scale-95"
+                aria-label="Cambiar tema"
+              >
+                {theme === "dark" ? (
+                  <SunIcon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+                ) : (
+                  <MoonIcon className="h-5 w-5 text-gray-600" />
+                )}
+              </Button>
+
+              {/* Mobile Menu Sheet */}
+              <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                <SheetTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-11 w-11 rounded-full transition-smooth hover:bg-[#2db3b6]/10 touch-manipulation active:scale-95"
+                    aria-label="Abrir menú"
+                  >
+                    <Menu className="h-6 w-6 text-gray-600 dark:text-gray-300" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent
+                  side="right"
+                  className="w-[85vw] sm:w-[350px] glass-white dark:bg-dark-bg-elevated"
+                >
+                  <SheetHeader className="border-b border-[#2db3b6]/20 pb-4 px px-6">
+                    <SheetTitle className="text-gradient-jade text-xl font-bold">
+                      Navegación
+                    </SheetTitle>
+                    <SheetDescription>Menú de navegación y opciones de usuario.</SheetDescription>
+                  </SheetHeader>
+
+                  {/* User Info Section - Mobile */}
+                  <div className="py-8 border-b border-[#2db3b6]/20 px-6 mb-4">
+                    <div className="flex items-center gap-4">
+                      <Avatar className="h-14 w-14 border-2 border-[#2db3b6]">
+                        <AvatarFallback className="bg-gradient-jade text-white font-semibold text-lg">
+                          {user ? getInitials(user.nombre) : "U"}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col space-y-1 flex-1 min-w-0">
+                        <p className="text-base font-semibold leading-none text-obsidiana dark:text-gray-100">
+                          {user?.nombre}
+                        </p>
+                        <p className="text-sm leading-none text-muted-foreground">{user?.email}</p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Cerrar Sesión</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+
+                  {/* Navigation Links - Mobile with touch-friendly targets */}
+                  <nav className="flex flex-col gap-6 py-2 px-4">
+                    <NavLink
+                      to="/aprende"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 px-4 py-4 rounded-lg min-h-[56px] text-base font-medium transition-smooth touch-manipulation active:scale-98 ${
+                          isActive
+                            ? "bg-[#2db3b6]/10 text-[#2db3b6] font-semibold"
+                            : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        }`
+                      }
+                    >
+                      Aprende
+                    </NavLink>
+                    <NavLink
+                      to="/lecciones"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 px-4 py-4 rounded-lg min-h-[56px] text-base font-medium transition-smooth touch-manipulation active:scale-98 ${
+                          isActive
+                            ? "bg-[#2db3b6]/10 text-[#2db3b6] font-semibold"
+                            : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        }`
+                      }
+                    >
+                      Lecciones
+                    </NavLink>
+                    <NavLink
+                      to="/progreso"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 px-4 py-4 rounded-lg min-h-[56px] text-base font-medium transition-smooth touch-manipulation active:scale-98 ${
+                          isActive
+                            ? "bg-[#2db3b6]/10 text-[#2db3b6] font-semibold"
+                            : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        }`
+                      }
+                    >
+                      Mi Progreso
+                    </NavLink>
+                  </nav>
+
+                  {/* Logout Button - Mobile with touch-friendly target */}
+                  <div className="absolute bottom-6 left-6 right-6">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        handleLogout();
+                      }}
+                      className="w-full min-h-[56px] border-[#2db3b6] text-[#2db3b6] hover:bg-[#2db3b6]/10 touch-manipulation active:scale-98 text-base font-medium"
+                    >
+                      <LogOut className="mr-2 h-5 w-5" />
+                      Cerrar Sesión
+                    </Button>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
         </nav>
       </header>
@@ -224,7 +351,7 @@ export default function AppLayout() {
       )}
 
       {/* Contenido principal */}
-      <main>
+      <main className="pb-20 lg:pb-0">
         <Outlet />
       </main>
     </div>

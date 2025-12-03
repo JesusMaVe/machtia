@@ -173,10 +173,6 @@ export function CompraVidasModal({
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
-
-          <div className="text-center text-xs text-gray-500 pt-2 border-t">
-            Las vidas se regeneran automáticamente cada 30 minutos
-          </div>
         </div>
       </DialogContent>
     </Dialog>
